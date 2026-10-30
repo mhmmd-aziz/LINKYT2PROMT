@@ -8,7 +8,7 @@ GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models"
 
 def verify_gemini_key(api_key: str) -> Dict[str, Any]:
     """
-    Tests whether a Gemini API key is valid by querying the models list or pinging flash model.
+    Tests whether a Gemini API key is valid.
     """
     if not api_key:
         return {"valid": False, "message": "API Key tidak boleh kosong"}
@@ -43,11 +43,9 @@ def analyze_uploaded_image(
     mime_type: str = "image/jpeg"
 ) -> Dict[str, Any]:
     """
-    Analyzes an uploaded image (1 foto affiliate/produk/tokoh).
-    If Gemini API key is provided, uses Gemini Vision multimodal analysis.
-    Otherwise, returns structured local visual detection.
+    Analyzes an uploaded image (1 foto mainan mobil, karakter kartun anak, atau arena main).
+    Uses Gemini Vision multimodal analysis to identify toy details, colors, and characters for 60-scene continuity.
     """
-    # Clean up base64 string
     clean_b64 = image_base64
     if "," in clean_b64:
         header, clean_b64 = clean_b64.split(",", 1)
@@ -61,18 +59,18 @@ def analyze_uploaded_image(
             endpoint = f"{GEMINI_API_URL}/{model_name}:generateContent?key={api_key.strip()}"
             
             prompt = """
-Anda adalah AI Computer Vision & Video Director profesional untuk konten affiliasi video.
-Analisis foto produk/subjek yang diunggah ini secara mendalam untuk dijadikan objek konsisten dalam alur video generator (Google Veo, Kling AI, Runway Gen-3).
+Anda adalah Sutradara & Produser Konten Video YouTube Anak-Anak (Kids & Toddler Video Specialist) seperti channel mainan mobil-mobilan anak (Hot Wheels, Monster Truck, Tayo, Robocar, Pixar Cars style).
+Analisis foto yang diunggah ini (bisa berupa foto mainan mobil anak, karakter anak, atau latar arena bermain) untuk dijadikan objek konsisten dalam 60 scene prompt video AI (Google Veo, Kling AI, Runway Gen-3, Luma).
 
-Berikan output HANYA dalam format JSON valid (tanpa markdown backtick ```json) dengan struktur persis seperti ini:
+Berikan output HANYA dalam format JSON valid (tanpa markdown backtick ```json) dengan struktur:
 {
-  "product_name": "Nama jelas produk/objek yang tampak",
-  "category": "Kategori produk (misal: Gadget / Skincare / Fashion / Home / Audio / dll)",
-  "visual_description": "Deskripsi visual sangat detail meliputi bentuk, warna dominan, bahan/tekstur, kemasan, sudut estetika",
-  "recommended_anchor_product": "Deskripsi singkat padat untuk dikunci di prompt video AI agar objek ini 100% konsisten antar scene",
-  "recommended_anchor_subject": "Deskripsi tokoh/kreator yang cocok memegang/mereview produk ini (usia, busana kasual rapi, ekspresi)",
-  "recommended_setting": "Deskripsi studio/latar belakang yang paling serasi dengan produk ini",
-  "detected_text": "Teks/merek/logo yang terlihat pada foto jika ada"
+  "product_name": "Nama mainan mobil/karakter anak yang tampak (misal: Mobil Monster Truck Merah, Truk Excavator Kuning, Mobil Polisi Ceria, Anak Laki-laki Main Mobil)",
+  "category": "Kategori konten anak (misal: Mainan Mobil-Mobilan / Petualangan Balap Anak / Kartun Edukasi Warna / Truk Konstruksi / Playground)",
+  "visual_description": "Deskripsi visual sangat detail meliputi model mobil, warna mencolok (merah cerah, kuning, biru), ban besar, mata ekspresif kartun/realistis, stiker api/nomor, dan tekstur bahan mainan",
+  "recommended_anchor_product": "Deskripsi detail paten mainan mobil/objek utama untuk dikunci di prompt video AI agar 100% konsisten dari scene 1 sampai scene 60",
+  "recommended_anchor_subject": "Deskripsi pengemudi/karakter anak kecil yang bermain (usia 4-6 tahun, baju ceria, ekspresi gembira dan tertawa)",
+  "recommended_setting": "Arena bermain anak (lintasan balap warna-warni, jalanan kota mini kartun, pasir pantai ajaib, karpet bermain kamar anak dengan aksen cerah)",
+  "detected_text": "Teks/nomor/merek yang terlihat pada mainan atau latar"
 }
 """
             payload = {
@@ -101,7 +99,6 @@ Berikan output HANYA dalam format JSON valid (tanpa markdown backtick ```json) d
                     candidates = res_json.get("candidates", [])
                     if candidates:
                         text_resp = candidates[0].get("content", {}).get("parts", [{}])[0].get("text", "")
-                        # Parse JSON from text
                         text_resp = text_resp.strip()
                         if text_resp.startswith("```json"):
                             text_resp = text_resp[7:]
@@ -110,32 +107,34 @@ Berikan output HANYA dalam format JSON valid (tanpa markdown backtick ```json) d
                         if text_resp.endswith("```"):
                             text_resp = text_resp[:-3]
                         parsed_data = json.loads(text_resp.strip())
-                        parsed_data["source"] = "Gemini 1.5 Flash Vision AI"
+                        parsed_data["source"] = "Gemini 1.5 Flash Vision AI (Kids Toy Specialist)"
                         return parsed_data
         except Exception as e:
-            print(f"[Gemini Vision Warning] {e}, falling back to smart local detection.")
+            print(f"[Gemini Vision Kids Warning] {e}, falling back to smart local detection.")
 
-    # Smart Local Fallback
+    # Smart Local Fallback for Kids Video
     return {
-        "product_name": "Produk Unggulan Referensi Visual",
-        "category": "Affiliate & Commercial Review",
-        "visual_description": "Objek foto dengan detail tekstur permukaan tajam, warna produk natural, pencahayaan komersial studio terarah",
-        "recommended_anchor_product": "Produk fisik berdesain modern elegan persis sesuai foto referensi visual yang diunggah, logo dan material tajam",
-        "recommended_anchor_subject": "Kreator affiliasi muda profesional usia 25 tahun, mengenakan pakaian kasual rapi, antusias dan terpercaya",
-        "recommended_setting": "Studio ruangan modern minimalis dengan aksen kayu akustik dan pencahayaan studio hangat bokeh",
-        "detected_text": "Visual Product Image Reference",
-        "source": "Smart Local Vision Engine (Tambahkan Gemini API Key untuk analisis mendalam)"
+        "product_name": "Mainan Mobil Balap & Monster Truck Anak Ceria",
+        "category": "Kids Toy Adventure & Car Play",
+        "visual_description": "Mainan mobil-mobilan anak berwarna merah-kuning cerah mengkilap dengan ban besar bermotif bergerigi, desain kartun ramah anak bergaya 3D Pixar, lampu depan bulat menggemaskan",
+        "recommended_anchor_product": "Mainan mobil balap anak berwarna merah menyala dengan strip kuning cerah, ban off-road besar bertekstur karet hitam, bodi mengkilap bergaya 3D animasi ramah anak",
+        "recommended_anchor_subject": "Anak kecil berusia 4 tahun berambut cokelat rapi mengenakan kaos garis-garis ceria biru-oranye, wajah tersenyum gembira memegang mobil mainan",
+        "recommended_setting": "Arena lintasan balap mainan warna-warni di kamar bermain anak yang terang dan ceria, dilengkapi jembatan mini, terowongan kartun, dan balok susun",
+        "detected_text": "Kids Car Play Reference",
+        "source": "Smart Local Kids Vision Engine (Tambahkan Gemini API Key untuk deteksi presisi tinggi)"
     }
 
-def generate_prompts_with_gemini(
+def generate_kids_prompts_with_gemini(
     scenes_data: List[Dict[str, Any]],
     anchors: Dict[str, str],
     video_meta: Dict[str, Any],
+    video_vision: str,
     language: str,
     api_key: str
 ) -> Optional[List[Dict[str, Any]]]:
     """
-    Uses Gemini API to enhance and polish each 10s scene prompt for hyper-realistic video generation.
+    Uses Gemini API to craft playful, sound-effect rich, 10-second scene prompts for Kids YouTube videos.
+    Enforces object continuity (toy cars & child character) across all 60 scenes.
     """
     if not api_key or not api_key.strip():
         return None
@@ -144,37 +143,42 @@ def generate_prompts_with_gemini(
         endpoint = f"{GEMINI_API_URL}/gemini-1.5-flash:generateContent?key={api_key.strip()}"
         
         system_instruction = f"""
-Anda adalah Sutradara AI Video Prompt Kelas Dunia (ahli model Google Veo, Kling AI, Runway Gen-3).
-Tugas Anda: Membuat prompt video AI per-scene (tepat 10 detik per scene) dengan konsistensi objek dan tokoh 100% dari awal sampai akhir.
+Anda adalah Sutradara & Spesialis Konten YouTube Video Anak-Anak Kelas Dunia (pembuat video viral mainan mobil anak seperti Hot Wheels, Vlad and Niki car toys, Tayo the Little Bus, Monster Truck toys).
+Tugas Anda: Membuat alur prompt video AI per-scene (tepat 10 detik per scene) dengan konsistensi 100% objek mobil mainan dan tokoh anak dari Scene 1 sampai Scene terakhir (maksimal 60 scene).
 
-DATA KONSISTENSI UTAMA:
-- Objek Utama: {anchors.get('product', '')}
-- Karakter / Subjek: {anchors.get('subject', '')}
-- Studio / Latar: {anchors.get('setting', '')}
+VISI & KONSEP VIDEO YT INI:
+{video_vision}
+Judul Video: {video_meta.get('title', '')}
+
+DATA KONSISTENSI UTAMA (WAJIB KONSISTEN DI SEMUA SCENE):
+- Objek Utama (Mobil/Mainan): {anchors.get('product', '')}
+- Karakter Anak / Subjek: {anchors.get('subject', '')}
+- Arena / Latar: {anchors.get('setting', '')}
 - Gaya Visual: {anchors.get('style', '')}
 - Bahasa: {'Bahasa Indonesia' if language == 'id' else 'English'}
-- Judul Video: {video_meta.get('title', '')}
 
 DATA SCENE (Masing-masing 10 detik):
 {json.dumps([{'index': s['scene_index'], 'time': s['time_range'], 'dialogue': s['dialogue']} for s in scenes_data], indent=2)}
 
-Instruksi:
-Hasilkan list JSON dari prompt untuk setiap scene dengan format:
+Instruksi Khusus Konten Video Anak:
+1. Sertakan elemen sound effect ceria anak di setiap scene, seperti: [SFX: Vroom vroom mesin mobil, Tin tin klakson ceria, suara loncatan boing boing, tawa riang anak-anak, sorak gembira 'Horeee!'].
+2. Aksi visual harus dinamis dan menyenangkan (mobil melaju kencang di turunan, melompati rintangan balok, tabrakan lembut dengan tumpukan pasir, balapan seru, parkir di garasi mini).
+3. Hasilkan output HANYA list JSON array:
 [
   {{
     "scene_index": 1,
-    "action_description": "Deskripsi aksi fisik dan pergerakan kamera sinematik selama 10 detik",
-    "video_prompt": "[Konsistensi Subjek: ...] | [Objek: ...] | [Latar: ...] | [Kamera: ...] | [Aksi & Dialog 10s: ...] | [Gaya Visual: ...]",
-    "camera_directive": "Wide / MCU / Close-up Product / OTS",
-    "negative_prompt": "blurry, low resolution, morphing face, distorted hands, flickering, text watermark"
+    "action_description": "Deskripsi aksi seru mobil mainan dan anak selama 10 detik penuh",
+    "sound_effects": "[SFX: Vroom vroom menderu, klakson tin-tin, tawa riang anak]",
+    "video_prompt": "[Visual Style: ...] | [Subject Continuity: ...] | [Primary Toy Car: ...] | [Play Arena: ...] | [Camera Motion: ...] | [10s Action & Sound: ...] | [Consistency Lock: 100% exact toy model & colors]",
+    "camera_directive": "Dynamic Low-Angle Car Chase / Dolly Track / Macro Toy Close-Up",
+    "negative_prompt": "scary, dark, realistic horror, morphing car model, distorted wheels, broken toys, realistic violence, flickering, text watermark"
   }}
 ]
-Hanya berikan JSON valid array tanpa penjelasan lain.
 """
         payload = {
             "contents": [{"parts": [{"text": system_instruction}]}],
             "generationConfig": {
-                "temperature": 0.4,
+                "temperature": 0.45,
                 "maxOutputTokens": 4096,
                 "responseMimeType": "application/json"
             }
@@ -196,6 +200,6 @@ Hanya berikan JSON valid array tanpa penjelasan lain.
                     gemini_scenes = json.loads(text_resp.strip())
                     return gemini_scenes
     except Exception as e:
-        print(f"[Gemini Scene Gen Warning] {e}")
+        print(f"[Gemini Kids Scene Gen Warning] {e}")
 
     return None

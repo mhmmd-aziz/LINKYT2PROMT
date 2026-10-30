@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ScenePromptItem } from '../types';
-import { Video, Copy, Check, Edit3, Camera, Clock, ShieldCheck, Film, Sparkles, MessageCircle, AlertCircle, Image as ImageIcon } from 'lucide-react';
+import { Copy, Check, Edit3, Camera, Clock, ShieldCheck, Film, Sparkles, MessageCircle, Volume2, Car, Music } from 'lucide-react';
 
 interface SceneFlowNodeProps {
   scenes: ScenePromptItem[];
@@ -46,7 +46,7 @@ export const SceneFlowNode: React.FC<SceneFlowNodeProps> = ({
       {/* Node Header */}
       <div className="flex flex-wrap items-center justify-between pb-4 mb-6 border-b border-white/10 gap-3">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center text-white shadow-md">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 via-orange-500 to-red-600 flex items-center justify-center text-white shadow-md">
             <Film className="w-4 h-4" />
           </div>
           <div>
@@ -54,30 +54,30 @@ export const SceneFlowNode: React.FC<SceneFlowNodeProps> = ({
               <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-white/5 text-gray-400 border border-white/10">
                 FINAL FLOW NODE
               </span>
-              <h2 className="text-base font-bold text-white">Alur Prompt-to-Video Konsisten (Per 10 Detik Penuh)</h2>
+              <h2 className="text-base font-bold text-white">Alur 60 Scene Video Anak (Prompt-to-Video Konsisten)</h2>
             </div>
             <p className="text-xs text-gray-400">
-              Total {scenes.length} Scene siap dimasukkan ke Google Veo / Kling AI / Runway Gen-3 / Luma (Maksimal 60 Scene)
+              Total {scenes.length} Scene siap dimasukkan ke Google Veo / Kling AI / Runway Gen-3 / Luma (Satu scene 10 detik)
             </p>
           </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
           {engineUsed && (
-            <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-blue-500/15 border border-blue-500/30 text-blue-300 flex items-center gap-1">
-              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+            <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 flex items-center gap-1">
+              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
               <span>{engineUsed}</span>
             </span>
           )}
           <span className="text-xs font-semibold px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center gap-1.5">
             <ShieldCheck className="w-3.5 h-3.5" />
-            <span>Objek & Karakter Konsisten Terhubung</span>
+            <span>Mobil & Karakter 100% Konsisten</span>
           </span>
         </div>
       </div>
 
       {/* Google Flow Connection Timeline */}
-      <div className="relative space-y-6 before:absolute before:inset-0 before:left-5 before:w-0.5 before:bg-gradient-to-b before:from-blue-500 before:via-purple-500 before:to-emerald-500 before:hidden md:before:block">
+      <div className="relative space-y-6 before:absolute before:inset-0 before:left-5 before:w-0.5 before:bg-gradient-to-b before:from-amber-500 before:via-orange-500 before:to-emerald-500 before:hidden md:before:block">
         {scenes.map((scene, idx) => {
           const isCopied = copiedIndex === idx;
           const isEditing = editingIndex === idx;
@@ -88,16 +88,17 @@ export const SceneFlowNode: React.FC<SceneFlowNodeProps> = ({
               className="relative pl-0 md:pl-12 group transition-all"
             >
               {/* Timeline Flow Node Dot */}
-              <div className="hidden md:flex absolute left-3.5 top-6 -translate-x-1/2 w-4 h-4 rounded-full bg-[#16171c] border-2 border-blue-500 group-hover:border-emerald-400 group-hover:scale-125 transition-all z-10 items-center justify-center">
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-400 group-hover:bg-emerald-300"></span>
+              <div className="hidden md:flex absolute left-3.5 top-6 -translate-x-1/2 w-4 h-4 rounded-full bg-[#16171c] border-2 border-amber-500 group-hover:border-emerald-400 group-hover:scale-125 transition-all z-10 items-center justify-center">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 group-hover:bg-emerald-300"></span>
               </div>
 
               {/* Scene Card */}
-              <div className="rounded-xl bg-[#0f1013] border border-white/10 hover:border-blue-500/40 p-4 sm:p-5 transition-all shadow-md">
+              <div className="rounded-xl bg-[#0f1013] border border-white/10 hover:border-amber-500/40 p-4 sm:p-5 transition-all shadow-md">
                 {/* Scene Meta Bar */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pb-3 mb-3 border-b border-white/5">
                   <div className="flex items-center gap-2">
-                    <span className="px-2.5 py-1 rounded-lg bg-blue-600/20 text-blue-300 border border-blue-500/30 text-xs font-mono font-bold">
+                    <span className="px-2.5 py-1 rounded-lg bg-amber-600/20 text-amber-300 border border-amber-500/30 text-xs font-mono font-bold flex items-center gap-1">
+                      <Car className="w-3 h-3" />
                       SCENE {scene.scene_index.toString().padStart(2, '0')} / {scenes.length}
                     </span>
                     <span className="flex items-center gap-1 font-mono text-xs px-2.5 py-1 rounded-lg bg-white/5 text-gray-300 border border-white/10">
@@ -118,7 +119,7 @@ export const SceneFlowNode: React.FC<SceneFlowNodeProps> = ({
                       className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
                         isCopied
                           ? 'bg-emerald-600 text-white shadow-md shadow-emerald-900/40'
-                          : 'bg-blue-600 hover:bg-blue-500 text-white'
+                          : 'bg-amber-600 hover:bg-amber-500 text-white'
                       }`}
                     >
                       {isCopied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
@@ -127,25 +128,42 @@ export const SceneFlowNode: React.FC<SceneFlowNodeProps> = ({
                   </div>
                 </div>
 
-                {/* Section 1: 10s Spoken Dialogue */}
-                <div className="mb-3 p-3 rounded-lg bg-[#141519] border border-white/5">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-[11px] font-semibold text-gray-400 flex items-center gap-1">
-                      <MessageCircle className="w-3 h-3 text-blue-400" />
-                      Percakapan Satu Scene 10 Detik Penuh:
-                    </span>
-                    <span className="text-[10px] text-emerald-400 font-mono">100% Spoken Audio</span>
+                {/* Section 1: Dialogue & Sound Effects */}
+                <div className="mb-3 grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                  {/* Spoken Dialogue */}
+                  <div className="p-3 rounded-lg bg-[#141519] border border-white/5">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-[11px] font-semibold text-gray-400 flex items-center gap-1">
+                        <MessageCircle className="w-3 h-3 text-blue-400" />
+                        Percakapan / Suara 10 Detik:
+                      </span>
+                      <span className="text-[10px] text-emerald-400 font-mono">10s Audio Penuh</span>
+                    </div>
+                    <p className="text-xs text-gray-200 italic leading-relaxed">
+                      "{scene.dialogue}"
+                    </p>
                   </div>
-                  <p className="text-xs text-gray-200 italic leading-relaxed">
-                    "{scene.dialogue}"
-                  </p>
+
+                  {/* Kids Cheerful Sound Effects */}
+                  <div className="p-3 rounded-lg bg-amber-950/20 border border-amber-900/30">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-[11px] font-semibold text-amber-300 flex items-center gap-1">
+                        <Volume2 className="w-3 h-3 text-amber-400" />
+                        Efek Suara Anak (SFX):
+                      </span>
+                      <span className="text-[10px] text-amber-400 font-mono">Audio Cue</span>
+                    </div>
+                    <p className="text-xs text-amber-200/90 leading-relaxed font-mono">
+                      {scene.sound_effects || '[SFX: Vroom vroom mesin mobil, tin tin klakson ceria, tawa anak]'}
+                    </p>
+                  </div>
                 </div>
 
                 {/* Section 2: Visual Action & Object Consistency */}
                 <div className="mb-3 grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
                   <div className="p-2.5 rounded-lg bg-[#141519] border border-white/5">
                     <span className="text-[10px] font-semibold text-purple-300 block mb-0.5">
-                      🎬 Visual Action & Alur Gerak:
+                      🎬 Aksi Main Mobil 10 Detik:
                     </span>
                     <p className="text-gray-300 text-[11px] leading-relaxed">
                       {scene.action_description}
@@ -154,17 +172,17 @@ export const SceneFlowNode: React.FC<SceneFlowNodeProps> = ({
 
                   <div className="p-2.5 rounded-lg bg-[#141519] border border-white/5 flex gap-2.5 items-start">
                     {referenceImage && (
-                      <div className="w-12 h-12 rounded-lg overflow-hidden bg-black shrink-0 border border-white/10" title="Foto Referensi Objek Terkunci">
+                      <div className="w-12 h-12 rounded-lg overflow-hidden bg-black shrink-0 border border-white/10" title="Foto Mobil Mainan Terkunci">
                         <img src={referenceImage} alt="Ref" className="w-full h-full object-cover" />
                       </div>
                     )}
                     <div className="flex-1 min-w-0">
                       <span className="text-[10px] font-semibold text-emerald-300 block mb-0.5 flex items-center gap-1">
                         <ShieldCheck className="w-3 h-3" />
-                        Konsistensi Objek & Karakter:
+                        Konsistensi Mobil & Karakter Anak:
                       </span>
                       <p className="text-gray-300 text-[11px] leading-relaxed line-clamp-2">
-                        <span className="text-emerald-400 font-medium">Objek:</span> {scene.anchors?.product} | <span className="text-blue-400 font-medium">Subjek:</span> {scene.anchors?.subject}
+                        <span className="text-amber-400 font-medium">Mobil:</span> {scene.anchors?.product} | <span className="text-blue-400 font-medium">Anak:</span> {scene.anchors?.subject}
                       </p>
                     </div>
                   </div>
@@ -173,7 +191,7 @@ export const SceneFlowNode: React.FC<SceneFlowNodeProps> = ({
                 {/* Section 3: AI Video Prompt (Direct Flow to Video) */}
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold text-blue-400 flex items-center gap-1">
+                    <span className="text-[11px] font-bold text-amber-400 flex items-center gap-1">
                       <Sparkles className="w-3.5 h-3.5 text-amber-300" />
                       Prompt Siap Pakai (Google Flow ➔ Video AI):
                     </span>
@@ -193,7 +211,7 @@ export const SceneFlowNode: React.FC<SceneFlowNodeProps> = ({
                         rows={3}
                         value={editPromptText}
                         onChange={(e) => setEditPromptText(e.target.value)}
-                        className="w-full p-2.5 rounded-lg bg-black/60 border border-blue-500 text-xs text-gray-100 font-mono outline-none"
+                        className="w-full p-2.5 rounded-lg bg-black/60 border border-amber-500 text-xs text-gray-100 font-mono outline-none"
                       />
                       <div className="flex justify-end gap-2">
                         <button
@@ -206,7 +224,7 @@ export const SceneFlowNode: React.FC<SceneFlowNodeProps> = ({
                         <button
                           type="button"
                           onClick={() => handleSaveEdit(idx)}
-                          className="px-3 py-1 rounded bg-blue-600 text-white text-[11px] font-semibold"
+                          className="px-3 py-1 rounded bg-amber-600 text-white text-[11px] font-semibold"
                         >
                           Simpan Perubahan
                         </button>
@@ -215,7 +233,7 @@ export const SceneFlowNode: React.FC<SceneFlowNodeProps> = ({
                   ) : (
                     <div
                       onClick={() => handleCopyPrompt(scene.video_prompt, idx)}
-                      className="p-3 rounded-lg bg-black/40 border border-white/10 hover:border-blue-500/50 cursor-pointer text-xs font-mono text-gray-200 leading-relaxed break-words transition-all group/code"
+                      className="p-3 rounded-lg bg-black/40 border border-white/10 hover:border-amber-500/50 cursor-pointer text-xs font-mono text-gray-200 leading-relaxed break-words transition-all group/code"
                       title="Klik untuk langsung copy prompt"
                     >
                       {scene.video_prompt}

@@ -47,6 +47,13 @@ export interface TranscriptItem {
   text: string;
 }
 
+export interface KidsVideoVision {
+  vision_theme: string;
+  vision_summary: string;
+  default_car: string;
+  default_arena: string;
+}
+
 export interface ExtractResponseData {
   metadata: VideoMetadata;
   language: string;
@@ -54,6 +61,7 @@ export interface ExtractResponseData {
   items: TranscriptItem[];
   full_text: string;
   total_segments: number;
+  video_vision?: KidsVideoVision;
 }
 
 export interface SceneAnchors {
@@ -81,6 +89,7 @@ export interface ScenePromptItem {
   end_time: number;
   duration_sec: number;
   dialogue: string;
+  sound_effects?: string;
   action_description: string;
   camera_directive: string;
   camera_purpose: string;
@@ -95,6 +104,7 @@ export interface GenerateResponse {
   max_scenes_limit: number;
   scene_duration_sec: number;
   video_duration_sec: number;
+  video_vision?: KidsVideoVision;
   engine_used: string;
   anchors: SceneAnchors;
   scenes: ScenePromptItem[];

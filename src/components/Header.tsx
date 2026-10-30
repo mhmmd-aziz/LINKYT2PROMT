@@ -1,7 +1,7 @@
 import React from 'react';
 import { HardwareInfo } from '../types';
 import { HardwareBadge } from './HardwareBadge';
-import { Sparkles, Layers, ArrowRight, Key } from 'lucide-react';
+import { Sparkles, Layers, ArrowRight, Key, Car } from 'lucide-react';
 
 interface HeaderProps {
   hardware: HardwareInfo | null;
@@ -31,8 +31,8 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
         {/* Brand */}
         <div className="flex items-center gap-3">
-          <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 shadow-lg shadow-blue-900/30">
-            <span className="font-mono font-black text-white text-base">iA</span>
+          <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 via-red-500 to-blue-600 shadow-lg shadow-amber-900/30">
+            <Car className="w-5 h-5 text-white animate-pulse" />
             <div className="absolute -bottom-1 -right-1 flex gap-0.5">
               <span className="w-1.5 h-1.5 rounded-full bg-[#4285F4]"></span>
               <span className="w-1.5 h-1.5 rounded-full bg-[#EA4335]"></span>
@@ -43,14 +43,14 @@ export const Header: React.FC<HeaderProps> = ({
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-lg font-bold tracking-tight text-white flex items-center gap-1.5">
-                imzy affilate
+                imsy tools yt
               </h1>
-              <span className="px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30 text-[10px] font-semibold tracking-wide uppercase">
-                Google Flow Edition
+              <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-semibold tracking-wide uppercase">
+                Kids Video 60 Scene Flow
               </span>
             </div>
             <p className="text-[11px] text-gray-400">
-              YouTube Copas Link ➔ 10s Consistent Scene AI Video Prompts (Max 60 Scenes)
+              Copas Video YT Anak Main Mobil ➔ 60 Scene AI Video Prompts Konsisten + Sound Effects
             </p>
           </div>
         </div>
@@ -69,7 +69,7 @@ export const Header: React.FC<HeaderProps> = ({
             title="Klik untuk mengatur Gemini API Key & Mesin AI"
           >
             <Key className="w-3.5 h-3.5 text-amber-400" />
-            <span>AI: {isGeminiActive ? 'Gemini 1.5 Flash 🟢' : 'Local Director ⚡'}</span>
+            <span>AI: {isGeminiActive ? 'Gemini 1.5 Flash 🟢' : 'Kids Director ⚡'}</span>
           </button>
 
           {/* Hardware Auto-Detect Pill */}

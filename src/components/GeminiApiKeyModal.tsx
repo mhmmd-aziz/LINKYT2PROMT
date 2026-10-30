@@ -185,3 +185,4 @@ export const GeminiApiKeyModal: React.FC<GeminiApiKeyModalProps> = ({
     </div>
   );
 };
+

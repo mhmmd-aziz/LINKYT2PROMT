@@ -1,15 +1,27 @@
 import math
+import re
 from typing import List, Dict, Any, Optional
 
-# Camera movement cycles to ensure visually dynamic, professional video rhythm
-CAMERA_MOVEMENTS = [
-    {"type": "Establishing Wide Shot", "motion": "Slow cinematic dolly forward, eye-level framing", "purpose": "Hook & Scene Introduction"},
-    {"type": "Medium Close-Up (MCU)", "motion": "Smooth handheld subtle tracking, 50mm lens focus", "purpose": "Direct Creator Dialogue & Engagement"},
-    {"type": "Macro Product Close-Up", "motion": "Slow pan across product texture, shallow depth of field (f/1.8)", "purpose": "Showcasing Affiliate Product Details"},
-    {"type": "Over-the-Shoulder (OTS)", "motion": "Slight camera tilt down to screen/hands interaction", "purpose": "Demonstrating Real-world Usage"},
-    {"type": "Dynamic Push-in Medium Shot", "motion": "Gentle zoom-in on subject's enthusiastic expression", "purpose": "Highlighting Key Pain Point / Benefit"},
-    {"type": "Low Angle Hero Shot", "motion": "Subtle upward glide with warm rim lighting", "purpose": "Building Credibility & Confidence"},
-    {"type": "Eye-Level Direct-to-Camera", "motion": "Locked off stabilized framing with soft natural motion", "purpose": "Call to Action & Affiliate Recommendation"}
+# Camera movement styles designed specifically for dynamic kids toy car videos
+KIDS_CAMERA_MOVEMENTS = [
+    {"type": "Low-Angle Car Chase Tracking", "motion": "Kamera meluncur rendah di permukaan lantai mengikuti laju kencang ban mobil mainan secara dinamis", "purpose": "Aksi Laju Cepat & Rasa Kecepatan"},
+    {"type": "Macro Close-Up Toy Detail", "motion": "Kamera makro fokus tajam menyorot bodi mengkilap, lampu bulat lucu, dan putaran roda mobil", "purpose": "Konsistensi Detail Mainan Mobil"},
+    {"type": "High-Angle Playground Overview", "motion": "Kamera melayang perlahan dari atas memperlihatkan lintasan balap warna-warni dan rintangan balok", "purpose": "Menunjukkan Rute Petualangan"},
+    {"type": "Dynamic 360 Spin & Jump", "motion": "Kamera berputar dinamis saat mobil melompati tanjakan rintangan dengan gerakan slow-motion halus", "purpose": "Momen Klimaks Aksi Melompat"},
+    {"type": "Eye-Level Child Point of View (POV)", "motion": "Sudut pandang mata anak setinggi lantai dengan tangan kecil ceria mengarahkan mobil meluncur", "purpose": "Keterikatan Emosional Anak-Anak"},
+    {"type": "Parallel Side-Scrolling Race Shot", "motion": "Kamera bergerak menyamping dengan kecepatan konstan mengikuti balapan sengit di tikungan tajam", "purpose": "Ketegangan Balapan Ceria"},
+    {"type": "Victory Podium & Celebration Frame", "motion": "Kamera dolly-in perlahan menyorot mobil mainan berhenti di garis finish dengan lampu berkedip ceria", "purpose": "Kemenangan & Garis Finish"}
+]
+
+# Kids cheerful sound effects list
+KIDS_SOUND_EFFECTS = [
+    "[SFX: Vroom vroom mesin mobil menderu ceria, decitan ban kartun 'squeak!', tawa riang anak]",
+    "[SFX: Suara klakson tin-tin lucu 'beep beep!', musik ceria bertempo riang, tepuk tangan]",
+    "[SFX: Efek lompatan kartun 'boing boing!', suara desingan angin cepat 'wuuush!', sorak 'Horeee!']",
+    "[SFX: Tabrakan lembut balok kayu 'klak-kluk!', suara mobil berputar rem mendadak, tawa riang gembira]",
+    "[SFX: Suara sirine mini ceria 'wiu-wiu!', deru mesin cepat, suara anak berseru 'Ayo cepat!']",
+    "[SFX: Gemercik pasir mainan 'shhhk!', ban mobil menanjak bukit pasir, suara peluit finish]",
+    "[SFX: Musik selebrasi kemenangan bernada riang, kembang api kartun 'pop pop!', sorak bahagia 'Kita menang!']"
 ]
 
 def format_timestamp(seconds: float) -> str:
@@ -18,60 +30,78 @@ def format_timestamp(seconds: float) -> str:
     secs = int(seconds % 60)
     return f"{mins:02d}:{secs:02d}"
 
-def detect_subject_context(full_text: str, title: str, language: str = "id", image_context: Optional[Dict[str, Any]] = None) -> Dict[str, str]:
+def extract_kids_video_vision(title: str, full_transcript: str) -> Dict[str, str]:
     """
-    Intelligently extracts the main affiliate subject, product, and style from image analysis, title, and transcript.
+    Analyzes the pasted YouTube video title and transcript to extract the core vision,
+    storyline premise, and child play theme (e.g. Balapan Mobil, Truk Monster, Misi Penyelamatan).
     """
-    # If image analysis provided recommended anchors, prioritize them!
+    sample = (title + " " + full_transcript[:1200]).lower()
+
+    if any(k in sample for k in ["monster", "truk", "truck", "offroad", "lumpur", "mud"]):
+        theme = "Petualangan Truk Monster Anak Melompati Rintangan & Lintasan Ekstrem Ceria"
+        car_default = "Mobil Monster Truck anak warna merah-oranye beroda raksasa bergerigi hitam, bodi tangguh bergaya 3D kartun ramah anak"
+        arena_default = "Arena pasir rintangan warna-warni dengan bukit tanjakan buatan, balok susun warna-warni, dan jembatan kayu mini"
+    elif any(k in sample for k in ["polisi", "police", "fire", "pemadam", "rescue", "tayo", "ambulance"]):
+        theme = "Misi Penyelamatan Mobil Kota Ceria (Police & Rescue Cars Play Mission)"
+        car_default = "Mobil patroli polisi anak berwarna biru-putih ceria dengan sirine mini menyala warna merah-biru dan wajah kartun tersenyum"
+        arena_default = "Jalanan kota mini anak-anak dengan gedung kartun pastel, lampu lalu lintas mini, dan terowongan ceria"
+    elif any(k in sample for k in ["race", "balap", "hot wheels", "track", "lintasan", "loop", "cepat"]):
+        theme = "Kompetisi Balapan Mobil Mainan Tercepat di Lintasan Luncur Ajaib"
+        car_default = "Mobil balap mainan super cepat bodi aerodinamis warna merah metalik bergaris kuning neon menyala"
+        arena_default = "Lintasan sirkuit plastik melingkar (loop-the-loop) warna oranye-biru cerah di atas karpet bermain anak"
+    elif any(k in sample for k in ["warna", "color", "learn", "belajar", "angka"]):
+        theme = "Edukasi & Belajar Warna Ceria Bersama Mobil-Mobilan Warna-Warni"
+        car_default = "Armada mobil mainan mini aneka warna cerah (merah, kuning, hijau, biru) berwajah kartun menggemaskan"
+        arena_default = "Studio bermain anak bernuansa putih bersih dihiasi bola-bola mandi bola warna-warni dan garasi mini"
+    else:
+        theme = "Keseruan Anak Bermain Mobil-Mobilan di Arena Main Ceria Penuh Aksi & Suara Riang"
+        car_default = "Mainan mobil balap anak berwarna merah menyala dengan strip kuning cerah, ban karet off-road besar, bergaya animasi 3D Pixar"
+        arena_default = "Kamar bermain anak yang cerah dan estetis dengan lintasan jalanan mainan, miniatur pohon kartun, dan balok susun"
+
+    vision_summary = f"Visi Video YouTube: {theme}. Mengisahkan keseruan petualangan mobil mainan dengan aksi cepat, lompatan rintangan, dan sound effects kartun yang disukai anak-anak."
+
+    return {
+        "vision_theme": theme,
+        "vision_summary": vision_summary,
+        "default_car": car_default,
+        "default_arena": arena_default
+    }
+
+def detect_subject_context(
+    full_text: str,
+    title: str,
+    language: str = "id",
+    image_context: Optional[Dict[str, Any]] = None
+) -> Dict[str, str]:
+    """
+    Intelligently extracts the main kids toy car, character, and setting from image analysis, title, and transcript.
+    """
+    vision_info = extract_kids_video_vision(title, full_text)
+
+    # If image analysis provided recommended anchors, prioritize the uploaded toy photo!
     if image_context:
-        rec_prod = image_context.get("recommended_anchor_product") or image_context.get("product_name")
+        rec_car = image_context.get("recommended_anchor_product") or image_context.get("product_name")
         rec_subj = image_context.get("recommended_anchor_subject")
         rec_set = image_context.get("recommended_setting")
-        if rec_prod:
+        if rec_car:
             return {
-                "subject": rec_subj or ("Kreator affiliasi pria/wanita muda Indonesia usia 25 tahun, mengenakan pakaian kasual rapi" if language == "id" else "A charismatic 25-year-old creator in neat smart-casual attire"),
-                "product": rec_prod,
-                "setting": rec_set or ("Studio ruangan modern minimalis, pencahayaan studio hangat aksen bokeh" if language == "id" else "Contemporary minimalist creator studio with warm bokeh lighting"),
-                "style": "Kualitas sinematik 8K, foto-realistis, pencahayaan komersial studio profesional, karakter dan produk 100% konsisten antar scene, 24fps" if language == "id" else "8K cinematic, photorealistic commercial ad grade, exact face and product continuity across all scenes, 24fps"
+                "subject": rec_subj or ("Anak laki-laki kecil usia 4 tahun mengenakan kaos garis biru-oranye ceria, wajah gembira tertawa riang" if language == "id" else "A joyful 4-year-old child in cheerful bright playwear, laughing happily"),
+                "product": rec_car,
+                "setting": rec_set or vision_info["default_arena"],
+                "style": "Gaya animasi 3D Pixar/Disney bertekstur ultra-realistis, warna jenuh cerah (vibrant saturated colors), pencahayaan studio anak yang hangat dan ceria, 24fps gerakan halus" if language == "id" else "Pixar/Disney 3D animation style, vibrant saturated colors, warm bright children studio lighting, ultra-clean playful textures, 24fps smooth motion"
             }
 
-    text_sample = (title + " " + full_text[:1000]).lower()
-    
-    # Defaults
+    # Defaults for Kids Video
     if language == "id":
-        subject = "Kreator affiliasi profesional pria/wanita muda Indonesia usia 25 tahun, mengenakan pakaian kasual modern rapi"
-        product = "Produk unggulan rekomendasi berkualitas tinggi dengan desain elegan dan modern"
-        setting = "Studio ruangan modern minimalis, latar belakang bersih dengan pencahayaan hangat dan aksen neon lembut"
-        style = "Kualitas sinematik 8K, foto-realistis, pencahayaan komersial studio profesional, tekstur kulit alami, gerakan halus 24fps"
+        subject = "Anak kecil laki-laki usia 4 tahun berambut cokelat rapi mengenakan kaos garis-garis ceria biru-oranye, wajah riang gembira"
+        product = vision_info["default_car"]
+        setting = vision_info["default_arena"]
+        style = "Gaya animasi 3D Pixar/Disney anak-anak, warna mencolok sangat cerah (vibrant saturated), tekstur mobil mainan mengkilap berkualitas tinggi, pencahayaan lembut ramah anak, gerakan halus stabil 24fps"
     else:
-        subject = "A 25-year-old charismatic content creator and affiliate reviewer, dressed in modern smart-casual attire"
-        product = "Featured high-demand affiliate product with sleek modern minimalist packaging and branding"
-        setting = "Contemporary creator studio with aesthetic wood acoustics, ambient warm lighting, and soft bokeh background"
-        style = "Cinematic 8K, ultra-photorealistic, high-end commercial ad grade, 35mm lens, f/1.8 aperture, natural colors"
-        
-    # Check for specific affiliate product categories
-    if any(k in text_sample for k in ["hp", "smartphone", "iphone", "samsung", "gadget", "unboxing", "review"]):
-        if language == "id":
-            product = "Smartphone flagship modern dengan bodi ramping, layar jernih menyala menampilkan tampilan antarmuka interaktif"
-        else:
-            product = "Premium flagship smartphone with sleek curved edges and vivid glowing display showing dynamic app UI"
-    elif any(k in text_sample for k in ["skincare", "serum", "kulit", "wajah", "glowing", "beauty", "makeup"]):
-        if language == "id":
-            product = "Botol serum perawatan kulit estetik kaca amber transparan dengan pipet tetes elegan"
-            setting = "Ruang rias estetik minimalis dengan marmer putih cerah dan pencahayaan daylight natural"
-        else:
-            product = "Luxury aesthetic glass dropper skincare serum bottle with premium minimalist label"
-            setting = "Bright minimalist vanity studio with white marble accents and soft diffused daylight"
-    elif any(k in text_sample for k in ["baju", "outfit", "fashion", "sepatu", "tas", "ootd", "jaket"]):
-        if language == "id":
-            product = "Pakaian fashion kasual trendi dengan bahan katun premium bertekstur rapi dan jahitan berkualitas"
-        else:
-            product = "Trendy premium apparel piece featuring high-grade fabric textures and contemporary tailoring"
-    elif any(k in text_sample for k in ["laptop", "komputer", "pc", "keyboard", "mouse", "desk"]):
-        if language == "id":
-            product = "Laptop kerja tipis aluminium premium dengan keyboard backlit dan layar tajam tanpa bezel"
-        else:
-            product = "Sleek ultra-thin metallic productivity laptop with illuminated keyboard and bezel-less screen"
+        subject = "A joyful 4-year-old child wearing cheerful bright casual clothes, expressive happy smiling face full of excitement"
+        product = vision_info["default_car"]
+        setting = vision_info["default_arena"]
+        style = "Pixar/Disney 3D animation style, hyper-vibrant saturated colors, glossy toy car textures, soft warm daylight, friendly kids video aesthetic, 24fps"
 
     return {
         "subject": subject,
@@ -87,17 +117,15 @@ def chunk_transcript_to_10s_scenes(
     max_scenes: int = 60
 ) -> List[Dict[str, Any]]:
     """
-    Splits the video duration into exact 10-second chunks (scenes).
-    Collects full conversation dialogue falling in each 10-second interval.
-    Enforces a strict maximum of 60 scenes (up to 10 minutes of dense prompt-to-video).
+    Splits video into exact 10-second scenes (up to strictly 60 scenes).
+    Collects full spoken audio and child expressions in each 10s interval.
     """
     if total_duration_sec <= 0:
         if transcript_items:
             total_duration_sec = transcript_items[-1]["end"]
         else:
-            total_duration_sec = 10.0
+            total_duration_sec = 600.0  # 60 scenes default if full duration unknown
             
-    # Cap total scenes to max_scenes (default 60)
     calculated_scenes = max(1, math.ceil(total_duration_sec / scene_duration))
     num_scenes = min(calculated_scenes, max_scenes)
     scenes = []
@@ -106,13 +134,11 @@ def chunk_transcript_to_10s_scenes(
         start_t = i * scene_duration
         end_t = min((i + 1) * scene_duration, total_duration_sec)
         
-        # Collect all dialogue lines that intersect this time interval
         dialogue_lines = []
         for item in transcript_items:
             item_start = item.get("start", 0.0)
             item_end = item.get("end", item_start + item.get("duration", 0.0))
             
-            # Check overlap: item_start < end_t and item_end > start_t
             if item_start < end_t and item_end > start_t:
                 text = item.get("text", "").strip()
                 if text and text not in dialogue_lines:
@@ -120,13 +146,21 @@ def chunk_transcript_to_10s_scenes(
                     
         full_scene_dialogue = " ".join(dialogue_lines).strip()
         
+        # If no dialogue in this 10s chunk (very common in kids car videos), insert cheerful sound / action cue
+        if not full_scene_dialogue:
+            fallback_sound = ["Vroom vroom! Ayo mobil merah!", "Tin tin! Awas ada tikungan!", "Horeee melompat tinggi!", "Wuuush kencang sekali!", "Balapan semakin seru!"][i % 5]
+            full_scene_dialogue = f"(Aksi seru main mobil meluncur kencang - '{fallback_sound}')"
+            has_dial = False
+        else:
+            has_dial = True
+        
         scenes.append({
             "scene_index": i + 1,
             "start_time": start_t,
             "end_time": end_t,
             "time_range": f"{format_timestamp(start_t)} - {format_timestamp(end_t)}",
-            "dialogue": full_scene_dialogue if full_scene_dialogue else "(Suasana visual estetik / jeda transisi tanpa percakapan)",
-            "has_dialogue": bool(full_scene_dialogue)
+            "dialogue": full_scene_dialogue,
+            "has_dialogue": has_dial
         })
         
     return scenes
@@ -143,11 +177,12 @@ def generate_consistent_scene_prompts(
     gemini_scenes: Optional[List[Dict[str, Any]]] = None
 ) -> List[Dict[str, Any]]:
     """
-    Transforms 10-second dialogue scenes into video-ready prompts with visual, subject, and object continuity.
-    Seamlessly merges Gemini AI generated scene prompts if available.
+    Transforms 10-second dialogue scenes into video-ready prompts tailored for Kids YouTube Videos.
+    Ensures 100% object continuity (toy car models, colors, and characters) across up to 60 scenes.
     """
     title = video_meta.get("title", "")
     full_text = " ".join([s["dialogue"] for s in scenes])
+    vision_info = extract_kids_video_vision(title, full_text)
     context_defaults = detect_subject_context(full_text, title, language, image_context=image_context)
     
     subject_anchor = custom_subject or context_defaults["subject"]
@@ -168,7 +203,8 @@ def generate_consistent_scene_prompts(
     
     for idx, scene in enumerate(scenes):
         scene_num = scene["scene_index"]
-        cam = CAMERA_MOVEMENTS[idx % len(CAMERA_MOVEMENTS)]
+        cam = KIDS_CAMERA_MOVEMENTS[idx % len(KIDS_CAMERA_MOVEMENTS)]
+        sfx = KIDS_SOUND_EFFECTS[idx % len(KIDS_SOUND_EFFECTS)]
         dialogue = scene["dialogue"]
 
         # Check if Gemini provided an enhanced prompt for this scene
@@ -177,58 +213,68 @@ def generate_consistent_scene_prompts(
             action = g_data.get("action_description", "")
             video_prompt = g_data.get("video_prompt", "")
             negative_prompt = g_data.get("negative_prompt", "")
+            sound_effects = g_data.get("sound_effects") or sfx
             cam_dir = g_data.get("camera_directive") or f"{cam['type']} ({cam['motion']})"
         else:
-            # Algorithmic Cinematic Director Engine
+            # Algorithmic Kids Toy Car Director Engine
+            sound_effects = sfx
             if idx == 0:
                 if language == "id":
-                    action = f"Subjek menatap ke arah kamera dengan senyum ramah dan antusias, mulai menyapa penonton dan memperkenalkan {product_anchor} di atas meja."
+                    action = f"Mobil mainan {product_anchor} bersiap di garis start lintasan, lampu depan berkedip ceria, anak kecil {subject_anchor} tersenyum gembira memegang bagian belakang mobil siap meluncurkannya."
                 else:
-                    action = f"Subject looks towards the camera with a welcoming and energetic smile, addressing the audience while introducing {product_anchor} on the table."
+                    action = f"The toy car {product_anchor} revs at the starting gate with playful glowing headlights, child character {subject_anchor} smiles brightly with excitement ready to launch it."
             elif idx == total_scenes - 1:
                 if language == "id":
-                    action = f"Subjek memberikan senyum percaya diri dan gestur merekomendasikan, menunjuk ke arah tombol/link affiliate sambil mengangkat {product_anchor} sebagai rekomendasi terbaik."
+                    action = f"Mobil mainan {product_anchor} melintasi garis finish dengan selebrasi lentera kembang api kartun, anak bertepuk tangan riang melompat kegirangan merayakan kemenangan."
                 else:
-                    action = f"Subject delivers an affirmative call-to-action gesture, gesturing towards the link while holding {product_anchor} proudly with high confidence."
-            elif idx % 3 == 1:
+                    action = f"The toy car {product_anchor} crosses the checkered finish line with colorful cartoon confetti, the happy child claps hands and jumps in joyful celebration."
+            elif idx % 4 == 1:
                 if language == "id":
-                    action = f"Subjek berinteraksi langsung memegang {product_anchor}, memperlihatkan detail produk dari jarak dekat secara fokus sambil menjelaskan keunggulannya."
+                    action = f"Mobil mainan {product_anchor} meluncur kencang di turunan lintasan, meliuk melewati tikungan tajam, debu warna-warni kartun mengepul di belakang rodanya."
                 else:
-                    action = f"Subject handles and demonstrates {product_anchor}, showing tactile textures and build quality in close inspection while talking."
-            elif idx % 3 == 2:
+                    action = f"The toy car {product_anchor} speeds down the steep ramp, drifting smoothly around a colorful curve with cartoon speed dust trails."
+            elif idx % 4 == 2:
                 if language == "id":
-                    action = f"Kamera menyorot ekspresi subjek yang terpukau saat mendemonstrasikan hasil penggunaan {product_anchor}, gestur tangan mengekspresikan kepuasan."
+                    action = f"Mobil mainan {product_anchor} melompat tinggi melewati rintangan tanjakan balok kayu, berputar 360 derajat di udara dengan gaya akrobatik seru sebelum mendarat mulus."
                 else:
-                    action = f"Camera captures subject's impressed facial expression demonstrating the real-world utility of {product_anchor}, showing authentic satisfaction."
+                    action = f"The toy car {product_anchor} performs a high stunt jump over building blocks, spinning playfully in mid-air before a smooth bouncy landing."
+            elif idx % 4 == 3:
+                if language == "id":
+                    action = f"Kamera menyorot mobil mainan {product_anchor} melewati terowongan pelangi dan jembatan gantung mini, anak mengamati dengan takjub sambil tertawa gembira."
+                else:
+                    action = f"Camera tracks the toy car {product_anchor} speeding through a rainbow tunnel and suspension bridge, while the happy toddler watches in awe."
             else:
                 if language == "id":
-                    action = f"Subjek tersenyum berbicara rileks di depan kamera, tangan bergerak natural mendiskusikan manfaat praktis {product_anchor} dalam kehidupan sehari-hari."
+                    action = f"Mobil mainan {product_anchor} bermanuver lincah di arena {setting_anchor}, menghindari miniatur kerucut lalu lintas dan meluncur lurus ke depan dengan penuh energi."
                 else:
-                    action = f"Subject speaks naturally to camera with expressive hand gestures, emphasizing key benefits of {product_anchor} in everyday life."
+                    action = f"The toy car {product_anchor} maneuvers swiftly across {setting_anchor}, dodging miniature traffic cones with playful speed and agility."
 
             # Structured Prompt formatted for AI Video Generation Models (Veo, Kling, Runway Gen-3, Luma)
             if language == "id":
                 video_prompt = (
-                    f"[Konsistensi Subjek: {subject_anchor}] | "
-                    f"[Objek Produk Utama: {product_anchor}] | "
-                    f"[Latar & Ruangan: {setting_anchor}] | "
-                    f"[Kamera & Gerakan: {cam['type']} - {cam['motion']}] | "
-                    f"[Aksi & Dialog 10 Detik: '{dialogue}'. {action}] | "
-                    f"[Gaya Visual: {style_anchor}, karakter wajah dan pakaian 100% konsisten antar scene, pencahayaan alami, gerak stabil 24fps]"
+                    f"[Gaya Visual: {style_anchor}] | "
+                    f"[Objek Mobil Mainan Paten: {product_anchor}] | "
+                    f"[Karakter Anak: {subject_anchor}] | "
+                    f"[Arena Bermain: {setting_anchor}] | "
+                    f"[Kamera: {cam['type']} - {cam['motion']}] | "
+                    f"[Aksi 10 Detik: {action}] | "
+                    f"[Audio & Sound Effects: '{dialogue}'. {sound_effects}] | "
+                    f"[Kunci Konsistensi: Model mobil mainan, warna cat, nomor, dan karakter anak 100% konsisten persis sama antar semua scene, tanpa perubahan bentuk]"
                 )
             else:
                 video_prompt = (
-                    f"[Subject Consistency: {subject_anchor}] | "
-                    f"[Primary Object/Product: {product_anchor}] | "
-                    f"[Environment: {setting_anchor}] | "
-                    f"[Camera: {cam['type']} - {cam['motion']}] | "
-                    f"[Action & 10s Dialogue: '{dialogue}'. {action}] | "
-                    f"[Visual Style: {style_anchor}, exact face & outfit continuity across all scenes, smooth 24fps motion, no morphing]"
+                    f"[Visual Style: {style_anchor}] | "
+                    f"[Primary Toy Car Object: {product_anchor}] | "
+                    f"[Child Character: {subject_anchor}] | "
+                    f"[Play Environment: {setting_anchor}] | "
+                    f"[Camera Motion: {cam['type']} - {cam['motion']}] | "
+                    f"[10s Action: {action}] | "
+                    f"[Audio & Sound Effects: '{dialogue}'. {sound_effects}] | "
+                    f"[Consistency Lock: Exact same toy car model, paint scheme, wheel texture, and child appearance across all scenes without morphing]"
                 )
                 
             negative_prompt = (
-                "blurry, low resolution, morphing face, distorted hands, extra fingers, cartoon, 3d render, plastic look, "
-                "flickering, unstable camera shaking, text watermark, oversaturated colors, abrupt jump cuts"
+                "scary, dark, realistic horror, morphing car model, distorted wheels, broken toys, realistic violence, flickering, text watermark, abrupt cuts"
             )
             cam_dir = f"{cam['type']} ({cam['motion']})"
         
@@ -239,6 +285,7 @@ def generate_consistent_scene_prompts(
             "end_time": scene["end_time"],
             "duration_sec": round(scene["end_time"] - scene["start_time"], 1),
             "dialogue": dialogue,
+            "sound_effects": sound_effects,
             "action_description": action,
             "camera_directive": cam_dir,
             "camera_purpose": cam["purpose"],

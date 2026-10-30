@@ -13,12 +13,13 @@ try:
     from server.prompt_engine import (
         chunk_transcript_to_10s_scenes,
         generate_consistent_scene_prompts,
-        detect_subject_context
+        detect_subject_context,
+        extract_kids_video_vision
     )
     from server.gemini_service import (
         verify_gemini_key,
         analyze_uploaded_image,
-        generate_prompts_with_gemini
+        generate_kids_prompts_with_gemini
     )
 except ImportError:
     from hardware import get_system_hardware
@@ -26,18 +27,19 @@ except ImportError:
     from prompt_engine import (
         chunk_transcript_to_10s_scenes,
         generate_consistent_scene_prompts,
-        detect_subject_context
+        detect_subject_context,
+        extract_kids_video_vision
     )
     from gemini_service import (
         verify_gemini_key,
         analyze_uploaded_image,
-        generate_prompts_with_gemini
+        generate_kids_prompts_with_gemini
     )
 
 app = FastAPI(
-    title="imzy affilate API",
-    description="Backend for YouTube Transcript to Consistent 10-Second Scene Video Prompts (Google Flow Style)",
-    version="1.1.0"
+    title="imsy tools yt API",
+    description="Backend for Kids YouTube Video Remake to 60 Consistent 10s Scene Prompts (Google Flow Style)",
+    version="2.0.0"
 )
 
 # Enable CORS for frontend development
@@ -75,7 +77,7 @@ class GenerateRequest(BaseModel):
 
 @app.get("/api/health")
 def health_check():
-    return {"status": "ok", "app": "imzy affilate"}
+    return {"status": "ok", "app": "imsy tools yt"}
 
 @app.get("/api/hardware")
 def get_hardware_info():
@@ -91,8 +93,8 @@ def api_verify_gemini_key(req: VerifyKeyRequest):
 @app.post("/api/analyze-image")
 def api_analyze_image(req: AnalyzeImageRequest):
     """
-    Analyzes 1 uploaded affiliate product / character image.
-    Uses Gemini Vision Multimodal if API key provided, or smart local vision engine.
+    Analyzes 1 uploaded toy car / kids character / setting image.
+    Uses Gemini Vision Multimodal if API key provided, or smart local kids vision engine.
     """
     try:
         analysis = analyze_uploaded_image(req.image_base64, api_key=req.gemini_api_key)
@@ -106,8 +108,8 @@ def api_analyze_image(req: AnalyzeImageRequest):
 @app.post("/api/extract")
 def extract_youtube(req: ExtractRequest):
     """
-    Extracts YouTube video metadata and complete transcript.
-    Uses official YouTube transcript API or faster-whisper GPU fallback.
+    Extracts YouTube video metadata, complete transcript, and automatically
+    understands the core video vision (tema mainan anak, balapan mobil, dsb).
     """
     video_id = extract_video_id(req.url)
     if not video_id:
@@ -115,6 +117,14 @@ def extract_youtube(req: ExtractRequest):
         
     try:
         data = get_complete_transcript(video_id, device_preference=req.prefer_device)
+        
+        # Analyze and extract Kids Video Vision
+        title = data["metadata"].get("title", "")
+        full_text = data.get("full_text", "")
+        vision = extract_kids_video_vision(title, full_text)
+        
+        data["video_vision"] = vision
+        
         return {
             "status": "success",
             "video_id": video_id,
@@ -127,7 +137,7 @@ def extract_youtube(req: ExtractRequest):
 def generate_prompts(req: GenerateRequest):
     """
     Splits transcript into exact 10-second scenes (capped to max 60 scenes)
-    and produces visually consistent prompts with object and character continuity.
+    and produces visually consistent prompts with toy car continuity and sound effects.
     Uses Gemini API if key is present, otherwise smart local director engine.
     """
     try:
@@ -139,6 +149,10 @@ def generate_prompts(req: GenerateRequest):
             max_scenes=60
         )
 
+        title = req.metadata.get("title", "")
+        full_text = " ".join([s["dialogue"] for s in raw_scenes])
+        vision = extract_kids_video_vision(title, full_text)
+
         anchors_dict = {
             "subject": req.custom_subject or "",
             "product": req.custom_product or "",
@@ -146,19 +160,20 @@ def generate_prompts(req: GenerateRequest):
             "style": req.custom_style or ""
         }
 
-        # Step 2: If Gemini API key is provided, request Gemini AI enhanced prompts
+        # Step 2: If Gemini API key is provided, request Gemini AI enhanced prompts for Kids video
         gemini_scenes = None
-        engine_used = "Smart Local Director Engine (Offline Mode)"
+        engine_used = "Smart Local Kids Director Engine (Free / Offline)"
         if req.gemini_api_key and req.gemini_api_key.strip():
-            gemini_scenes = generate_prompts_with_gemini(
+            gemini_scenes = generate_kids_prompts_with_gemini(
                 scenes_data=raw_scenes,
                 anchors=anchors_dict,
                 video_meta=req.metadata,
+                video_vision=vision["vision_summary"],
                 language=req.language,
                 api_key=req.gemini_api_key
             )
             if gemini_scenes:
-                engine_used = "Google Gemini 1.5 Flash AI Engine"
+                engine_used = "Google Gemini 1.5 Flash Vision AI"
         
         # Step 3: Generate and assemble consistent AI video generation prompts
         processed_scenes = generate_consistent_scene_prompts(
@@ -181,6 +196,7 @@ def generate_prompts(req: GenerateRequest):
             "max_scenes_limit": 60,
             "scene_duration_sec": req.scene_duration,
             "video_duration_sec": req.duration,
+            "video_vision": vision,
             "engine_used": engine_used,
             "anchors": anchors,
             "scenes": processed_scenes

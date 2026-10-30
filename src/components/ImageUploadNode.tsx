@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { ImageAnalysisResult } from '../types';
-import { Image as ImageIcon, UploadCloud, Trash2, Sparkles, Check, Tag, Eye, Info, RefreshCw } from 'lucide-react';
+import { Image as ImageIcon, UploadCloud, Trash2, Sparkles, Check, Tag, Eye, Info, RefreshCw, Car } from 'lucide-react';
 
 interface ImageUploadNodeProps {
   imagePreview: string | null;
@@ -98,27 +98,27 @@ export const ImageUploadNode: React.FC<ImageUploadNodeProps> = ({
       {/* Node Header */}
       <div className="flex flex-wrap items-center justify-between pb-4 mb-5 border-b border-white/10 gap-2">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-purple-600/20 border border-purple-500/30 flex items-center justify-center text-purple-400">
-            <ImageIcon className="w-4 h-4" />
+          <div className="w-8 h-8 rounded-lg bg-amber-600/20 border border-amber-500/30 flex items-center justify-center text-amber-400">
+            <Car className="w-4 h-4" />
           </div>
           <div>
             <div className="flex items-center gap-2">
               <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-white/5 text-gray-400 border border-white/10">
                 NODE 02
               </span>
-              <h2 className="text-base font-bold text-white">Upload 1 Foto Produk / Objek Konsisten</h2>
+              <h2 className="text-base font-bold text-white">Upload 1 Foto Mainan Mobil / Tokoh Anak Konsisten</h2>
             </div>
             <p className="text-xs text-gray-400">
-              Upload 1 foto referensi produk affiliasi atau subjek yang ingin dijadikan objek konsisten di video
+              Upload 1 foto mobil mainan atau karakter anak agar model & warnanya terkunci sama persis di seluruh 60 scene
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
           {imageAnalysis && (
-            <span className="text-[11px] font-medium px-2.5 py-1 rounded-full bg-purple-500/15 border border-purple-500/30 text-purple-300 flex items-center gap-1">
-              <Eye className="w-3.5 h-3.5 text-purple-400" />
-              <span>Foto Berhasil Dianalisis</span>
+            <span className="text-[11px] font-medium px-2.5 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 flex items-center gap-1">
+              <Eye className="w-3.5 h-3.5 text-amber-400" />
+              <span>Foto Mainan Teranalisis</span>
             </span>
           )}
         </div>
@@ -141,23 +141,23 @@ export const ImageUploadNode: React.FC<ImageUploadNodeProps> = ({
           onClick={() => fileInputRef.current?.click()}
           className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all flex flex-col items-center justify-center gap-3 ${
             dragOver
-              ? 'border-purple-500 bg-purple-500/10'
-              : 'border-white/15 bg-[#0f1013] hover:border-purple-500/50 hover:bg-white/[0.02]'
+              ? 'border-amber-500 bg-amber-500/10'
+              : 'border-white/15 bg-[#0f1013] hover:border-amber-500/50 hover:bg-white/[0.02]'
           }`}
         >
-          <div className="w-12 h-12 rounded-2xl bg-purple-600/20 border border-purple-500/30 flex items-center justify-center text-purple-400">
+          <div className="w-12 h-12 rounded-2xl bg-amber-600/20 border border-amber-500/30 flex items-center justify-center text-amber-400">
             <UploadCloud className="w-6 h-6" />
           </div>
           <div>
             <p className="text-sm font-semibold text-white">
-              Klik untuk upload atau drag & drop <span className="text-purple-400">1 foto produk</span>
+              Klik untuk upload atau drag & drop <span className="text-amber-400">1 foto mainan mobil / karakter</span>
             </p>
             <p className="text-xs text-gray-400 mt-1">
-              Format JPG, PNG, atau WebP (Foto produk affiliasi, packaging, atau tokoh)
+              Format JPG, PNG, atau WebP (Foto mainan mobil, Hot Wheels, monster truck, atau anak yang sedang main)
             </p>
           </div>
           <span className="text-[11px] px-3 py-1 rounded-full bg-white/5 border border-white/10 text-gray-300">
-            📸 Sistem otomatis menganalisis isi foto & mengunci objek di setiap scene
+            🔍 AI membaca model mobil, warna, dan karakter lalu menyelaraskannya dengan visi video YouTube
           </span>
         </div>
       ) : (
@@ -167,7 +167,7 @@ export const ImageUploadNode: React.FC<ImageUploadNodeProps> = ({
             <div className="relative group rounded-xl overflow-hidden bg-black/60 border border-white/10 aspect-square max-h-56 flex items-center justify-center">
               <img
                 src={imagePreview}
-                alt="Foto Produk Affiliasi"
+                alt="Foto Mainan Mobil Anak"
                 className="w-full h-full object-contain"
               />
               <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
@@ -196,18 +196,18 @@ export const ImageUploadNode: React.FC<ImageUploadNodeProps> = ({
             <div className="md:col-span-2 flex flex-col justify-between space-y-3">
               <div>
                 <div className="flex items-center justify-between pb-2 mb-2 border-b border-white/5">
-                  <span className="text-xs font-bold uppercase tracking-wider text-purple-400 flex items-center gap-1.5">
+                  <span className="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
                     <Eye className="w-3.5 h-3.5" />
-                    Bisa Dilihat Tentang Apa (Hasil Analisis Foto):
+                    Bisa Dilihat Tentang Apa (Hasil Analisis Foto Mainan):
                   </span>
                   {analyzing ? (
                     <span className="text-[11px] text-amber-400 flex items-center gap-1 animate-pulse">
                       <RefreshCw className="w-3 h-3 animate-spin" />
-                      Menganalisis Foto...
+                      Menganalisis Mainan Mobil...
                     </span>
                   ) : (
                     <span className="text-[10px] text-gray-500 font-mono">
-                      {imageAnalysis?.source || 'Vision Engine'}
+                      {imageAnalysis?.source || 'Kids Vision Engine'}
                     </span>
                   )}
                 </div>
@@ -215,24 +215,24 @@ export const ImageUploadNode: React.FC<ImageUploadNodeProps> = ({
                 {imageAnalysis ? (
                   <div className="space-y-2 text-xs">
                     <div>
-                      <span className="text-gray-400 font-medium">Nama Objek / Produk:</span>{' '}
+                      <span className="text-gray-400 font-medium">Model Mainan / Tokoh:</span>{' '}
                       <span className="font-bold text-white text-sm">{imageAnalysis.product_name}</span>
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30 text-[11px] font-medium flex items-center gap-1">
+                      <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[11px] font-medium flex items-center gap-1">
                         <Tag className="w-3 h-3" />
                         {imageAnalysis.category}
                       </span>
                       {imageAnalysis.detected_text && (
                         <span className="px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30 text-[11px] font-mono">
-                          Merek/Teks: {imageAnalysis.detected_text}
+                          Nomor/Stiker: {imageAnalysis.detected_text}
                         </span>
                       )}
                     </div>
 
                     <div>
-                      <span className="text-gray-400 font-medium block">Detail Visual & Ciri Khas:</span>
+                      <span className="text-gray-400 font-medium block">Detail Visual & Ciri Khas Mobil:</span>
                       <p className="text-gray-300 leading-relaxed text-[11px] mt-0.5 p-2 rounded-lg bg-black/40 border border-white/5">
                         {imageAnalysis.visual_description}
                       </p>
@@ -240,7 +240,7 @@ export const ImageUploadNode: React.FC<ImageUploadNodeProps> = ({
                   </div>
                 ) : (
                   <div className="py-6 text-center text-xs text-gray-500">
-                    Menunggu hasil deteksi visual foto...
+                    Menunggu hasil deteksi visual mainan anak...
                   </div>
                 )}
               </div>
@@ -254,11 +254,11 @@ export const ImageUploadNode: React.FC<ImageUploadNodeProps> = ({
                     className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-md ${
                       applied
                         ? 'bg-emerald-600 text-white'
-                        : 'bg-purple-600 hover:bg-purple-500 text-white'
+                        : 'bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white'
                     }`}
                   >
-                    {applied ? <Check className="w-4 h-4 text-emerald-200" /> : <Sparkles className="w-4 h-4 text-amber-300" />}
-                    <span>{applied ? 'Terkunci ke Prompt Anchors!' : 'Kunci Objek Foto ke Semua Scene'}</span>
+                    {applied ? <Check className="w-4 h-4 text-emerald-200" /> : <Sparkles className="w-4 h-4 text-amber-200" />}
+                    <span>{applied ? 'Terkunci ke 60 Scene!' : 'Kunci Mobil & Tokoh Foto Ini ke 60 Scene'}</span>
                   </button>
                 </div>
               )}
