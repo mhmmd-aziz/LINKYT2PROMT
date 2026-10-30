@@ -2,6 +2,70 @@ import math
 import re
 from typing import List, Dict, Any, Optional
 
+try:
+    from server.cinematic_episodes import CINEMATIC_STORY_EPISODES
+except ImportError:
+    try:
+        from cinematic_episodes import CINEMATIC_STORY_EPISODES
+    except ImportError:
+        CINEMATIC_STORY_EPISODES = []
+
+def extract_car_short_name(car_name: str) -> str:
+    """Extracts a short, punchy category name for a car."""
+    sample = (car_name or "").lower()
+    if any(k in sample for k in ["police", "polisi"]):
+        return "police patrol car"
+    elif any(k in sample for k in ["fire", "pemadam"]):
+        return "fire rescue truck"
+    elif any(k in sample for k in ["hot wheels", "balap", "racer", "speed"]):
+        return "stunt racer"
+    elif any(k in sample for k in ["buggy", "offroad", "jeep"]):
+        return "offroad buggy"
+    elif any(k in sample for k in ["monster", "truk", "truck"]):
+        return "monster truck"
+    return "toy car"
+
+def adapt_transcript_dialogue_to_10s_english(raw_dialogue: str, default_dialogue: str, car_short: str) -> str:
+    """
+    Intelligently adapts original YouTube transcript lines into lively, continuous 22-28 word English speech.
+    If the original transcript has spoken words:
+    - Strips transcript artifacts ([Music], [Applause], etc.)
+    - Weaves the core idea and phrases into a full 10-second continuous monologue.
+    If no transcript words are present, falls back to the curated 22-28 word episode script.
+    """
+    if not raw_dialogue:
+        return default_dialogue
+
+    cleaned = re.sub(r'\[.*?\]', '', raw_dialogue).strip()
+    cleaned = re.sub(r'\(.*?\)', '', cleaned).strip()
+    words = cleaned.split()
+    
+    if len(words) < 2:
+        return default_dialogue
+
+    is_mostly_english = all(ord(c) < 128 for c in cleaned)
+    
+    # If already a high-energy monologue between 22 and 28 words
+    if 22 <= len(words) <= 28 and is_mostly_english:
+        return cleaned
+
+    # Otherwise craft a dynamic blend weaving the YouTube phrase into a continuous 22-28 word speech
+    core_snippet = " ".join(words[:7]).rstrip(".,!?;:")
+    
+    blends = [
+        f"Look right here, friends! As our excitement builds: \"{core_snippet}\", our {car_short} accelerates down the orange track with unstoppable high-energy speed and cheerful power!",
+        f"Listen to that action! As we shout: \"{core_snippet}\", the {car_short} drifts past the obstacles and leaps into the air with pure racing excitement and laughter!",
+        f"Whoosh! Our little racer responds: \"{core_snippet}\", steering the {car_short} with confident joyful hands as the wheels spin at lightning-fast speed down the slope!",
+        f"Can you believe this stunt? In the middle of: \"{core_snippet}\", our champion {car_short} handles the curve like a true hero of the grand playroom rally!"
+    ]
+    
+    chosen = blends[len(words) % len(blends)]
+    c_words = chosen.split()
+    if 20 <= len(c_words) <= 32:
+        return chosen
+    
+    return default_dialogue
+
 # Camera movement styles designed specifically for dynamic kids toy car videos
 KIDS_CAMERA_MOVEMENTS = [
     {"type": "Low-Angle Car Chase Tracking", "motion": "Camera glides smoothly along the track floor catching the rapid spinning wheels of the toy car in dynamic motion", "purpose": "Speed & Ground Action"},
@@ -212,15 +276,17 @@ def build_fluid_cinematic_prompt(
     setting: str,
     dialogue: str,
     sfx: str,
-    cam_motion: str
+    cam_motion: str,
+    vfx: str = ""
 ) -> str:
     """
     Builds a unified, natural, cinematic AI video prompt that embeds:
     - 3D Pixar visual style & playroom atmosphere
     - Locked toy car & child character continuity
     - 10-second physical toy action & stunt
-    - FULL 10-second continuous spoken English dialogue (22-26 words, filling all 10s with no dead air!)
-    - Playful sound effects (SFX)
+    - FULL 10-second continuous spoken English dialogue (22-28 words, filling all 10s with no dead air!)
+    - Playful sound effects (SFX) matched to physical stunt
+    - Cinematic Visual Effects (VFX)
     - Cinematic camera movement
     - Strict visual continuity lock
     When copied, this single prompt gives Google Flow / Kling / Veo / Runway everything needed!
@@ -230,7 +296,11 @@ def build_fluid_cinematic_prompt(
         f"{action} "
         f"Featuring the locked primary toy car {product}, steered with joyful energy by the child character {subject} inside {setting}. "
         f"Spoken Dialogue (Full 10-Second Continuous English Speech): \"{dialogue}\" "
-        f"Sound Effects: {sfx}. "
+        f"Sound Effects (SFX): {sfx}. "
+    )
+    if vfx:
+        prompt += f"Cinematic Visual Effects (VFX): {vfx}. "
+    prompt += (
         f"Cinematic Camera: {cam_motion}. "
         f"Visual Continuity Lock: 100% exact toy car model, glossy paint colors, wheel diameter, child face, and playroom atmosphere strictly identical across all scenes, warm natural playroom daylight, smooth 24fps motion, no morphing, no distortion."
     )
@@ -250,9 +320,10 @@ def generate_consistent_scene_prompts(
     """
     Transforms 10-second dialogue scenes into video-ready prompts tailored for Kids YouTube Videos.
     Produces full 10s continuous English dialogues, seamless story links, and locked toy car continuity.
+    Uses 60 unique progressive cinematic episodes across 8 acts with scene-specific SFX, VFX, and heartfelt penutup.
     """
     title = video_meta.get("title", "")
-    full_text = " ".join([s["dialogue"] for s in scenes])
+    full_text = " ".join([s.get("dialogue", "") for s in scenes])
     vision_info = extract_kids_video_vision(title, full_text)
     context_defaults = detect_subject_context(full_text, title, language="en", image_context=image_context)
     
@@ -274,6 +345,7 @@ def generate_consistent_scene_prompts(
         setting_anchor = custom_setting or context_defaults["setting"]
         
     style_anchor = custom_style or context_defaults["style"]
+    car_short = extract_car_short_name(product_anchor)
     
     total_scenes = len(scenes)
     processed_scenes = []
@@ -289,18 +361,66 @@ def generate_consistent_scene_prompts(
     for idx, scene in enumerate(scenes):
         scene_num = scene["scene_index"]
         cam = KIDS_CAMERA_MOVEMENTS[idx % len(KIDS_CAMERA_MOVEMENTS)]
-        sfx = KIDS_SOUND_EFFECTS[idx % len(KIDS_SOUND_EFFECTS)]
+
+        # Fetch matching cinematic story episode template from the 60 unique episodes
+        if CINEMATIC_STORY_EPISODES:
+            # If at the end of the video, ensure we reach the grand climax & penutup
+            if idx == total_scenes - 1 and total_scenes >= 2:
+                ep = CINEMATIC_STORY_EPISODES[-1]  # Scene 60 (PENUTUP: Heartfelt Movie Farewell)
+            elif idx == total_scenes - 2 and total_scenes >= 3:
+                ep = CINEMATIC_STORY_EPISODES[-2]  # Scene 59 (Winner's Podium Trophy Ceremony)
+            elif idx == total_scenes - 3 and total_scenes >= 4:
+                ep = CINEMATIC_STORY_EPISODES[-3]  # Scene 58 (Victory Finish Line Crossing)
+            else:
+                ep = CINEMATIC_STORY_EPISODES[idx % len(CINEMATIC_STORY_EPISODES)]
+
+            act = ep.get("act", "")
+            milestone = ep.get("milestone", "")
+            is_closing = ep.get("is_closing", False) or (idx == total_scenes - 1)
+            vfx = ep.get("vfx", "Warm natural playroom lighting, crisp 8K macro toy details, soft 24fps motion")
+            sfx = ep.get("sfx", KIDS_SOUND_EFFECTS[idx % len(KIDS_SOUND_EFFECTS)])
+            story_link = ep.get("story_link", f"Leads into Scene {min(scene_num + 1, total_scenes)}")
+
+            # Interpolate template variables
+            try:
+                base_action = ep["action"].format(
+                    product=product_anchor,
+                    product_short=car_short,
+                    subject=subject_anchor,
+                    setting=setting_anchor
+                )
+            except Exception:
+                base_action = ep["action"]
+
+            try:
+                base_dialogue = ep["dialogue"].format(
+                    product=product_anchor,
+                    product_short=car_short,
+                    subject=subject_anchor,
+                    setting=setting_anchor
+                )
+            except Exception:
+                base_dialogue = ep["dialogue"]
+        else:
+            act = f"Act {(idx // 8) + 1}"
+            milestone = f"Scene {scene_num} Action"
+            is_closing = (idx == total_scenes - 1)
+            vfx = "Dynamic 24fps motion, warm soft playroom sunlight, crisp 8K focus"
+            sfx = KIDS_SOUND_EFFECTS[idx % len(KIDS_SOUND_EFFECTS)]
+            story_link = f"Connects into Scene {min(scene_num + 1, total_scenes)}"
+            base_action = f"{product_anchor} drives through {setting_anchor} steered by {subject_anchor}."
+            base_dialogue = STORY_ARC_ENGLISH_DIALOGUE[idx % len(STORY_ARC_ENGLISH_DIALOGUE)]
 
         # Check if DeepSeek or Gemini provided an enhanced prompt for this scene
         if scene_num in llm_map:
             l_data = llm_map[scene_num]
-            english_dialogue = l_data.get("english_dialogue") or l_data.get("dialogue") or STORY_ARC_ENGLISH_DIALOGUE[idx % len(STORY_ARC_ENGLISH_DIALOGUE)]
-            story_link = l_data.get("story_link") or f"Builds directly toward Scene {scene_num + 1} stunt"
-            action = l_data.get("action_description", "")
+            english_dialogue = l_data.get("english_dialogue") or l_data.get("dialogue") or base_dialogue
+            story_link = l_data.get("story_link") or story_link
+            action = l_data.get("action_description") or base_action
             sound_effects = l_data.get("sound_effects") or sfx
+            visual_effects = l_data.get("visual_effects") or vfx
             cam_dir = l_data.get("camera_directive") or f"{cam['type']} ({cam['motion']})"
             
-            # If LLM didn't embed dialogue in video_prompt, build the complete unified prompt
             video_prompt = l_data.get("video_prompt", "")
             if not video_prompt or ("Spoken Dialogue" not in video_prompt and len(video_prompt) < 200):
                 video_prompt = build_fluid_cinematic_prompt(
@@ -311,48 +431,23 @@ def generate_consistent_scene_prompts(
                     setting=setting_anchor,
                     dialogue=english_dialogue,
                     sfx=sound_effects,
-                    cam_motion=cam["motion"]
+                    cam_motion=cam["motion"],
+                    vfx=visual_effects
                 )
             negative_prompt = l_data.get("negative_prompt", "scary, dark, realistic horror, morphing car model, distorted wheels, broken toys, realistic violence, flickering, text watermark, blurry")
         else:
-            # Continuous 10s English Speech Generator (No empty space, 22-26 words guaranteed!)
-            english_dialogue = STORY_ARC_ENGLISH_DIALOGUE[idx % len(STORY_ARC_ENGLISH_DIALOGUE)]
+            # Intelligently adapt YouTube transcript dialogue if present, or use the curated 22-28 word continuous line
+            raw_dialogue = scene.get("dialogue", "").strip()
+            english_dialogue = adapt_transcript_dialogue_to_10s_english(raw_dialogue, base_dialogue, car_short)
+            action = base_action
             sound_effects = sfx
+            visual_effects = vfx
+            cam_dir = f"{cam['type']} ({cam['motion']})"
+            negative_prompt = (
+                "scary, dark, realistic horror, morphing car model, distorted wheels, broken toys, realistic violence, flickering, text watermark, blurry, deformed hands"
+            )
 
-            if idx == 0:
-                story_link = "Opening hook, revving up at starting line"
-                action = (
-                    f"At the starting line of the vibrant looping race track, {product_anchor} revs its engine with playful glowing rounded headlights. "
-                    f"{subject_anchor} smiles brightly with excitement, holding the rear bumper ready for the launch countdown."
-                )
-            elif idx == total_scenes - 1:
-                story_link = "Grand finale, crossing finish line and trophy celebration"
-                action = (
-                    f"{product_anchor} speeds triumphantly across the checkered finish line amidst a shower of festive cartoon confetti. "
-                    f"{subject_anchor} claps hands enthusiastically and jumps in joyful celebration of the victory."
-                )
-            elif idx % 4 == 1:
-                story_link = f"High-speed acceleration into curve connecting to Scene {scene_num + 1}"
-                action = (
-                    f"{product_anchor} accelerates down the steep orange decline, leaning into a sharp curved turn with animated cartoon speed dust trailing behind its rugged wheels."
-                )
-            elif idx % 4 == 2:
-                story_link = f"Airborne stunt over obstacle leading to Scene {scene_num + 1}"
-                action = (
-                    f"{product_anchor} launches off a wooden ramp, performing a thrilling 360-degree aerial stunt jump before landing smoothly with a soft bounce on the play mat."
-                )
-            elif idx % 4 == 3:
-                story_link = f"Tunnel and bridge crossing navigating toward Scene {scene_num + 1}"
-                action = (
-                    f"{product_anchor} races through a colorful rainbow tunnel and across a mini wooden suspension bridge, while the happy child watches in awe."
-                )
-            else:
-                story_link = f"Tactical maneuvering across {setting_anchor} connecting smoothly to Scene {scene_num + 1}"
-                action = (
-                    f"{product_anchor} navigates past toy building blocks across {setting_anchor}, steered with joyful energy by {subject_anchor}."
-                )
-
-            # Generate natural, fluid cinematic prompt with embedded full 10s dialogue!
+            # Build unified, natural cinematic video prompt with embedded dialogue, SFX, and VFX!
             video_prompt = build_fluid_cinematic_prompt(
                 style=style_anchor,
                 action=action,
@@ -361,13 +456,9 @@ def generate_consistent_scene_prompts(
                 setting=setting_anchor,
                 dialogue=english_dialogue,
                 sfx=sound_effects,
-                cam_motion=cam["motion"]
+                cam_motion=cam["motion"],
+                vfx=visual_effects
             )
-
-            negative_prompt = (
-                "scary, dark, realistic horror, morphing car model, distorted wheels, broken toys, realistic violence, flickering, text watermark, blurry, deformed hands"
-            )
-            cam_dir = f"{cam['type']} ({cam['motion']})"
         
         # Calculate speech word count
         words = len(english_dialogue.split())
@@ -382,8 +473,12 @@ def generate_consistent_scene_prompts(
             "english_dialogue": english_dialogue,
             "word_count": words,
             "speech_duration_est": "Full 10s Spoken",
+            "act": act,
+            "milestone": milestone,
             "story_link": story_link or f"Seamlessly links into Scene {min(scene_num + 1, total_scenes)}",
             "sound_effects": sound_effects,
+            "visual_effects": visual_effects,
+            "is_closing": is_closing,
             "action_description": action,
             "camera_directive": cam_dir,
             "camera_purpose": cam["purpose"],
@@ -396,6 +491,8 @@ def generate_consistent_scene_prompts(
                 "style": style_anchor
             }
         })
+        
+    return processed_scenes
         
     return processed_scenes
 

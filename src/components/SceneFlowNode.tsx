@@ -120,7 +120,11 @@ export const SceneFlowNode: React.FC<SceneFlowNodeProps> = ({
               </div>
 
               {/* Scene Card */}
-              <div className="rounded-xl bg-[#0f1013] border border-white/10 hover:border-amber-500/40 p-4 sm:p-5 transition-all shadow-md">
+              <div className={`rounded-xl bg-[#0f1013] border ${
+                scene.is_closing
+                  ? 'border-amber-400/80 shadow-amber-900/30 ring-1 ring-amber-500/50'
+                  : 'border-white/10 hover:border-amber-500/40'
+              } p-4 sm:p-5 transition-all shadow-md`}>
                 {/* Scene Meta Bar */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pb-3 mb-3 border-b border-white/5">
                   <div className="flex flex-wrap items-center gap-2">
@@ -128,6 +132,16 @@ export const SceneFlowNode: React.FC<SceneFlowNodeProps> = ({
                       <Car className="w-3 h-3" />
                       SCENE {scene.scene_index.toString().padStart(2, '0')} / {scenes.length}
                     </span>
+                    {scene.is_closing && (
+                      <span className="px-2.5 py-1 rounded-lg bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 text-white font-bold text-xs shadow-md animate-pulse flex items-center gap-1">
+                        🏆 PENUTUP FILM (Movie Ending & Heartfelt Farewell)
+                      </span>
+                    )}
+                    {scene.act && (
+                      <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-blue-950/80 text-blue-300 border border-blue-800/40 hidden sm:inline-flex items-center gap-1">
+                        🎬 {scene.act} {scene.milestone ? `• ${scene.milestone}` : ''}
+                      </span>
+                    )}
                     <span className="flex items-center gap-1 font-mono text-xs px-2.5 py-1 rounded-lg bg-white/5 text-gray-300 border border-white/10">
                       <Clock className="w-3 h-3 text-amber-400" />
                       {scene.time_range} (Full 10s Penuh)
@@ -237,10 +251,21 @@ export const SceneFlowNode: React.FC<SceneFlowNodeProps> = ({
                   <div className="p-2.5 rounded-lg bg-black/30 border border-white/5 flex items-center justify-between text-xs">
                     <span className="text-[11px] text-amber-300/90 font-mono flex items-center gap-1.5">
                       <Volume2 className="w-3.5 h-3.5 text-amber-400" />
-                      <span>{scene.sound_effects || '[SFX: Vroom vroom engine rev, cheerful giggles]'}</span>
+                      <span><strong>SFX:</strong> {scene.sound_effects || '[SFX: Vroom vroom engine rev, cheerful giggles]'}</span>
                     </span>
                     <span className="text-[10px] text-gray-500 font-mono">10s Audio Cue</span>
                   </div>
+
+                  {/* Cinematic Visual Effects (VFX) */}
+                  {scene.visual_effects && (
+                    <div className="p-2.5 rounded-lg bg-purple-950/20 border border-purple-500/20 flex items-center justify-between text-xs">
+                      <span className="text-[11px] text-purple-300 font-mono flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5 text-purple-400 shrink-0" />
+                        <span><strong>VFX:</strong> {scene.visual_effects}</span>
+                      </span>
+                      <span className="text-[10px] text-purple-400/80 font-mono shrink-0">Movie VFX</span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Section 2: Visual Action & Object Consistency */}

@@ -92,8 +92,12 @@ export interface ScenePromptItem {
   english_dialogue?: string;
   word_count?: number;
   speech_duration_est?: string;
+  act?: string;
+  milestone?: string;
   story_link?: string;
   sound_effects?: string;
+  visual_effects?: string;
+  is_closing?: boolean;
   action_description: string;
   camera_directive: string;
   camera_purpose: string;

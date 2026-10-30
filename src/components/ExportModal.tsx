@@ -55,10 +55,16 @@ export const ExportModal: React.FC<ExportModalProps> = ({
 
     scenes.forEach((s) => {
       const dialogue = s.english_dialogue || s.dialogue;
-      result += `[SCENE ${s.scene_index.toString().padStart(2, '0')} | ${s.time_range} | 10s Penuh | ${s.word_count || ''} Words]\n`;
+      result += `[SCENE ${s.scene_index.toString().padStart(2, '0')} | ${s.time_range} | 10s Penuh | ${s.word_count || ''} Words${s.is_closing ? ' | 🏆 PENUTUP FILM' : ''}]\n`;
+      if (s.act) {
+        result += `Narrative Act: ${s.act} (${s.milestone || ''})\n`;
+      }
       result += `Spoken English Voiceover (No Dead Air):\n"${dialogue}"\n\n`;
       if (s.sound_effects) {
         result += `Sound Effects (SFX): ${s.sound_effects}\n\n`;
+      }
+      if (s.visual_effects) {
+        result += `Visual Effects (VFX): ${s.visual_effects}\n\n`;
       }
       result += `AI Video Generation Prompt:\n${s.video_prompt}\n\n`;
       result += `Negative Prompt: ${s.negative_prompt}\n`;
@@ -140,11 +146,11 @@ export const ExportModal: React.FC<ExportModalProps> = ({
   };
 
   const handleDownloadCSV = () => {
-    const header = "Scene,TimeRange,DurationSec,WordCount,SpokenEnglishDialogue,SoundEffects,VideoPrompt,CameraDirective,NegativePrompt\n";
+    const header = "Scene,TimeRange,DurationSec,WordCount,Act,Milestone,IsClosing,SpokenEnglishDialogue,SoundEffects,VisualEffects,VideoPrompt,CameraDirective,NegativePrompt\n";
     const rows = scenes.map(s => {
       const escape = (str: string) => `"${(str || '').replace(/"/g, '""')}"`;
       const dialogue = s.english_dialogue || s.dialogue;
-      return `${s.scene_index},${escape(s.time_range)},${s.duration_sec},${s.word_count || ''},${escape(dialogue)},${escape(s.sound_effects || '')},${escape(s.video_prompt)},${escape(s.camera_directive)},${escape(s.negative_prompt)}`;
+      return `${s.scene_index},${escape(s.time_range)},${s.duration_sec},${s.word_count || ''},${escape(s.act || '')},${escape(s.milestone || '')},${s.is_closing ? 'YES' : 'NO'},${escape(dialogue)},${escape(s.sound_effects || '')},${escape(s.visual_effects || '')},${escape(s.video_prompt)},${escape(s.camera_directive)},${escape(s.negative_prompt)}`;
     }).join('\n');
 
     const blob = new Blob([header + rows], { type: 'text/csv;charset=utf-8;' });
