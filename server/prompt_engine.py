@@ -384,3 +384,166 @@ def generate_consistent_scene_prompts(
         })
         
     return processed_scenes
+
+def generate_youtube_viral_package(
+    video_meta: Dict[str, Any],
+    anchors: Dict[str, str],
+    scenes: List[Dict[str, Any]],
+    image_context: Optional[Dict[str, Any]] = None,
+    vision: Optional[Dict[str, Any]] = None
+) -> Dict[str, Any]:
+    """
+    Generates high-CTR viral YouTube metadata in English:
+    1. 5 Hype FYP Titles optimized for kids audience algorithms.
+    2. Comprehensive SEO Description with storyline synopsis, chapter timestamps, call-to-actions, and tags.
+    3. Cinematic AI Thumbnail Prompts optimized for Google Gemini / Imagen 3 / Midjourney (16:9).
+    """
+    car_name = anchors.get("product", "Gleaming crimson red stunt monster truck with flame decals")
+    child_name = anchors.get("subject", "Cheerful 4-year-old child with an energetic smile")
+    arena_name = anchors.get("setting", "vibrant playroom track with orange looping ramps")
+    orig_title = video_meta.get("title", "")
+    
+    # Extract short punchy car name for title
+    car_short = "MONSTER TRUCK"
+    sample_car = (car_name + " " + orig_title).lower()
+    if "police" in sample_car or "polisi" in sample_car:
+        car_short = "POLICE PATROL CAR"
+    elif "fire" in sample_car or "pemadam" in sample_car:
+        car_short = "FIRE RESCUE TRUCK"
+    elif "hot wheels" in sample_car or "balap" in sample_car or "racer" in sample_car:
+        car_short = "HOT WHEELS RACER"
+    elif "buggy" in sample_car or "offroad" in sample_car:
+        car_short = "OFFROAD BUGGY"
+    elif "monster" in sample_car or "truk" in sample_car or "truck" in sample_car:
+        car_short = "MONSTER TRUCK"
+    else:
+        if image_context and image_context.get("product_name"):
+            clean_p = re.sub(r'[^a-zA-Z0-9\s]', '', image_context.get("product_name", "")).strip().upper()
+            if len(clean_p) > 3 and len(clean_p) <= 22:
+                car_short = clean_p
+            else:
+                car_short = "STUNT TOY CAR"
+        else:
+            car_short = "SUPER TOY CAR"
+
+    # 5 High-CTR Viral English Titles (Hype & Algorithmic friendly)
+    viral_titles = [
+        f"OMG! CRAZY {car_short} MEGA RAMP JUMP! 🏎️💨 (Epic Toy Car Stunt Race)",
+        f"CAN WE WIN? High-Speed {car_short} Loop-the-Loop Championship! 🏆🏁",
+        f"EPIC TOY CAR OBSTACLE CRASH & JUMP! 🚀 {car_short} Playroom Rally",
+        f"VROOM VROOM! Best {car_short} Toy Story for Kids! 🌟 (Ultimate Stunt Play)",
+        f"{car_short} SPEED CHALLENGE! 🚗💨 Kids Toy Car Grand Prix!"
+    ]
+    primary_title = viral_titles[0]
+
+    # Chapter Timestamps calculation
+    chapters = []
+    total_scenes = len(scenes)
+    if total_scenes > 0:
+        chapter_indices = [
+            (0, "🏁 Starting Line & High-Energy Engine Rev"),
+            (min(5, total_scenes - 1), "🚀 Launch Down the High-Speed Ramp"),
+            (min(15, total_scenes - 1), "🔄 The Giant 360-Degree Loop Challenge"),
+            (min(25, total_scenes - 1), "🌉 Narrow Wooden Suspension Bridge Crossing"),
+            (min(35, total_scenes - 1), "🌪️ The Whirlwind Spiral Tower Ascent"),
+            (min(45, total_scenes - 1), "🔥 Bumpy Kinetic Sand Mountain Climb"),
+            (min(54, total_scenes - 1), "⚡ Ultimate Airborne Mega Ramp Jump"),
+            (total_scenes - 1, "🏆 Grand Finish Line Celebration & Confetti!")
+        ]
+        seen_idx = set()
+        for idx, label in chapter_indices:
+            if idx not in seen_idx and idx < total_scenes:
+                seen_idx.add(idx)
+                s = scenes[idx]
+                time_str = s.get("time_range", "").split(" - ")[0] if " - " in s.get("time_range", "") else format_timestamp(s.get("start_time", 0))
+                chapters.append(f"{time_str} {label}")
+
+    chapters_text = "\n".join(chapters) if chapters else "00:00 🏁 Starting Line & Grand Race\n05:00 🚀 Mega Stunt Jump\n09:30 🏆 Victory Celebration!"
+
+    # SEO Description (Structured for high retention and watch time)
+    description = (
+        f"🏎️💨 Welcome to the most exciting {car_short} toy car racing adventure ever created!\n\n"
+        f"In today's action-packed story, our favorite {car_name} takes on the ultimate playroom championship circuit! "
+        f"Steered by a {child_name}, watch as our hero speeds down dizzying vertical drops, zooms through full 360-degree looping ramps, "
+        f"conquers bumpy obstacle courses, and pulls off incredible airborne stunt jumps in {arena_name}!\n\n"
+        f"Every scene is filled with cheerful sound effects, continuous spoken English voiceover, and nonstop high-energy fun "
+        f"designed to inspire playful imagination for toddlers, preschoolers, and kids worldwide!\n\n"
+        f"⏱️ VIDEO CHAPTERS / TIMESTAMPS:\n"
+        f"{chapters_text}\n\n"
+        f"✨ WHAT MAKES THIS VIDEO AWESOME:\n"
+        f"• Full 10-second continuous English narrative without dead air or pauses!\n"
+        f"• 100% consistent toy car and character continuity throughout all scenes!\n"
+        f"• Vibrant 3D Pixar-style visuals with colorful loops and cheerful playroom ambiance!\n"
+        f"• Wholesome, safe, and family-friendly entertainment for children.\n\n"
+        f"👍 If you enjoyed this toy car race, please smash the LIKE button, SHARE with your best friends, and SUBSCRIBE for daily cartoon adventures!\n"
+        f"🔔 Turn on notifications so you never miss our next ramp jump!\n"
+        f"💬 QUESTION OF THE DAY: Which stunt jump was your favorite? The giant loop or the bridge crossing? Let us know in the comments below! 👇\n\n"
+        f"#KidsVideo #{car_short.replace(' ', '')} #ToyCars #MonsterTruck #HotWheels #PixarCars #ToyRacing #KidsStory #LoopTheLoop #MegaRamp #FamilyFun #ToddlerFun"
+    )
+
+    tags = [
+        "kids video",
+        "toy cars",
+        "monster truck",
+        "toy car race",
+        "kids playing with cars",
+        "hot wheels race",
+        "monster truck for kids",
+        "toy vehicles",
+        "stunt jump cars",
+        "loop the loop ramp",
+        "vroom vroom cars",
+        "pixar cars toys",
+        "kids toy story",
+        "car cartoon for toddlers",
+        "family friendly video",
+        "10 minute kids video",
+        "preschool car race"
+    ]
+
+    hashtags = [
+        "#KidsVideo",
+        f"#{car_short.replace(' ', '')}",
+        "#ToyCars",
+        "#MonsterTruck",
+        "#HotWheels",
+        "#PixarCars",
+        "#ToyRacing",
+        "#StoryForKids",
+        "#FamilyFun"
+    ]
+
+    primary_thumbnail_prompt = (
+        f"A hyper-viral, high-CTR YouTube video thumbnail in ultra-vivid 3D Pixar and Disney animation aesthetic, 16:9 widescreen format (1280x720). "
+        f"Hero Action Subject: The primary {car_name} explodes through the air in an epic stunt leap directly toward the camera lens with dynamic 3D pop-out effect, "
+        f"front tires angled sharply, oversized deep rubber treads in ultra-crisp 8K detail, ultra-glossy reflective finish with vibrant flame decals, and bright glowing rounded headlights. "
+        f"Expressive Character Anchor: In the upper-right background, a {child_name} with huge sparkling joyful eyes, open-mouthed expression of sheer wonder, and both hands raised high in cheerful triumph. "
+        f"Playroom Circuit Environment: Behind the flying vehicle, an expansive winding bright neon-orange looping Hot Wheels-style race track, miniature wooden suspension bridges, and colorful rainbow building blocks. "
+        f"Lighting & Special Effects: Warm golden playroom sunlight with volumetric god rays, colorful flying cartoon confetti and speed stars, dynamic motion blur on the background track to emphasize hyper speed while the vehicle remains razor-sharp in focus. "
+        f"Color Palette: Saturated neon orange, electric cyan blue, candy apple red, and sunshine yellow with cinematic high contrast. "
+        f"Composition: Designed specifically for YouTube thumbnail algorithms: eye-catching from small mobile screens, natural clean space in the upper left corner for bold thumbnail text, zero dark muddy tones, wholesome, ultra-appealing and captivating for kids and parents."
+    )
+
+    closeup_thumbnail_prompt = (
+        f"A viral kids YouTube thumbnail in 3D Pixar animation style, 16:9 widescreen ratio. "
+        f"Macro eye-level portrait of a {child_name} beaming proudly with an ecstatic happy smile, holding the gleaming {car_name} right in front of the camera lens so the bumper and wheels appear huge and tactile. "
+        f"The toy car features pristine glossy paint, rounded friendly headlights casting warm cartoon light, and rugged off-road tires. "
+        f"The background reveals a sunlit colorful kids playroom with looping orange tracks and soft pastel bokeh. "
+        f"Ultra-saturated cheerful colors, crystal clear 8K resolution, cinematic studio lighting, high emotional connection, perfect for YouTube Kids CTR."
+    )
+
+    composition_tips = (
+        "💡 Tips Promt Gemini / Imagen: Gunakan aspek rasio 16:9 (1280x720) saat generate di Google Gemini / Imagen 3 agar pas menjadi thumbnail YouTube.\n"
+        "🎯 Karakteristik Thumbnail FYP: Sudut kamera rendah (low-angle) dengan mobil melompat ke arah penonton (3D pop-out effect) + ekspresi wajah anak kagum/gembira + warna neon kontras tinggi (oranye & kuning) terbukti menghasilkan CTR di atas 15% pada algoritma YouTube Kids."
+    )
+
+    return {
+        "viral_titles": viral_titles,
+        "primary_title": primary_title,
+        "description": description,
+        "tags": tags,
+        "hashtags": hashtags,
+        "thumbnail_prompt": primary_thumbnail_prompt,
+        "thumbnail_alt_prompt": closeup_thumbnail_prompt,
+        "thumbnail_composition_tips": composition_tips
+    }

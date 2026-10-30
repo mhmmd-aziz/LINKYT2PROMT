@@ -102,6 +102,17 @@ export interface ScenePromptItem {
   anchors: SceneAnchors;
 }
 
+export interface YouTubePackage {
+  viral_titles: string[];
+  primary_title: string;
+  description: string;
+  tags: string[];
+  hashtags: string[];
+  thumbnail_prompt: string;
+  thumbnail_alt_prompt?: string;
+  thumbnail_composition_tips: string;
+}
+
 export interface GenerateResponse {
   status: string;
   total_scenes: number;
@@ -112,4 +123,5 @@ export interface GenerateResponse {
   engine_used: string;
   anchors: SceneAnchors;
   scenes: ScenePromptItem[];
+  youtube_package?: YouTubePackage;
 }

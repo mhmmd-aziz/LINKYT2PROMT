@@ -5,6 +5,7 @@ import { ImageUploadNode } from './components/ImageUploadNode';
 import { ConsistencyNode } from './components/ConsistencyNode';
 import { TranscriptNode } from './components/TranscriptNode';
 import { SceneFlowNode } from './components/SceneFlowNode';
+import { YouTubePackageNode } from './components/YouTubePackageNode';
 import { ExportModal } from './components/ExportModal';
 import { LlmApiKeyModal } from './components/LlmApiKeyModal';
 import {
@@ -14,7 +15,8 @@ import {
   ScenePromptItem,
   SceneAnchors,
   ImageAnalysisResult,
-  KidsVideoVision
+  KidsVideoVision,
+  YouTubePackage
 } from './types';
 import { ArrowDown, Sparkles, Car } from 'lucide-react';
 
@@ -58,9 +60,10 @@ export const App: React.FC = () => {
     style: 'Cinematic 3D Pixar animation aesthetic, 8K ultra-vibrant saturated colors, warm soft playroom lighting, realistic glossy toy textures, 24fps smooth motion'
   });
 
-  // Generated Scenes (Max 60 Scenes)
+  // Generated Scenes (Max 60 Scenes) & Viral YouTube Kit
   const [generating, setGenerating] = useState<boolean>(false);
   const [scenes, setScenes] = useState<ScenePromptItem[]>([]);
+  const [youtubePackage, setYoutubePackage] = useState<YouTubePackage | null>(null);
   const [exportModalOpen, setExportModalOpen] = useState<boolean>(false);
 
   // Fetch hardware on mount
@@ -186,6 +189,9 @@ export const App: React.FC = () => {
       }
 
       setScenes(json.scenes || []);
+      if (json.youtube_package) {
+        setYoutubePackage(json.youtube_package);
+      }
       if (json.video_vision) {
         setVideoVision(json.video_vision);
       }
@@ -385,6 +391,23 @@ export const App: React.FC = () => {
           </div>
         )}
 
+        {/* FLOW NODE: Viral YouTube Kit (Judul FYP, Deskripsi SEO & AI Thumbnail Gemini Prompt) */}
+        {youtubePackage && (
+          <div className="relative">
+            <YouTubePackageNode
+              packageData={youtubePackage}
+              referenceImage={imagePreview}
+            />
+
+            {/* Flow Connector Arrow */}
+            <div className="flex justify-center my-4">
+              <div className="w-8 h-8 rounded-full bg-[#18191e] border border-white/15 flex items-center justify-center text-red-400 shadow-md">
+                <ArrowDown className="w-4 h-4" />
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* FINAL FLOW NODE: Scenes Prompt-to-Video Matrix */}
         {scenes.length > 0 && (
           <div className="relative">
@@ -405,6 +428,7 @@ export const App: React.FC = () => {
         onClose={() => setExportModalOpen(false)}
         scenes={scenes}
         metadata={metadata}
+        youtubePackage={youtubePackage}
       />
 
       {/* DeepSeek / HuggingFace LLM Key & Engine Modal */}

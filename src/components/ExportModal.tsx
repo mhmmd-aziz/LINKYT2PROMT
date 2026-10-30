@@ -1,26 +1,54 @@
 import React, { useState } from 'react';
-import { ScenePromptItem, VideoMetadata } from '../types';
-import { X, Copy, Check, Download, FileText, FileSpreadsheet, Code, Film, Car, Mic } from 'lucide-react';
+import { ScenePromptItem, VideoMetadata, YouTubePackage } from '../types';
+import { X, Copy, Check, Download, FileText, FileSpreadsheet, Code, Film, Car, Mic, Video, Sparkles } from 'lucide-react';
 
 interface ExportModalProps {
   isOpen: boolean;
   onClose: () => void;
   scenes: ScenePromptItem[];
   metadata: VideoMetadata | null;
+  youtubePackage?: YouTubePackage | null;
 }
 
 export const ExportModal: React.FC<ExportModalProps> = ({
   isOpen,
   onClose,
   scenes,
-  metadata
+  metadata,
+  youtubePackage
 }) => {
   const [copiedType, setCopiedType] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
+  const generateYouTubeKitText = () => {
+    if (!youtubePackage) return '';
+    let kit = `=== IMZY TOOLS YT - VIRAL YOUTUBE KIT (HYPE TITLES, SEO DESCRIPTION & THUMBNAIL) ===\n\n`;
+    kit += `--- 1. RECOMMENDED VIRAL YOUTUBE TITLE (HIGHEST CTR) ---\n`;
+    kit += `${youtubePackage.primary_title}\n\n`;
+    kit += `--- 2. ALL 5 VIRAL FYP TITLE VARIATIONS ---\n`;
+    youtubePackage.viral_titles.forEach((t, i) => {
+      kit += `${i + 1}. ${t}\n`;
+    });
+    kit += `\n--- 3. AI THUMBNAIL GENERATION PROMPT (GEMINI / IMAGEN 3 / MIDJOURNEY - 16:9) ---\n`;
+    kit += `${youtubePackage.thumbnail_prompt}\n\n`;
+    if (youtubePackage.thumbnail_alt_prompt) {
+      kit += `--- ALTERNATIVE CLOSE-UP THUMBNAIL PROMPT ---\n${youtubePackage.thumbnail_alt_prompt}\n\n`;
+    }
+    kit += `--- 4. FULL YOUTUBE SEO DESCRIPTION (WITH TIMESTAMPS) ---\n`;
+    kit += `${youtubePackage.description}\n\n`;
+    kit += `--- 5. TOP SEARCH TAGS (FOR YOUTUBE STUDIO TAGS FIELD) ---\n`;
+    kit += `${youtubePackage.tags.join(', ')}\n\n`;
+    return kit;
+  };
+
   const generateAllPromptsText = () => {
-    let result = `=== IMZY TOOLS YT - KIDS 60-SCENE VIDEO FLOW (ENGLISH CONTINUOUS SCRIPT) ===\n`;
+    let result = '';
+    if (youtubePackage) {
+      result += generateYouTubeKitText();
+      result += `====================================================================\n\n`;
+    }
+    result += `=== IMZY TOOLS YT - KIDS 60-SCENE VIDEO FLOW (ENGLISH CONTINUOUS SCRIPT) ===\n`;
     result += `Video Reference: ${metadata?.title || 'Kids YouTube Video'}\n`;
     result += `Total Scenes: ${scenes.length} (Full 10-Second Continuous Spoken English)\n`;
     result += `Object & Character Locking: 100% Consistent\n\n`;
@@ -62,12 +90,31 @@ export const ExportModal: React.FC<ExportModalProps> = ({
     setTimeout(() => setCopiedType(null), 2000);
   };
 
+  const handleCopyYouTubeKit = () => {
+    const kit = generateYouTubeKitText();
+    navigator.clipboard.writeText(kit);
+    setCopiedType('ytkit');
+    setTimeout(() => setCopiedType(null), 2000);
+  };
+
+  const handleDownloadYouTubeKitTXT = () => {
+    const kit = generateYouTubeKitText();
+    const blob = new Blob([kit], { type: 'text/plain;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `imzy-youtube-kit-${metadata?.id || 'viral'}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const handleDownloadJSON = () => {
     const data = {
       project: "imzy tools yt",
       theme: "Kids Video Toy Car Play (Continuous English Story)",
       generated_at: new Date().toISOString(),
       metadata: metadata,
+      youtube_package: youtubePackage || undefined,
       total_scenes: scenes.length,
       scene_duration_sec: 10,
       scenes: scenes
@@ -158,7 +205,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
         </div>
 
         {/* Action Buttons */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 mb-4">
+        <div className="grid grid-cols-2 sm:grid-cols-6 gap-2 mb-4">
           <button
             type="button"
             onClick={handleCopyAll}
@@ -167,6 +214,17 @@ export const ExportModal: React.FC<ExportModalProps> = ({
             {copiedType === 'all' ? <Check className="w-5 h-5 text-emerald-200" /> : <Copy className="w-5 h-5" />}
             <span>{copiedType === 'all' ? 'Tersalin!' : 'Copy Semua Prompt'}</span>
           </button>
+
+          {youtubePackage && (
+            <button
+              type="button"
+              onClick={handleCopyYouTubeKit}
+              className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl bg-gradient-to-r from-red-600 to-purple-600 hover:from-red-500 hover:to-purple-500 text-white font-medium text-xs shadow-md transition-all active:scale-[0.98]"
+            >
+              {copiedType === 'ytkit' ? <Check className="w-5 h-5 text-emerald-200" /> : <Video className="w-5 h-5 text-red-300" />}
+              <span>{copiedType === 'ytkit' ? 'Kit Tersalin!' : 'Copy YouTube Kit'}</span>
+            </button>
+          )}
 
           <button
             type="button"
@@ -177,14 +235,25 @@ export const ExportModal: React.FC<ExportModalProps> = ({
             <span>{copiedType === 'voiceover' ? 'Tersalin!' : 'Copy English Script'}</span>
           </button>
 
-          <button
-            type="button"
-            onClick={handleDownloadVoiceoverTXT}
-            className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl bg-[#23252b] hover:bg-[#2c2e36] text-gray-200 border border-white/10 font-medium text-xs transition-all active:scale-[0.98]"
-          >
-            <FileText className="w-5 h-5 text-amber-400" />
-            <span>Download Voice (.TXT)</span>
-          </button>
+          {youtubePackage ? (
+            <button
+              type="button"
+              onClick={handleDownloadYouTubeKitTXT}
+              className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl bg-[#23252b] hover:bg-[#2c2e36] text-gray-200 border border-white/10 font-medium text-xs transition-all active:scale-[0.98]"
+            >
+              <FileText className="w-5 h-5 text-red-400" />
+              <span>Download YT Kit (.TXT)</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={handleDownloadVoiceoverTXT}
+              className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl bg-[#23252b] hover:bg-[#2c2e36] text-gray-200 border border-white/10 font-medium text-xs transition-all active:scale-[0.98]"
+            >
+              <FileText className="w-5 h-5 text-amber-400" />
+              <span>Download Voice (.TXT)</span>
+            </button>
+          )}
 
           <button
             type="button"

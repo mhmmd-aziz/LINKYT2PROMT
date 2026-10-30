@@ -14,7 +14,8 @@ try:
         chunk_transcript_to_10s_scenes,
         generate_consistent_scene_prompts,
         detect_subject_context,
-        extract_kids_video_vision
+        extract_kids_video_vision,
+        generate_youtube_viral_package
     )
     from server.llm_service import (
         verify_llm_key,
@@ -33,7 +34,8 @@ except ImportError:
         chunk_transcript_to_10s_scenes,
         generate_consistent_scene_prompts,
         detect_subject_context,
-        extract_kids_video_vision
+        extract_kids_video_vision,
+        generate_youtube_viral_package
     )
     from llm_service import (
         verify_llm_key,
@@ -224,6 +226,15 @@ def generate_prompts(req: GenerateRequest):
         
         anchors = processed_scenes[0]["anchors"] if processed_scenes else {}
         
+        # Step 4: Generate viral YouTube kit (Hype FYP Titles, SEO Description with timestamps, and AI Thumbnail Prompts for Gemini)
+        youtube_package = generate_youtube_viral_package(
+            video_meta=req.metadata,
+            anchors=anchors,
+            scenes=processed_scenes,
+            image_context=req.image_context,
+            vision=vision
+        )
+
         return {
             "status": "success",
             "total_scenes": len(processed_scenes),
@@ -233,10 +244,33 @@ def generate_prompts(req: GenerateRequest):
             "video_vision": vision,
             "engine_used": engine_used,
             "anchors": anchors,
-            "scenes": processed_scenes
+            "scenes": processed_scenes,
+            "youtube_package": youtube_package
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Gagal membuat alur prompt scene: {str(e)}")
+
+class YouTubeKitRequest(BaseModel):
+    metadata: Dict[str, Any]
+    anchors: Dict[str, str]
+    scenes: List[Dict[str, Any]] = []
+    image_context: Optional[Dict[str, Any]] = None
+
+@app.post("/api/youtube-kit")
+async def get_youtube_kit(req: YouTubeKitRequest):
+    """
+    Independent endpoint to generate/refresh YouTube FYP titles, descriptions, and Gemini thumbnail prompts.
+    """
+    try:
+        pkg = generate_youtube_viral_package(
+            video_meta=req.metadata,
+            anchors=req.anchors,
+            scenes=req.scenes,
+            image_context=req.image_context
+        )
+        return {"status": "success", "youtube_package": pkg}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Gagal menghasilkan YouTube kit: {str(e)}")
 
 # Mount frontend built assets if available
 dist_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "dist"))
