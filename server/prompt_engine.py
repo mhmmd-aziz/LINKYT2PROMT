@@ -256,9 +256,23 @@ def generate_consistent_scene_prompts(
     vision_info = extract_kids_video_vision(title, full_text)
     context_defaults = detect_subject_context(full_text, title, language="en", image_context=image_context)
     
-    subject_anchor = custom_subject or context_defaults["subject"]
-    product_anchor = custom_product or context_defaults["product"]
-    setting_anchor = custom_setting or context_defaults["setting"]
+    # If image_context is provided, the uploaded photo STRICTLY defines the car model and colors!
+    if image_context and (image_context.get("recommended_anchor_product") or image_context.get("product_name")):
+        product_anchor = image_context.get("recommended_anchor_product") or image_context.get("product_name")
+        if image_context.get("recommended_anchor_subject"):
+            subject_anchor = image_context.get("recommended_anchor_subject")
+        else:
+            subject_anchor = custom_subject or context_defaults["subject"]
+            
+        if image_context.get("recommended_setting"):
+            setting_anchor = image_context.get("recommended_setting")
+        else:
+            setting_anchor = custom_setting or context_defaults["setting"]
+    else:
+        product_anchor = custom_product or context_defaults["product"]
+        subject_anchor = custom_subject or context_defaults["subject"]
+        setting_anchor = custom_setting or context_defaults["setting"]
+        
     style_anchor = custom_style or context_defaults["style"]
     
     total_scenes = len(scenes)
@@ -390,13 +404,14 @@ def generate_youtube_viral_package(
     anchors: Dict[str, str],
     scenes: List[Dict[str, Any]],
     image_context: Optional[Dict[str, Any]] = None,
-    vision: Optional[Dict[str, Any]] = None
+    vision: Optional[Dict[str, Any]] = None,
+    thumbnail_text: Optional[str] = None
 ) -> Dict[str, Any]:
     """
     Generates high-CTR viral YouTube metadata in English:
     1. 5 Hype FYP Titles optimized for kids audience algorithms.
     2. Comprehensive SEO Description with storyline synopsis, chapter timestamps, call-to-actions, and tags.
-    3. Cinematic AI Thumbnail Prompts optimized for Google Gemini / Imagen 3 / Midjourney (16:9).
+    3. Cinematic AI Thumbnail Prompts optimized for Google Gemini / Imagen 3 / Midjourney (16:9) WITH BOLD 3D EMBEDDED TEXT.
     """
     car_name = anchors.get("product", "Gleaming crimson red stunt monster truck with flame decals")
     child_name = anchors.get("subject", "Cheerful 4-year-old child with an energetic smile")
@@ -435,6 +450,12 @@ def generate_youtube_viral_package(
         f"{car_short} SPEED CHALLENGE! 🚗💨 Kids Toy Car Grand Prix!"
     ]
     primary_title = viral_titles[0]
+
+    # Clean thumbnail text for rendering on image
+    active_text = thumbnail_text or "EPIC JUMP!"
+    clean_text = re.sub(r'[^\w\s\?!°#\-]', '', active_text).strip()
+    if not clean_text:
+        clean_text = "EPIC JUMP!"
 
     # Chapter Timestamps calculation
     chapters = []
@@ -515,17 +536,19 @@ def generate_youtube_viral_package(
 
     primary_thumbnail_prompt = (
         f"A hyper-viral, high-CTR YouTube video thumbnail in ultra-vivid 3D Pixar and Disney animation aesthetic, 16:9 widescreen format (1280x720). "
+        f"Embedded 3D Thumbnail Text: Bold, punchy 3D extruded cartoon typography prominently rendered across the top reading exactly \"{clean_text}\" in glowing sunny yellow gradient letters with thick comic black outlines, vibrant red drop shadows, and sparkling speed starbursts. "
         f"Hero Action Subject: The primary {car_name} explodes through the air in an epic stunt leap directly toward the camera lens with dynamic 3D pop-out effect, "
         f"front tires angled sharply, oversized deep rubber treads in ultra-crisp 8K detail, ultra-glossy reflective finish with vibrant flame decals, and bright glowing rounded headlights. "
         f"Expressive Character Anchor: In the upper-right background, a {child_name} with huge sparkling joyful eyes, open-mouthed expression of sheer wonder, and both hands raised high in cheerful triumph. "
         f"Playroom Circuit Environment: Behind the flying vehicle, an expansive winding bright neon-orange looping Hot Wheels-style race track, miniature wooden suspension bridges, and colorful rainbow building blocks. "
-        f"Lighting & Special Effects: Warm golden playroom sunlight with volumetric god rays, colorful flying cartoon confetti and speed stars, dynamic motion blur on the background track to emphasize hyper speed while the vehicle remains razor-sharp in focus. "
+        f"Lighting & Special Effects: Warm golden playroom sunlight with volumetric god rays, colorful flying cartoon confetti and speed stars, dynamic motion blur on the background track to emphasize hyper speed while the vehicle and text remain razor-sharp 8K crisp focus. "
         f"Color Palette: Saturated neon orange, electric cyan blue, candy apple red, and sunshine yellow with cinematic high contrast. "
-        f"Composition: Designed specifically for YouTube thumbnail algorithms: eye-catching from small mobile screens, natural clean space in the upper left corner for bold thumbnail text, zero dark muddy tones, wholesome, ultra-appealing and captivating for kids and parents."
+        f"Composition: Designed specifically for YouTube thumbnail algorithms: eye-catching from small mobile screens, crystal clear legible 3D title text \"{clean_text}\", zero dark muddy tones, wholesome, ultra-appealing and captivating for kids and parents."
     )
 
     closeup_thumbnail_prompt = (
-        f"A viral kids YouTube thumbnail in 3D Pixar animation style, 16:9 widescreen ratio. "
+        f"A viral kids YouTube thumbnail in 3D Pixar animation style, 16:9 widescreen ratio (1280x720). "
+        f"Embedded 3D Thumbnail Text: Huge, expressive 3D embossed comic text situated at the top reading \"360° LOOP!\" in glossy electric cyan and orange gradient with thick white borders and shiny cartoon reflections. "
         f"Macro eye-level portrait of a {child_name} beaming proudly with an ecstatic happy smile, holding the gleaming {car_name} right in front of the camera lens so the bumper and wheels appear huge and tactile. "
         f"The toy car features pristine glossy paint, rounded friendly headlights casting warm cartoon light, and rugged off-road tires. "
         f"The background reveals a sunlit colorful kids playroom with looping orange tracks and soft pastel bokeh. "
@@ -534,7 +557,7 @@ def generate_youtube_viral_package(
 
     composition_tips = (
         "💡 Tips Promt Gemini / Imagen: Gunakan aspek rasio 16:9 (1280x720) saat generate di Google Gemini / Imagen 3 agar pas menjadi thumbnail YouTube.\n"
-        "🎯 Karakteristik Thumbnail FYP: Sudut kamera rendah (low-angle) dengan mobil melompat ke arah penonton (3D pop-out effect) + ekspresi wajah anak kagum/gembira + warna neon kontras tinggi (oranye & kuning) terbukti menghasilkan CTR di atas 15% pada algoritma YouTube Kids."
+        "🎯 Karakteristik Thumbnail FYP: Teks 3D tebal ('EPIC JUMP!') di bagian atas + sudut kamera rendah (low-angle) dengan mobil melompat ke arah penonton (3D pop-out effect) + ekspresi wajah anak kagum/gembira + warna neon kontras tinggi terbukti menghasilkan CTR di atas 15% pada algoritma YouTube Kids."
     )
 
     return {
@@ -545,5 +568,13 @@ def generate_youtube_viral_package(
         "hashtags": hashtags,
         "thumbnail_prompt": primary_thumbnail_prompt,
         "thumbnail_alt_prompt": closeup_thumbnail_prompt,
+        "thumbnail_text": clean_text,
+        "thumbnail_text_options": [
+            "EPIC JUMP! 🏎️",
+            "360° LOOP! 🔄",
+            "CAN IT SURVIVE?! 😱",
+            "SUPER FAST! ⚡",
+            "VROOM VROOM! 🏁"
+        ],
         "thumbnail_composition_tips": composition_tips
     }

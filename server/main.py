@@ -70,6 +70,7 @@ class ExtractRequest(BaseModel):
 class AnalyzeImageRequest(BaseModel):
     image_base64: str = Field(..., description="Base64 encoded image string (1 photo)")
     api_token: Optional[str] = Field(None, description="Optional Hugging Face or Gemini API token")
+    gemini_api_key: Optional[str] = Field(None, description="Optional Gemini API key")
 
 class VerifyKeyRequest(BaseModel):
     api_token: str = Field(..., description="DeepSeek, HuggingFace, or Gemini Token to verify")
@@ -117,7 +118,8 @@ def api_analyze_image(req: AnalyzeImageRequest):
     Uses AI Vision if API token provided, or smart local kids vision engine.
     """
     try:
-        analysis = analyze_uploaded_image(req.image_base64, api_key=req.api_token)
+        token = req.api_token or req.gemini_api_key
+        analysis = analyze_uploaded_image(req.image_base64, api_key=token)
         return {
             "status": "success",
             "analysis": analysis

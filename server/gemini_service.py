@@ -1,7 +1,9 @@
 import os
 import json
 import base64
+import io
 import httpx
+from PIL import Image
 from typing import Dict, Any, Optional, List
 
 GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models"
@@ -104,17 +106,107 @@ Output ONLY a valid JSON object:
         except Exception as e:
             print(f"[Gemini Vision Warning] {e}")
 
-    # Fallback
-    return {
-        "product_name": "Gleaming Red & Yellow Stunt Monster Truck",
-        "category": "Kids Toy Adventure & Car Play",
-        "visual_description": "Vibrant glossy crimson red toy car with sunny yellow racing stripes, oversized black rubber rugged tires, and friendly cartoon headlights in 3D Pixar style",
-        "recommended_anchor_product": "Gleaming crimson red stunt monster truck with sunny yellow racing stripes, oversized black rubber off-road tires, glossy plastic finish, and rounded headlights in 3D Pixar animation style",
-        "recommended_anchor_subject": "Cheerful 4-year-old toddler with neat brown hair wearing a bright blue and orange striped play shirt, beaming with an energetic joyful smile",
-        "recommended_setting": "Sunlit kids playroom track featuring vibrant orange looping ramps, mini wooden suspension bridges, and colorful stacking blocks",
-        "detected_text": "Stunt Car 01",
-        "source": "Smart Kids Vision Engine"
-    }
+    # Fallback to smart local PIL color & shape analysis
+    return analyze_image_locally(clean_b64)
+
+def analyze_image_locally(clean_b64: str) -> Dict[str, Any]:
+    """
+    Analyzes uploaded image locally using PIL to detect dominant colors, aspect ratio,
+    and visual attributes of the toy car/character without requiring external API calls.
+    """
+    try:
+        raw_bytes = base64.b64decode(clean_b64)
+        img = Image.open(io.BytesIO(raw_bytes)).convert("RGB")
+        width, height = img.size
+        
+        # Resize for fast color histogram analysis
+        thumb = img.resize((100, 100))
+        pixels = list(thumb.getdata())
+        
+        # Color classification buckets
+        color_counts = {
+            "Blue": 0,
+            "Cyan": 0,
+            "Red": 0,
+            "Green": 0,
+            "Yellow": 0,
+            "Orange": 0,
+            "Purple": 0,
+            "White": 0,
+            "Black": 0
+        }
+        
+        for r, g, b in pixels:
+            if r > 210 and g > 210 and b > 210:
+                color_counts["White"] += 1
+            elif r < 45 and g < 45 and b < 45:
+                color_counts["Black"] += 1
+            elif r > 180 and g > 150 and b < 80:
+                color_counts["Yellow"] += 1
+            elif r > 180 and 80 <= g <= 150 and b < 80:
+                color_counts["Orange"] += 1
+            elif r > 160 and g < 100 and b < 100:
+                color_counts["Red"] += 1
+            elif g > 140 and g > r * 1.2 and g > b * 1.2:
+                color_counts["Green"] += 1
+            elif b > 140 and b > r * 1.2 and b > g * 1.2:
+                color_counts["Blue"] += 1
+            elif g > 130 and b > 130 and r < 100:
+                color_counts["Cyan"] += 1
+            elif (r > 130 and b > 130 and g < 110) or (r > 180 and b > 140 and g < 150):
+                color_counts["Purple"] += 1
+        
+        # Filter out dominant background/white/black if colored exists
+        non_neutral = {k: v for k, v in color_counts.items() if k not in ("White", "Black")}
+        sorted_colored = sorted(non_neutral.items(), key=lambda x: x[1], reverse=True)
+        
+        if sorted_colored and sorted_colored[0][1] > 150:
+            primary_color = sorted_colored[0][0]
+            secondary_color = sorted_colored[1][0] if len(sorted_colored) > 1 and sorted_colored[1][1] > 100 else "Yellow"
+        else:
+            primary_color = "Crimson Red"
+            secondary_color = "Neon Yellow"
+            
+        ratio = width / max(1, height)
+        if ratio > 1.3:
+            car_type = "Aerodynamic Stunt Racer"
+            tires = "low-profile track tires with yellow rims"
+        else:
+            car_type = "Rugged Stunt Monster Truck"
+            tires = "oversized rugged off-road rubber tires"
+
+        product_name = f"Gleaming {primary_color} & {secondary_color} {car_type}"
+        rec_anchor = (
+            f"Gleaming {primary_color.lower()} {car_type.lower()} with vibrant {secondary_color.lower()} racing decals, "
+            f"{tires}, rounded cartoon headlights, and glossy finish in 3D Pixar animation style"
+        )
+        visual_desc = (
+            f"Uploaded reference photo detected: Primary {primary_color} glossy body with {secondary_color} racing accents, "
+            f"{tires}, and expressive cartoon features."
+        )
+
+        return {
+            "product_name": product_name,
+            "category": "Kids Toy Adventure & Car Play",
+            "visual_description": visual_desc,
+            "recommended_anchor_product": rec_anchor,
+            "recommended_anchor_subject": "Cheerful 4-year-old child in bright colorful playwear with an enthusiastic smiling face",
+            "recommended_setting": "Sunlit kids playroom track featuring vibrant orange looping ramps, mini wooden suspension bridges, and colorful stacking blocks",
+            "detected_text": f"{primary_color} Racer #01",
+            "source": f"Smart Local Vision Engine (Detected {primary_color} & {secondary_color})"
+        }
+    except Exception as e:
+        print(f"[Local Image Analysis Error] {e}")
+        return {
+            "product_name": "Gleaming Red & Yellow Stunt Monster Truck",
+            "category": "Kids Toy Adventure & Car Play",
+            "visual_description": "Vibrant glossy crimson red toy car with sunny yellow racing stripes, oversized black rubber rugged tires, and friendly cartoon headlights in 3D Pixar style",
+            "recommended_anchor_product": "Gleaming crimson red stunt monster truck with sunny yellow racing stripes, oversized black rubber off-road tires, glossy plastic finish, and rounded headlights in 3D Pixar animation style",
+            "recommended_anchor_subject": "Cheerful 4-year-old toddler with neat brown hair wearing a bright blue and orange striped play shirt, beaming with an energetic joyful smile",
+            "recommended_setting": "Sunlit kids playroom track featuring vibrant orange looping ramps, mini wooden suspension bridges, and colorful stacking blocks",
+            "detected_text": "Stunt Car 01",
+            "source": "Smart Kids Vision Engine"
+        }
 
 def generate_kids_prompts_with_gemini(
     scenes_data: List[Dict[str, Any]],

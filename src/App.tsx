@@ -86,13 +86,15 @@ export const App: React.FC = () => {
     fetchHardware();
   }, []);
 
-  // Handle YouTube URL Extraction (Does NOT auto-generate; user can upload photo first!)
+  // Handle YouTube URL Extraction (Does NOT auto-generate prompts! Clears previous output)
   const handleExtract = async (overrideUrl?: string) => {
     const targetUrl = overrideUrl || url;
     if (!targetUrl.trim()) return;
 
     setExtractLoading(true);
     setExtractError(null);
+    setScenes([]); // Clear old scenes so user doesn't see old prompt
+    setYoutubePackage(null); // Clear old YouTube kit
 
     try {
       const res = await fetch('/api/extract', {
@@ -117,19 +119,16 @@ export const App: React.FC = () => {
       setDetectedLanguage(data.language || 'en');
       setLanguage('en'); // Always English dialogue generation
 
-      // Update default car and arena anchors if vision detected specific kids theme
+      // Update default arena if vision detected specific kids theme
       if (data.video_vision) {
         setAnchors((prev) => ({
           ...prev,
-          product: prev.product.includes('monster truck') ? (data.video_vision.default_car || prev.product) : prev.product,
+          product: imageAnalysis ? (imageAnalysis.recommended_anchor_product || imageAnalysis.product_name) : (prev.product.includes('monster truck') ? (data.video_vision.default_car || prev.product) : prev.product),
           setting: data.video_vision.default_arena || prev.setting
         }));
       }
 
-      // If user has already uploaded an image before extracting URL, auto-trigger combined generation!
-      if (imageAnalysis) {
-        triggerGenerate(data.items, data.metadata, 'en', imageAnalysis);
-      }
+      // DO NOT auto-generate prompts here! User must upload/confirm image and click generate button.
     } catch (err: any) {
       setExtractError(err.message || 'Terjadi kesalahan saat memproses URL.');
     } finally {
@@ -137,7 +136,7 @@ export const App: React.FC = () => {
     }
   };
 
-  // Apply Image Analysis to Anchors
+  // Apply Image Analysis to Anchors (Locks photo anchors; does not prematurely generate)
   const handleApplyImageAnchors = (analysis: ImageAnalysisResult) => {
     setImageAnalysis(analysis);
     setAnchors((prev) => ({
@@ -146,11 +145,7 @@ export const App: React.FC = () => {
       subject: analysis.recommended_anchor_subject || prev.subject,
       setting: analysis.recommended_setting || prev.setting
     }));
-
-    // If YouTube link metadata is already present, trigger or prepare combined generation!
-    if (metadata && transcriptItems.length > 0) {
-      triggerGenerate(transcriptItems, metadata, 'en', analysis);
-    }
+    // Note: Do not auto-generate immediately. Let user review and click the action button.
   };
 
   // Trigger Prompt Generation (Max 60 Scenes combining YouTube Vision + Image Context)

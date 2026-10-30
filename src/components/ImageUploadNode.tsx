@@ -63,12 +63,15 @@ export const ImageUploadNode: React.FC<ImageUploadNodeProps> = ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           image_base64: b64,
+          api_token: geminiApiKey || undefined,
           gemini_api_key: geminiApiKey || undefined
         })
       });
       const data = await res.json();
       if (res.ok && data.analysis) {
         setImageAnalysis(data.analysis);
+        onApplyAnchors(data.analysis);
+        setApplied(true);
       }
     } catch (err) {
       console.error('Image analysis error:', err);

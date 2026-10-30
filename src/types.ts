@@ -110,6 +110,8 @@ export interface YouTubePackage {
   hashtags: string[];
   thumbnail_prompt: string;
   thumbnail_alt_prompt?: string;
+  thumbnail_text?: string;
+  thumbnail_text_options?: string[];
   thumbnail_composition_tips: string;
 }
 

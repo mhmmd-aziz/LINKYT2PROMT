@@ -33,6 +33,18 @@ export const YouTubePackageNode: React.FC<YouTubePackageNodeProps> = ({
   const [copiedTags, setCopiedTags] = useState<boolean>(false);
   const [thumbnailTab, setThumbnailTab] = useState<'primary' | 'alt'>('primary');
   const [showFullDesc, setShowFullDesc] = useState<boolean>(false);
+  const [selectedText, setSelectedText] = useState<string>(
+    packageData.thumbnail_text || 'EPIC JUMP! 🏎️'
+  );
+  const [customText, setCustomText] = useState<string>('');
+
+  const defaultTextOptions = packageData.thumbnail_text_options || [
+    'EPIC JUMP! 🏎️',
+    '360° LOOP! 🔄',
+    'CAN IT SURVIVE?! 😱',
+    'SUPER FAST! ⚡',
+    'VROOM VROOM! 🏁'
+  ];
 
   const handleCopyText = (text: string, type: 'title' | 'thumbnail' | 'desc' | 'tags', index?: number) => {
     navigator.clipboard.writeText(text);
@@ -51,9 +63,16 @@ export const YouTubePackageNode: React.FC<YouTubePackageNodeProps> = ({
     }
   };
 
-  const activeThumbnailPrompt = thumbnailTab === 'primary' 
+  const currentTextToRender = customText.trim() || selectedText.replace(/[^\w\s\?!°#\-]/g, '').trim() || 'EPIC JUMP!';
+
+  const rawThumbnailPrompt = thumbnailTab === 'primary' 
     ? packageData.thumbnail_prompt 
     : (packageData.thumbnail_alt_prompt || packageData.thumbnail_prompt);
+
+  // Dynamically embed the chosen 3D text into the thumbnail prompt
+  const activeThumbnailPrompt = rawThumbnailPrompt
+    .replace(/reading exactly "[^"]*"/g, `reading exactly "${currentTextToRender}"`)
+    .replace(/title text "[^"]*"/g, `title text "${currentTextToRender}"`);
 
   return (
     <div className="relative rounded-2xl bg-[#16171c] border-2 border-red-500/30 p-5 sm:p-6 shadow-2xl transition-all">
@@ -215,6 +234,44 @@ export const YouTubePackageNode: React.FC<YouTubePackageNodeProps> = ({
                 👦 Opsi 2: Close-up Happy Kid POV (Sentuhan Emosional)
               </button>
             )}
+          </div>
+
+          {/* 3D Thumbnail Text Overlay Selector */}
+          <div className="p-3 rounded-xl bg-black/40 border border-purple-500/20 space-y-2">
+            <div className="flex flex-wrap items-center justify-between gap-1.5">
+              <label className="text-[11px] font-bold text-amber-300 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                <span>Pilih Teks 3D Menarik Pada Gambar Thumbnail:</span>
+              </label>
+              <span className="text-[10px] text-gray-400">
+                Tercetak langsung di gambar: <strong className="text-yellow-300">"{currentTextToRender}"</strong>
+              </span>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-1.5">
+              {defaultTextOptions.map((opt, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => { setSelectedText(opt); setCustomText(''); }}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                    (selectedText === opt && !customText.trim())
+                      ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md shadow-amber-900/40 scale-105'
+                      : 'bg-white/5 text-gray-300 hover:bg-white/10 border border-white/10'
+                  }`}
+                >
+                  {opt}
+                </button>
+              ))}
+
+              <input
+                type="text"
+                value={customText}
+                onChange={(e) => setCustomText(e.target.value)}
+                placeholder="Atau ketik teks sendiri..."
+                className="px-2.5 py-1 rounded-lg bg-black/60 border border-white/15 text-xs text-yellow-200 placeholder-gray-500 outline-none focus:border-amber-400 w-36 sm:w-44"
+              />
+            </div>
           </div>
 
           {/* Prompt Box */}
