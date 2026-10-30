@@ -1,24 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { Header } from './components/Header';
 import { UrlInputNode } from './components/UrlInputNode';
+import { ImageUploadNode } from './components/ImageUploadNode';
 import { ConsistencyNode } from './components/ConsistencyNode';
 import { TranscriptNode } from './components/TranscriptNode';
 import { SceneFlowNode } from './components/SceneFlowNode';
 import { ExportModal } from './components/ExportModal';
+import { GeminiApiKeyModal } from './components/GeminiApiKeyModal';
 import {
   HardwareInfo,
   VideoMetadata,
   TranscriptItem,
   ScenePromptItem,
-  SceneAnchors
+  SceneAnchors,
+  ImageAnalysisResult
 } from './types';
-import { ArrowDown, Cpu, Zap, Layers, Sparkles } from 'lucide-react';
+import { ArrowDown, Sparkles, Key } from 'lucide-react';
 
 export const App: React.FC = () => {
   // Hardware state
   const [hardware, setHardware] = useState<HardwareInfo | null>(null);
   const [hardwareLoading, setHardwareLoading] = useState<boolean>(true);
   const [selectedDevice, setSelectedDevice] = useState<'cuda' | 'cpu'>('cuda');
+
+  // AI Engine & API Key state
+  const [geminiApiKey, setGeminiApiKey] = useState<string>(() => {
+    return localStorage.getItem('imzy_gemini_api_key') || '';
+  });
+  const [apiKeyModalOpen, setApiKeyModalOpen] = useState<boolean>(false);
+  const [engineUsed, setEngineUsed] = useState<string>('Smart Local Director Engine');
 
   // Video & Extraction state
   const [url, setUrl] = useState<string>('');
@@ -29,17 +39,21 @@ export const App: React.FC = () => {
   const [fullTranscriptText, setFullTranscriptText] = useState<string>('');
   const [detectedLanguage, setDetectedLanguage] = useState<string>('id');
 
+  // Image Upload & Vision state (1 Foto Produk)
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageAnalysis, setImageAnalysis] = useState<ImageAnalysisResult | null>(null);
+
   // Consistency & Scene Generator state
-  const [sceneDuration, setSceneDuration] = useState<number>(10); // Fixed 10s as user requested
+  const [sceneDuration, setSceneDuration] = useState<number>(10); // Exactly 10s as requested
   const [language, setLanguage] = useState<string>('id');
   const [anchors, setAnchors] = useState<SceneAnchors>({
-    subject: 'Kreator affiliasi pria/wanita muda Indonesia usia 25 tahun, mengenakan kaos polo kasual modern rapi, ramah dan antusias',
+    subject: 'Kreator affiliasi pria/wanita muda Indonesia usia 25 tahun, mengenakan pakaian kasual modern rapi, ramah dan antusias',
     product: 'Produk rekomendasi affiliasi unggulan berdesain modern elegan, bersih dan berkelas',
     setting: 'Studio minimalis modern dengan aksen kayu akustik dan pencahayaan studio hangat bokeh',
-    style: 'Kualitas sinematik 8K, foto-realistis, pencahayaan komersial studio profesional, karakter wajah & pakaian 100% konsisten antar scene, 24fps'
+    style: 'Kualitas sinematik 8K, foto-realistis, pencahayaan komersial studio profesional, karakter dan produk 100% konsisten antar scene, 24fps'
   });
 
-  // Generated Scenes
+  // Generated Scenes (Max 60 Scenes)
   const [generating, setGenerating] = useState<boolean>(false);
   const [scenes, setScenes] = useState<ScenePromptItem[]>([]);
   const [exportModalOpen, setExportModalOpen] = useState<boolean>(false);
@@ -94,7 +108,7 @@ export const App: React.FC = () => {
       setDetectedLanguage(data.language || 'id');
       setLanguage(data.language === 'en' ? 'en' : 'id');
 
-      // Auto generate scenes immediately for smooth Google Flow UX
+      // Auto generate scenes immediately
       triggerGenerate(data.items, data.metadata, data.language);
     } catch (err: any) {
       setExtractError(err.message || 'Terjadi kesalahan saat memproses URL.');
@@ -103,7 +117,17 @@ export const App: React.FC = () => {
     }
   };
 
-  // Trigger Prompt Generation
+  // Apply Image Analysis to Anchors
+  const handleApplyImageAnchors = (analysis: ImageAnalysisResult) => {
+    setAnchors((prev) => ({
+      ...prev,
+      product: analysis.recommended_anchor_product || analysis.product_name,
+      subject: analysis.recommended_anchor_subject || prev.subject,
+      setting: analysis.recommended_setting || prev.setting
+    }));
+  };
+
+  // Trigger Prompt Generation (Max 60 Scenes)
   const triggerGenerate = async (
     items = transcriptItems,
     meta = metadata,
@@ -125,7 +149,9 @@ export const App: React.FC = () => {
           custom_subject: anchors.subject,
           custom_product: anchors.product,
           custom_setting: anchors.setting,
-          custom_style: anchors.style
+          custom_style: anchors.style,
+          image_context: imageAnalysis || undefined,
+          gemini_api_key: geminiApiKey || undefined
         })
       });
 
@@ -135,6 +161,7 @@ export const App: React.FC = () => {
       }
 
       setScenes(json.scenes || []);
+      setEngineUsed(json.engine_used || (geminiApiKey ? 'Google Gemini 1.5 Flash' : 'Smart Local Director'));
       if (json.anchors) {
         setAnchors((prev) => ({
           ...prev,
@@ -166,6 +193,8 @@ export const App: React.FC = () => {
         hardwareLoading={hardwareLoading}
         selectedDevice={selectedDevice}
         onDeviceChange={setSelectedDevice}
+        geminiApiKey={geminiApiKey}
+        onOpenApiKeyModal={() => setApiKeyModalOpen(true)}
         onOpenExport={() => setExportModalOpen(true)}
         totalScenes={scenes.length}
       />
@@ -182,7 +211,7 @@ export const App: React.FC = () => {
             YouTube Transcript ➔ Alur Prompt Video 10 Detik
           </h2>
           <p className="text-xs sm:text-sm text-gray-400 max-w-2xl mx-auto leading-relaxed">
-            Cukup copas link YouTube. Sistem otomatis membaca seluruh percakapan, membagi per 10 detik penuh, dan menyusun prompt video AI dengan <span className="text-emerald-400 font-medium">objek & tokoh 100% konsisten</span>.
+            Copas link YouTube + Upload 1 foto produk affiliasi. Sistem merangkum percakapan per 10 detik penuh dan menyusun alur storyboard prompt video AI konsisten (Maksimal 60 Scene).
           </p>
         </div>
 
@@ -205,7 +234,26 @@ export const App: React.FC = () => {
           </div>
         </div>
 
-        {/* FLOW NODE 02: Consistency & 10s Scene Controls */}
+        {/* FLOW NODE 02: Upload 1 Foto Produk / Objek Konsisten */}
+        <div className="relative">
+          <ImageUploadNode
+            imagePreview={imagePreview}
+            setImagePreview={setImagePreview}
+            imageAnalysis={imageAnalysis}
+            setImageAnalysis={setImageAnalysis}
+            onApplyAnchors={handleApplyImageAnchors}
+            geminiApiKey={geminiApiKey}
+          />
+
+          {/* Flow Connector Arrow */}
+          <div className="flex justify-center my-4">
+            <div className="w-8 h-8 rounded-full bg-[#18191e] border border-white/15 flex items-center justify-center text-purple-400 shadow-md">
+              <ArrowDown className="w-4 h-4" />
+            </div>
+          </div>
+        </div>
+
+        {/* FLOW NODE 03: Consistency & 10s Scene Controls (Max 60 Scenes) */}
         <div className="relative">
           <ConsistencyNode
             duration={metadata?.duration || 0}
@@ -218,6 +266,7 @@ export const App: React.FC = () => {
             onGenerate={() => triggerGenerate()}
             generating={generating}
             disabled={!metadata}
+            hasUploadedImage={Boolean(imagePreview)}
           />
 
           {/* Flow Connector Arrow */}
@@ -230,7 +279,7 @@ export const App: React.FC = () => {
           )}
         </div>
 
-        {/* FLOW NODE 03: Full Conversation Transcript */}
+        {/* FLOW NODE 04: Full Conversation Transcript */}
         {transcriptItems.length > 0 && (
           <div className="relative">
             <TranscriptNode
@@ -249,11 +298,13 @@ export const App: React.FC = () => {
           </div>
         )}
 
-        {/* FLOW NODE 04: Scenes Prompt-to-Video Matrix */}
+        {/* FINAL FLOW NODE: Scenes Prompt-to-Video Matrix */}
         {scenes.length > 0 && (
           <div className="relative">
             <SceneFlowNode
               scenes={scenes}
+              referenceImage={imagePreview}
+              engineUsed={engineUsed}
               onUpdateScenePrompt={handleUpdateScenePrompt}
             />
           </div>
@@ -268,6 +319,15 @@ export const App: React.FC = () => {
         metadata={metadata}
       />
 
+      {/* Gemini API Key & Engine Modal */}
+      <GeminiApiKeyModal
+        isOpen={apiKeyModalOpen}
+        onClose={() => setApiKeyModalOpen(false)}
+        geminiApiKey={geminiApiKey}
+        setGeminiApiKey={setGeminiApiKey}
+        engineStatus={geminiApiKey ? 'Google Gemini 1.5 Flash Vision AI' : 'Smart Local Director Engine (Free/Offline)'}
+      />
+
       {/* Footer */}
       <footer className="border-t border-white/10 bg-[#0c0d10] py-6 px-4 text-center text-xs text-gray-500">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
@@ -278,6 +338,8 @@ export const App: React.FC = () => {
           </div>
           <div className="flex items-center gap-4 text-gray-400 text-[11px]">
             <span>10s Per Scene</span>
+            <span>•</span>
+            <span>Max 60 Scenes Capped</span>
             <span>•</span>
             <span>Object Continuity Lock</span>
             <span>•</span>
@@ -290,4 +352,3 @@ export const App: React.FC = () => {
 };
 
 export default App;
-

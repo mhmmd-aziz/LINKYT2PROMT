@@ -63,6 +63,17 @@ export interface SceneAnchors {
   style: string;
 }
 
+export interface ImageAnalysisResult {
+  product_name: string;
+  category: string;
+  visual_description: string;
+  recommended_anchor_product: string;
+  recommended_anchor_subject: string;
+  recommended_setting: string;
+  detected_text?: string;
+  source?: string;
+}
+
 export interface ScenePromptItem {
   scene_index: number;
   time_range: string;
@@ -81,9 +92,10 @@ export interface ScenePromptItem {
 export interface GenerateResponse {
   status: string;
   total_scenes: number;
+  max_scenes_limit: number;
   scene_duration_sec: number;
   video_duration_sec: number;
+  engine_used: string;
   anchors: SceneAnchors;
   scenes: ScenePromptItem[];
 }
-

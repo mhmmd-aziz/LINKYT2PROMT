@@ -1,14 +1,18 @@
 import React, { useState } from 'react';
 import { ScenePromptItem } from '../types';
-import { Video, Copy, Check, Edit3, Camera, Clock, ShieldCheck, Film, Sparkles, MessageCircle, AlertCircle } from 'lucide-react';
+import { Video, Copy, Check, Edit3, Camera, Clock, ShieldCheck, Film, Sparkles, MessageCircle, AlertCircle, Image as ImageIcon } from 'lucide-react';
 
 interface SceneFlowNodeProps {
   scenes: ScenePromptItem[];
+  referenceImage?: string | null;
+  engineUsed?: string;
   onUpdateScenePrompt?: (index: number, newPrompt: string) => void;
 }
 
 export const SceneFlowNode: React.FC<SceneFlowNodeProps> = ({
   scenes,
+  referenceImage,
+  engineUsed,
   onUpdateScenePrompt
 }) => {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
@@ -48,17 +52,23 @@ export const SceneFlowNode: React.FC<SceneFlowNodeProps> = ({
           <div>
             <div className="flex items-center gap-2">
               <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-white/5 text-gray-400 border border-white/10">
-                NODE 04 (FINAL FLOW)
+                FINAL FLOW NODE
               </span>
               <h2 className="text-base font-bold text-white">Alur Prompt-to-Video Konsisten (Per 10 Detik Penuh)</h2>
             </div>
             <p className="text-xs text-gray-400">
-              Total {scenes.length} Scene siap dimasukkan ke Google Veo / Kling AI / Runway / Luma
+              Total {scenes.length} Scene siap dimasukkan ke Google Veo / Kling AI / Runway Gen-3 / Luma (Maksimal 60 Scene)
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          {engineUsed && (
+            <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-blue-500/15 border border-blue-500/30 text-blue-300 flex items-center gap-1">
+              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+              <span>{engineUsed}</span>
+            </span>
+          )}
           <span className="text-xs font-semibold px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center gap-1.5">
             <ShieldCheck className="w-3.5 h-3.5" />
             <span>Objek & Karakter Konsisten Terhubung</span>
@@ -88,7 +98,7 @@ export const SceneFlowNode: React.FC<SceneFlowNodeProps> = ({
                 <div className="flex flex-wrap items-center justify-between gap-2 pb-3 mb-3 border-b border-white/5">
                   <div className="flex items-center gap-2">
                     <span className="px-2.5 py-1 rounded-lg bg-blue-600/20 text-blue-300 border border-blue-500/30 text-xs font-mono font-bold">
-                      SCENE {scene.scene_index.toString().padStart(2, '0')}
+                      SCENE {scene.scene_index.toString().padStart(2, '0')} / {scenes.length}
                     </span>
                     <span className="flex items-center gap-1 font-mono text-xs px-2.5 py-1 rounded-lg bg-white/5 text-gray-300 border border-white/10">
                       <Clock className="w-3 h-3 text-amber-400" />
@@ -142,14 +152,21 @@ export const SceneFlowNode: React.FC<SceneFlowNodeProps> = ({
                     </p>
                   </div>
 
-                  <div className="p-2.5 rounded-lg bg-[#141519] border border-white/5">
-                    <span className="text-[10px] font-semibold text-emerald-300 block mb-0.5 flex items-center gap-1">
-                      <ShieldCheck className="w-3 h-3" />
-                      Konsistensi Objek & Karakter:
-                    </span>
-                    <p className="text-gray-300 text-[11px] leading-relaxed line-clamp-2">
-                      <span className="text-emerald-400 font-medium">Objek:</span> {scene.anchors?.product} | <span className="text-blue-400 font-medium">Subjek:</span> {scene.anchors?.subject}
-                    </p>
+                  <div className="p-2.5 rounded-lg bg-[#141519] border border-white/5 flex gap-2.5 items-start">
+                    {referenceImage && (
+                      <div className="w-12 h-12 rounded-lg overflow-hidden bg-black shrink-0 border border-white/10" title="Foto Referensi Objek Terkunci">
+                        <img src={referenceImage} alt="Ref" className="w-full h-full object-cover" />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <span className="text-[10px] font-semibold text-emerald-300 block mb-0.5 flex items-center gap-1">
+                        <ShieldCheck className="w-3 h-3" />
+                        Konsistensi Objek & Karakter:
+                      </span>
+                      <p className="text-gray-300 text-[11px] leading-relaxed line-clamp-2">
+                        <span className="text-emerald-400 font-medium">Objek:</span> {scene.anchors?.product} | <span className="text-blue-400 font-medium">Subjek:</span> {scene.anchors?.subject}
+                      </p>
+                    </div>
                   </div>
                 </div>
 
@@ -213,4 +230,3 @@ export const SceneFlowNode: React.FC<SceneFlowNodeProps> = ({
     </div>
   );
 };
-

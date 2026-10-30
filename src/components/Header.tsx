@@ -1,13 +1,15 @@
 import React from 'react';
 import { HardwareInfo } from '../types';
 import { HardwareBadge } from './HardwareBadge';
-import { Sparkles, Layers, ArrowRight } from 'lucide-react';
+import { Sparkles, Layers, ArrowRight, Key } from 'lucide-react';
 
 interface HeaderProps {
   hardware: HardwareInfo | null;
   hardwareLoading: boolean;
   selectedDevice: 'cuda' | 'cpu';
   onDeviceChange: (dev: 'cuda' | 'cpu') => void;
+  geminiApiKey: string;
+  onOpenApiKeyModal: () => void;
   onOpenExport?: () => void;
   totalScenes?: number;
 }
@@ -17,9 +19,13 @@ export const Header: React.FC<HeaderProps> = ({
   hardwareLoading,
   selectedDevice,
   onDeviceChange,
+  geminiApiKey,
+  onOpenApiKeyModal,
   onOpenExport,
   totalScenes = 0
 }) => {
+  const isGeminiActive = Boolean(geminiApiKey && geminiApiKey.trim());
+
   return (
     <header className="sticky top-0 z-40 bg-[#0e0f12]/90 backdrop-blur-md border-b border-white/10 px-4 sm:px-6 py-3 transition-all">
       <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
@@ -44,13 +50,28 @@ export const Header: React.FC<HeaderProps> = ({
               </span>
             </div>
             <p className="text-[11px] text-gray-400">
-              YouTube Copas Link ➔ 10s Consistent Scene AI Video Prompts
+              YouTube Copas Link ➔ 10s Consistent Scene AI Video Prompts (Max 60 Scenes)
             </p>
           </div>
         </div>
 
         {/* Center / Right Controls */}
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2.5">
+          {/* AI Engine & API Key Pill */}
+          <button
+            type="button"
+            onClick={onOpenApiKeyModal}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium transition-all ${
+              isGeminiActive
+                ? 'bg-purple-950/40 border-purple-500/40 text-purple-300 hover:border-purple-400'
+                : 'bg-white/5 border-white/10 text-gray-300 hover:border-white/20'
+            }`}
+            title="Klik untuk mengatur Gemini API Key & Mesin AI"
+          >
+            <Key className="w-3.5 h-3.5 text-amber-400" />
+            <span>AI: {isGeminiActive ? 'Gemini 1.5 Flash 🟢' : 'Local Director ⚡'}</span>
+          </button>
+
           {/* Hardware Auto-Detect Pill */}
           <HardwareBadge
             hardware={hardware}
@@ -74,4 +95,3 @@ export const Header: React.FC<HeaderProps> = ({
     </header>
   );
 };
-
