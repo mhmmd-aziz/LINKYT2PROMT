@@ -1,14 +1,15 @@
 import React from 'react';
 import { HardwareInfo } from '../types';
 import { HardwareBadge } from './HardwareBadge';
-import { Sparkles, Layers, ArrowRight, Key, Car } from 'lucide-react';
+import { Layers, ArrowRight, Key, Car, Bot } from 'lucide-react';
 
 interface HeaderProps {
   hardware: HardwareInfo | null;
   hardwareLoading: boolean;
   selectedDevice: 'cuda' | 'cpu';
   onDeviceChange: (dev: 'cuda' | 'cpu') => void;
-  geminiApiKey: string;
+  apiToken: string;
+  provider: string;
   onOpenApiKeyModal: () => void;
   onOpenExport?: () => void;
   totalScenes?: number;
@@ -19,19 +20,28 @@ export const Header: React.FC<HeaderProps> = ({
   hardwareLoading,
   selectedDevice,
   onDeviceChange,
-  geminiApiKey,
+  apiToken,
+  provider,
   onOpenApiKeyModal,
   onOpenExport,
   totalScenes = 0
 }) => {
-  const isGeminiActive = Boolean(geminiApiKey && geminiApiKey.trim());
+  const isTokenActive = Boolean(apiToken && apiToken.trim());
+
+  const getEnginePillText = () => {
+    if (!isTokenActive) return 'AI: Kids Director ⚡';
+    if (provider === 'huggingface_deepseek') return 'AI: DeepSeek-V4.1 🤗';
+    if (provider === 'deepseek_official') return 'AI: DeepSeek 🐳';
+    if (provider === 'gemini') return 'AI: Gemini 1.5 ✨';
+    return 'AI: DeepSeek-V4.1 🟢';
+  };
 
   return (
     <header className="sticky top-0 z-40 bg-[#0e0f12]/90 backdrop-blur-md border-b border-white/10 px-4 sm:px-6 py-3 transition-all">
       <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
         {/* Brand */}
         <div className="flex items-center gap-3">
-          <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 via-red-500 to-blue-600 shadow-lg shadow-amber-900/30">
+          <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 via-orange-600 to-red-600 shadow-lg shadow-amber-900/30">
             <Car className="w-5 h-5 text-white animate-pulse" />
             <div className="absolute -bottom-1 -right-1 flex gap-0.5">
               <span className="w-1.5 h-1.5 rounded-full bg-[#4285F4]"></span>
@@ -46,11 +56,11 @@ export const Header: React.FC<HeaderProps> = ({
                 imsy tools yt
               </h1>
               <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-semibold tracking-wide uppercase">
-                Kids Video 60 Scene Flow
+                DeepSeek-V4.1 Engine
               </span>
             </div>
             <p className="text-[11px] text-gray-400">
-              Copas Video YT Anak Main Mobil ➔ 60 Scene AI Video Prompts Konsisten + Sound Effects
+              Kids Video 60 Scene Remake • Fluid Storyboard Prompts & Sound Effects
             </p>
           </div>
         </div>
@@ -62,14 +72,14 @@ export const Header: React.FC<HeaderProps> = ({
             type="button"
             onClick={onOpenApiKeyModal}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium transition-all ${
-              isGeminiActive
-                ? 'bg-purple-950/40 border-purple-500/40 text-purple-300 hover:border-purple-400'
+              isTokenActive
+                ? 'bg-amber-950/40 border-amber-500/40 text-amber-300 hover:border-amber-400 shadow-sm'
                 : 'bg-white/5 border-white/10 text-gray-300 hover:border-white/20'
             }`}
-            title="Klik untuk mengatur Gemini API Key & Mesin AI"
+            title="Klik untuk memilih model DeepSeek V4.1 Flash / Hugging Face / DeepSeek API"
           >
-            <Key className="w-3.5 h-3.5 text-amber-400" />
-            <span>AI: {isGeminiActive ? 'Gemini 1.5 Flash 🟢' : 'Kids Director ⚡'}</span>
+            <Bot className="w-3.5 h-3.5 text-amber-400" />
+            <span>{getEnginePillText()}</span>
           </button>
 
           {/* Hardware Auto-Detect Pill */}
@@ -83,7 +93,7 @@ export const Header: React.FC<HeaderProps> = ({
           {totalScenes > 0 && onOpenExport && (
             <button
               onClick={onOpenExport}
-              className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-md shadow-blue-900/40 transition-all hover:scale-[1.02] active:scale-[0.98]"
+              className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white text-xs font-semibold shadow-md shadow-amber-900/40 transition-all hover:scale-[1.02] active:scale-[0.98]"
             >
               <Layers className="w-3.5 h-3.5" />
               <span>Export {totalScenes} Scenes</span>

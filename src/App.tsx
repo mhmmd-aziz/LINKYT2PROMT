@@ -6,7 +6,7 @@ import { ConsistencyNode } from './components/ConsistencyNode';
 import { TranscriptNode } from './components/TranscriptNode';
 import { SceneFlowNode } from './components/SceneFlowNode';
 import { ExportModal } from './components/ExportModal';
-import { GeminiApiKeyModal } from './components/GeminiApiKeyModal';
+import { LlmApiKeyModal } from './components/LlmApiKeyModal';
 import {
   HardwareInfo,
   VideoMetadata,
@@ -24,12 +24,15 @@ export const App: React.FC = () => {
   const [hardwareLoading, setHardwareLoading] = useState<boolean>(true);
   const [selectedDevice, setSelectedDevice] = useState<'cuda' | 'cpu'>('cuda');
 
-  // AI Engine & API Key state
-  const [geminiApiKey, setGeminiApiKey] = useState<string>(() => {
-    return localStorage.getItem('imsy_gemini_api_key') || '';
+  // AI LLM Engine & API Token state (DeepSeek-V4.1-Flash default)
+  const [apiToken, setApiToken] = useState<string>(() => {
+    return localStorage.getItem('imsy_llm_token') || localStorage.getItem('imsy_gemini_api_key') || '';
+  });
+  const [llmProvider, setLlmProvider] = useState<string>(() => {
+    return localStorage.getItem('imsy_llm_provider') || 'huggingface_deepseek';
   });
   const [apiKeyModalOpen, setApiKeyModalOpen] = useState<boolean>(false);
-  const [engineUsed, setEngineUsed] = useState<string>('Smart Local Kids Director Engine');
+  const [engineUsed, setEngineUsed] = useState<string>('Smart Kids Director Engine');
 
   // Video & Extraction state
   const [url, setUrl] = useState<string>('');
@@ -163,7 +166,8 @@ export const App: React.FC = () => {
           custom_setting: anchors.setting,
           custom_style: anchors.style,
           image_context: imageAnalysis || undefined,
-          gemini_api_key: geminiApiKey || undefined
+          api_token: apiToken || undefined,
+          provider: llmProvider || undefined
         })
       });
 
@@ -176,7 +180,7 @@ export const App: React.FC = () => {
       if (json.video_vision) {
         setVideoVision(json.video_vision);
       }
-      setEngineUsed(json.engine_used || (geminiApiKey ? 'Google Gemini 1.5 Flash Vision' : 'Smart Local Kids Director'));
+      setEngineUsed(json.engine_used || (apiToken ? 'DeepSeek-V4.1-Flash AI' : 'Smart Kids Director Engine'));
       if (json.anchors) {
         setAnchors((prev) => ({
           ...prev,
@@ -208,7 +212,8 @@ export const App: React.FC = () => {
         hardwareLoading={hardwareLoading}
         selectedDevice={selectedDevice}
         onDeviceChange={setSelectedDevice}
-        geminiApiKey={geminiApiKey}
+        apiToken={apiToken}
+        provider={llmProvider}
         onOpenApiKeyModal={() => setApiKeyModalOpen(true)}
         onOpenExport={() => setExportModalOpen(true)}
         totalScenes={scenes.length}
@@ -220,13 +225,13 @@ export const App: React.FC = () => {
         <div className="text-center space-y-2 py-4">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-semibold">
             <Car className="w-3.5 h-3.5" />
-            <span>Google Flow Visual Pipeline • Kids YouTube Remake AI</span>
+            <span>DeepSeek-V4.1-Flash AI Engine • Kids Video 60 Scene Remake</span>
           </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
-            Video YouTube Anak ➔ 60 Scene AI Video Prompts Konsisten
+            Video YouTube Anak ➔ 60 Scene AI Video Prompts Sinematik
           </h2>
           <p className="text-xs sm:text-sm text-gray-400 max-w-2xl mx-auto leading-relaxed">
-            Copas link video YouTube anak (lagi main mobil, monster truck, sound effects ceria) + Upload 1 foto mainan. Sistem membaca visi cerita dan menyusun ulang ke <span className="text-amber-400 font-medium">versi 60 scene konsisten</span> siap render ke video AI!
+            Menghilangkan prompt kaku! Didukung model <span className="text-amber-400 font-semibold">DeepSeek-V4.1-Flash</span> untuk menyusun alur cerita main mobil & sound effects yang hidup, cair, dan menyesuaikan referensi asli video YouTube (Maksimal 60 Scene).
           </p>
         </div>
 
@@ -258,7 +263,7 @@ export const App: React.FC = () => {
             imageAnalysis={imageAnalysis}
             setImageAnalysis={setImageAnalysis}
             onApplyAnchors={handleApplyImageAnchors}
-            geminiApiKey={geminiApiKey}
+            geminiApiKey={apiToken}
           />
 
           {/* Flow Connector Arrow */}
@@ -335,13 +340,23 @@ export const App: React.FC = () => {
         metadata={metadata}
       />
 
-      {/* Gemini API Key & Engine Modal */}
-      <GeminiApiKeyModal
+      {/* DeepSeek / HuggingFace LLM Key & Engine Modal */}
+      <LlmApiKeyModal
         isOpen={apiKeyModalOpen}
         onClose={() => setApiKeyModalOpen(false)}
-        geminiApiKey={geminiApiKey}
-        setGeminiApiKey={setGeminiApiKey}
-        engineStatus={geminiApiKey ? 'Google Gemini 1.5 Flash Vision AI' : 'Smart Local Kids Director Engine (Free/Offline)'}
+        apiToken={apiToken}
+        setApiToken={setApiToken}
+        provider={llmProvider}
+        setProvider={setLlmProvider}
+        engineStatus={
+          apiToken
+            ? llmProvider === 'huggingface_deepseek'
+              ? 'DeepSeek-V4.1-Flash (Hugging Face)'
+              : llmProvider === 'deepseek_official'
+              ? 'DeepSeek Official API'
+              : 'Google Gemini 1.5 Flash'
+            : 'Smart Kids Director Engine (Dynamic Local Mode)'
+        }
       />
 
       {/* Footer */}
@@ -350,16 +365,16 @@ export const App: React.FC = () => {
           <div className="flex items-center gap-2">
             <span className="font-bold text-gray-400">imsy tools yt</span>
             <span>•</span>
-            <span>Kids YouTube Remake AI (60 Scene Architecture)</span>
+            <span>Powered by DeepSeek-V4.1-Flash & Google Flow</span>
           </div>
           <div className="flex items-center gap-4 text-gray-400 text-[11px]">
-            <span>10s Per Scene</span>
+            <span>Fluid Cinematic Prompts</span>
             <span>•</span>
-            <span>Toy Car & Character Lock</span>
+            <span>No Stiff Brackets</span>
             <span>•</span>
-            <span>Cheerful Sound Effects</span>
+            <span>Toy Car Continuity</span>
             <span>•</span>
-            <span>GPU Accelerated (RTX 3050 CUDA)</span>
+            <span>RTX 3050 CUDA</span>
           </div>
         </div>
       </footer>

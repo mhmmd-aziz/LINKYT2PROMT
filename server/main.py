@@ -16,6 +16,11 @@ try:
         detect_subject_context,
         extract_kids_video_vision
     )
+    from server.llm_service import (
+        verify_llm_key,
+        generate_scenes_with_deepseek,
+        detect_api_provider
+    )
     from server.gemini_service import (
         verify_gemini_key,
         analyze_uploaded_image,
@@ -30,6 +35,11 @@ except ImportError:
         detect_subject_context,
         extract_kids_video_vision
     )
+    from llm_service import (
+        verify_llm_key,
+        generate_scenes_with_deepseek,
+        detect_api_provider
+    )
     from gemini_service import (
         verify_gemini_key,
         analyze_uploaded_image,
@@ -38,8 +48,8 @@ except ImportError:
 
 app = FastAPI(
     title="imsy tools yt API",
-    description="Backend for Kids YouTube Video Remake to 60 Consistent 10s Scene Prompts (Google Flow Style)",
-    version="2.0.0"
+    description="Backend for Kids YouTube Video Remake with DeepSeek-V4.1-Flash LLM Integration (Google Flow Style)",
+    version="2.1.0"
 )
 
 # Enable CORS for frontend development
@@ -57,10 +67,11 @@ class ExtractRequest(BaseModel):
 
 class AnalyzeImageRequest(BaseModel):
     image_base64: str = Field(..., description="Base64 encoded image string (1 photo)")
-    gemini_api_key: Optional[str] = Field(None, description="Optional Gemini API key")
+    api_token: Optional[str] = Field(None, description="Optional Hugging Face or Gemini API token")
 
 class VerifyKeyRequest(BaseModel):
-    gemini_api_key: str = Field(..., description="Gemini API Key to test")
+    api_token: str = Field(..., description="DeepSeek, HuggingFace, or Gemini Token to verify")
+    provider: Optional[str] = Field(None, description="Optional provider override")
 
 class GenerateRequest(BaseModel):
     metadata: Dict[str, Any]
@@ -73,31 +84,38 @@ class GenerateRequest(BaseModel):
     custom_setting: Optional[str] = None
     custom_style: Optional[str] = None
     image_context: Optional[Dict[str, Any]] = None
-    gemini_api_key: Optional[str] = None
+    api_token: Optional[str] = None
+    provider: Optional[str] = None
 
 @app.get("/api/health")
 def health_check():
-    return {"status": "ok", "app": "imsy tools yt"}
+    return {"status": "ok", "app": "imsy tools yt", "llm_supported": ["DeepSeek-V4.1-Flash", "DeepSeek Official", "Gemini 1.5 Flash"]}
 
 @app.get("/api/hardware")
 def get_hardware_info():
     """Returns detected GPU (RTX 3050, CUDA, VRAM) and CPU details."""
     return get_system_hardware()
 
+@app.post("/api/llm/verify")
+def api_verify_llm(req: VerifyKeyRequest):
+    """Checks validity of DeepSeek V4.1 Flash (Hugging Face), DeepSeek Official, or Gemini token."""
+    res = verify_llm_key(req.api_token, provider=req.provider)
+    return res
+
+# Keep legacy endpoint for backwards compatibility
 @app.post("/api/gemini/verify")
 def api_verify_gemini_key(req: VerifyKeyRequest):
-    """Checks validity of user-supplied Google Gemini API key."""
-    res = verify_gemini_key(req.gemini_api_key)
+    res = verify_llm_key(req.api_token, provider="gemini")
     return res
 
 @app.post("/api/analyze-image")
 def api_analyze_image(req: AnalyzeImageRequest):
     """
     Analyzes 1 uploaded toy car / kids character / setting image.
-    Uses Gemini Vision Multimodal if API key provided, or smart local kids vision engine.
+    Uses AI Vision if API token provided, or smart local kids vision engine.
     """
     try:
-        analysis = analyze_uploaded_image(req.image_base64, api_key=req.gemini_api_key)
+        analysis = analyze_uploaded_image(req.image_base64, api_key=req.api_token)
         return {
             "status": "success",
             "analysis": analysis
@@ -137,8 +155,8 @@ def extract_youtube(req: ExtractRequest):
 def generate_prompts(req: GenerateRequest):
     """
     Splits transcript into exact 10-second scenes (capped to max 60 scenes)
-    and produces visually consistent prompts with toy car continuity and sound effects.
-    Uses Gemini API if key is present, otherwise smart local director engine.
+    and produces visually consistent, non-stiff fluid prompts with toy car continuity and sound effects.
+    Uses DeepSeek V4.1 Flash (Hugging Face) if provided, DeepSeek Official, Gemini, or smart local director.
     """
     try:
         # Step 1: Chunk into 10s scenes (strictly max 60 scenes)
@@ -160,22 +178,38 @@ def generate_prompts(req: GenerateRequest):
             "style": req.custom_style or ""
         }
 
-        # Step 2: If Gemini API key is provided, request Gemini AI enhanced prompts for Kids video
-        gemini_scenes = None
-        engine_used = "Smart Local Kids Director Engine (Free / Offline)"
-        if req.gemini_api_key and req.gemini_api_key.strip():
-            gemini_scenes = generate_kids_prompts_with_gemini(
-                scenes_data=raw_scenes,
-                anchors=anchors_dict,
-                video_meta=req.metadata,
-                video_vision=vision["vision_summary"],
-                language=req.language,
-                api_key=req.gemini_api_key
-            )
-            if gemini_scenes:
-                engine_used = "Google Gemini 1.5 Flash Vision AI"
+        token = (req.api_token or "").strip()
+        llm_scenes = None
+        engine_used = "Smart Kids Director Engine (Dynamic Local Mode)"
+
+        # Step 2: Route to DeepSeek V4.1 Flash, DeepSeek Official, or Gemini
+        if token:
+            prov = req.provider or detect_api_provider(token)
+            if prov in ("huggingface_deepseek", "deepseek_official"):
+                llm_scenes = generate_scenes_with_deepseek(
+                    scenes_data=raw_scenes,
+                    anchors=anchors_dict,
+                    video_meta=req.metadata,
+                    video_vision=vision["vision_summary"],
+                    language=req.language,
+                    api_token=token,
+                    provider=prov
+                )
+                if llm_scenes:
+                    engine_used = "DeepSeek-V4.1-Flash-1017 (Hugging Face AI)" if prov == "huggingface_deepseek" else "DeepSeek Official AI"
+            elif prov == "gemini":
+                llm_scenes = generate_kids_prompts_with_gemini(
+                    scenes_data=raw_scenes,
+                    anchors=anchors_dict,
+                    video_meta=req.metadata,
+                    video_vision=vision["vision_summary"],
+                    language=req.language,
+                    api_key=token
+                )
+                if llm_scenes:
+                    engine_used = "Google Gemini 1.5 Flash Vision AI"
         
-        # Step 3: Generate and assemble consistent AI video generation prompts
+        # Step 3: Generate and assemble fluid, cinematic AI video generation prompts
         processed_scenes = generate_consistent_scene_prompts(
             scenes=raw_scenes,
             video_meta=req.metadata,
@@ -185,7 +219,7 @@ def generate_prompts(req: GenerateRequest):
             custom_setting=req.custom_setting,
             custom_style=req.custom_style,
             image_context=req.image_context,
-            gemini_scenes=gemini_scenes
+            llm_scenes=llm_scenes
         )
         
         anchors = processed_scenes[0]["anchors"] if processed_scenes else {}
