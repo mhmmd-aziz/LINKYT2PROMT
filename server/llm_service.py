@@ -20,7 +20,6 @@ def detect_api_provider(token_or_key: str) -> str:
         return "deepseek_official"
     elif token.startswith("AIza"):
         return "gemini"
-    # Default to HuggingFace if unknown
     return "huggingface_deepseek"
 
 def verify_llm_key(api_key: str, provider: Optional[str] = None) -> Dict[str, Any]:
@@ -134,7 +133,8 @@ def generate_scenes_with_deepseek(
 ) -> Optional[List[Dict[str, Any]]]:
     """
     Uses DeepSeek V4.1 Flash (Hugging Face) or DeepSeek Official API to generate
-    natural, fluid, cinematic, and non-stiff 10-second scene prompts for Kids Toy Videos.
+    high-energy, continuous 10-second ENGLISH spoken dialogues with seamless continuity
+    and natural, fluid, photorealistic 3D Pixar/Disney style video prompts.
     """
     key = (api_token or "").strip()
     if not key:
@@ -142,34 +142,45 @@ def generate_scenes_with_deepseek(
 
     prov = provider or detect_api_provider(key)
     
-    # Prompt System for DeepSeek: Direct, cinematic, storytelling prompt generation
-    system_prompt = f"""You are an elite Hollywood Director and Lead Animator specializing in viral Kids YouTube Toy Videos (like Hot Wheels stunt tracks, Monster Truck rallies, Pixar Cars 3D animation, and joyful toy car play).
+    # Prompt System for DeepSeek: Continuous English Voiceover + Locked Toy Continuity
+    system_prompt = f"""You are an elite YouTube Kids Toy Video Showrunner, Voiceover Scriptwriter, and AI Video Director (think Vlad and Niki, Hot Wheels Stunt Team, and Pixar Cars).
 
-YOUR TASK:
-Transform YouTube transcript dialogue into rich, cinematic, fluid video generation prompts (for Google Veo, Kling AI, Runway Gen-3, Luma) for each 10-second scene (up to 60 scenes).
-NO STIFF BRACKETS (like [Objek: ...] or [Gaya: ...])! The prompts must be fluid, descriptive sentences detailing the exact playful action, car physics, sound effects, child reaction, and cinematic camera movement.
+CRITICAL REQUIREMENTS:
+1. SPOKEN DIALOGUE MUST BE 100% IN ENGLISH FOR EVERY SINGLE SCENE!
+2. FULL 10 SECONDS OF CONTINUOUS SPEECH (NO DEAD AIR):
+   - Each scene must have an energetic, engaging 22 to 28-word spoken monologue/dialogue in English that takes the entire 10 seconds to say without empty pauses!
+3. SEAMLESS NARRATIVE CONTINUITY ACROSS ALL SCENES:
+   - Scene 1 directly hooks the audience and revs up.
+   - Scene 2 launches down the ramp following Scene 1.
+   - Scene 3 drifts into the curve following Scene 2.
+   - Scene 4 encounters the obstacle, and so on, building up to a dramatic climax and victory finish at the final scene!
+   - Every scene must logically connect and continue from the previous one!
+4. STRICT OBJECT & CHARACTER LOCKING:
+   - Locked Toy Car: {anchors.get('product', 'Red and yellow cartoon monster truck with oversized rugged wheels, glossy aerodynamic body, and expressive headlights')}
+   - Locked Child Character: {anchors.get('subject', 'Cheerful 4-year-old child in bright blue and orange striped playwear with an enthusiastic smiling face')}
+   - Locked Play Environment: {anchors.get('setting', 'Vibrant kids playroom track filled with orange loops, mini wooden suspension bridges, and colorful stacking blocks')}
+   - Locked Visual Style: {anchors.get('style', 'Cinematic 3D Pixar animation aesthetic, 8K ultra-vibrant saturated colors, warm soft playroom lighting, 24fps smooth motion')}
+5. NATURAL, FLUID VIDEO PROMPTS (NO STIFF BRACKETS):
+   - Write beautiful, natural cinematic scene descriptions without bracket dividers.
 
-KEY CONTINUITY RULES (MUST BE 100% CONSISTENT IN ALL SCENES):
-- Primary Toy Car: {anchors.get('product', 'Red and yellow cartoon monster truck with massive rugged tires and glossy finish')}
-- Child Character / Driver: {anchors.get('subject', 'Joyful 4-year-old toddler in bright playwear with an expressive happy smile')}
-- Play Environment: {anchors.get('setting', 'Bright colorful playroom with loops, ramps, wooden blocks, and toy bridges')}
-- Visual Style: {anchors.get('style', 'Pixar 3D animation style, vibrant saturated colors, soft daylight, 24fps')}
-- Core Story Vision: {video_vision}
-- Video Title: {video_meta.get('title', '')}
-- Language: {'Bahasa Indonesia' if language == 'id' else 'English'}
+STORY PREMISE & YOUTUBE VISION:
+{video_vision}
+Video Title: {video_meta.get('title', '')}
 
-SCENE DATA (10-second chunks):
-{json.dumps([{'index': s['scene_index'], 'time': s['time_range'], 'dialogue': s['dialogue']} for s in scenes_data], indent=2)}
+SCENE TIMELINE ({len(scenes_data)} scenes, 10 seconds each):
+{json.dumps([{'scene_index': s['scene_index'], 'time_range': s['time_range'], 'source_cue': s['dialogue']} for s in scenes_data], indent=2)}
 
 OUTPUT FORMAT:
-Respond ONLY with a valid JSON array of objects (no markdown code blocks, pure JSON array):
+Respond ONLY with a valid JSON array of objects (pure JSON, no markdown formatting):
 [
   {{
     "scene_index": 1,
-    "action_description": "Aksi seru mobil mainan dan anak yang natural dan hidup sesuai percakapan 10 detik ini",
-    "sound_effects": "[SFX: Vroom vroom mesin mobil menderu ceria, decitan ban kartun, tawa riang anak]",
-    "video_prompt": "Cinematic 3D Pixar animation style, 8K ultra-vibrant colors. (Detailed natural sentence describing car stunt/movement, child smiling interaction, track features, sound effects cue [SFX: ...], exact toy car model continuity, smooth camera motion, 24fps).",
-    "camera_directive": "Low-Angle Car Chase / Macro Toy Close-Up / Dynamic 360 Spin",
+    "english_dialogue": "Full 10-second continuous energetic English monologue (22 to 28 words) with zero dead air, engaging toddler/kid audience.",
+    "story_link": "How this scene connects to the next action",
+    "sound_effects": "[SFX: Vroom vroom engine revving, cheerful horn beep beep, toddler giggle]",
+    "action_description": "Precise toy car movement, stunts, and child interaction during these 10 seconds",
+    "video_prompt": "Cinematic 3D Pixar animation style, 8K ultra-vibrant colors. (Natural fluid description of the locked toy car stunt, child character smiling, track obstacles, sound cues, smooth camera motion, 24fps, no morphing).",
+    "camera_directive": "Dynamic Low-Angle Car Tracking (Camera glides smoothly along the track floor catching wheel motion)",
     "negative_prompt": "scary, dark, realistic horror, morphing car model, distorted wheels, broken toys, realistic violence, flickering, text watermark, blurry"
   }}
 ]
@@ -183,7 +194,7 @@ Respond ONLY with a valid JSON array of objects (no markdown code blocks, pure J
         payload = {
             "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
             "messages": [
-                {"role": "system", "content": "You are a professional kids video prompt director. Always reply in valid JSON array."},
+                {"role": "system", "content": "You are a world-class kids video director and English scriptwriter. Always reply with a valid JSON array."},
                 {"role": "user", "content": system_prompt}
             ],
             "temperature": 0.5,
@@ -213,7 +224,7 @@ Respond ONLY with a valid JSON array of objects (no markdown code blocks, pure J
         payload = {
             "model": "deepseek-chat",
             "messages": [
-                {"role": "system", "content": "You are a professional kids video prompt director. Always reply in valid JSON array."},
+                {"role": "system", "content": "You are a world-class kids video director and English scriptwriter. Always reply with a valid JSON array."},
                 {"role": "user", "content": system_prompt}
             ],
             "temperature": 0.5,

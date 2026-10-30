@@ -27,13 +27,7 @@ def verify_gemini_key(api_key: str) -> Dict[str, Any]:
                     "message": "Koneksi Google Gemini API Berhasil Terhubung! 🟢"
                 }
             else:
-                err_msg = resp.text
-                try:
-                    err_json = resp.json()
-                    err_msg = err_json.get("error", {}).get("message", err_msg)
-                except Exception:
-                    pass
-                return {"valid": False, "message": f"API Key tidak valid: {err_msg}"}
+                return {"valid": False, "message": f"API Key tidak valid ({resp.status_code})"}
     except Exception as e:
         return {"valid": False, "message": f"Gagal menghubungi Google API: {str(e)}"}
 
@@ -43,8 +37,7 @@ def analyze_uploaded_image(
     mime_type: str = "image/jpeg"
 ) -> Dict[str, Any]:
     """
-    Analyzes an uploaded image (1 foto mainan mobil, karakter kartun anak, atau arena main).
-    Uses Gemini Vision multimodal analysis to identify toy details, colors, and characters for 60-scene continuity.
+    Analyzes an uploaded image (toy car, character, or track) using Gemini Vision multimodal.
     """
     clean_b64 = image_base64
     if "," in clean_b64:
@@ -59,18 +52,18 @@ def analyze_uploaded_image(
             endpoint = f"{GEMINI_API_URL}/{model_name}:generateContent?key={api_key.strip()}"
             
             prompt = """
-Anda adalah Sutradara & Produser Konten Video YouTube Anak-Anak (Kids & Toddler Video Specialist) seperti channel mainan mobil-mobilan anak (Hot Wheels, Monster Truck, Tayo, Robocar, Pixar Cars style).
-Analisis foto yang diunggah ini (bisa berupa foto mainan mobil anak, karakter anak, atau latar arena bermain) untuk dijadikan objek konsisten dalam 60 scene prompt video AI (Google Veo, Kling AI, Runway Gen-3, Luma).
+You are a Lead Character & Toy Designer for world-class Kids YouTube 3D animated content.
+Analyze this uploaded reference photo of a toy car, vehicle, or child character for strict visual continuity across 60 sequential video generation scenes.
 
-Berikan output HANYA dalam format JSON valid (tanpa markdown backtick ```json) dengan struktur:
+Output ONLY a valid JSON object:
 {
-  "product_name": "Nama mainan mobil/karakter anak yang tampak (misal: Mobil Monster Truck Merah, Truk Excavator Kuning, Mobil Polisi Ceria, Anak Laki-laki Main Mobil)",
-  "category": "Kategori konten anak (misal: Mainan Mobil-Mobilan / Petualangan Balap Anak / Kartun Edukasi Warna / Truk Konstruksi / Playground)",
-  "visual_description": "Deskripsi visual sangat detail meliputi model mobil, warna mencolok (merah cerah, kuning, biru), ban besar, mata ekspresif kartun/realistis, stiker api/nomor, dan tekstur bahan mainan",
-  "recommended_anchor_product": "Deskripsi detail paten mainan mobil/objek utama untuk dikunci di prompt video AI agar 100% konsisten dari scene 1 sampai scene 60",
-  "recommended_anchor_subject": "Deskripsi pengemudi/karakter anak kecil yang bermain (usia 4-6 tahun, baju ceria, ekspresi gembira dan tertawa)",
-  "recommended_setting": "Arena bermain anak (lintasan balap warna-warni, jalanan kota mini kartun, pasir pantai ajaib, karpet bermain kamar anak dengan aksen cerah)",
-  "detected_text": "Teks/nomor/merek yang terlihat pada mainan atau latar"
+  "product_name": "Accurate name of the toy car / character (e.g. Red Fire Monster Truck with oversized rugged tires)",
+  "category": "Kids Toy Play / Cartoon Car Adventure",
+  "visual_description": "Extremely detailed visual breakdown: exact color palette (e.g. crimson red glossy body with bright lemon yellow flame decals), wheel diameter, tread pattern, headlight shape, materials",
+  "recommended_anchor_product": "Locked description of this toy car to ensure 100% visual identity in all 60 AI video scenes without morphing",
+  "recommended_anchor_subject": "Description of the child character (e.g. 4-year-old toddler in colorful playwear with joyful expressive smile)",
+  "recommended_setting": "Playful kids room track setting (e.g. Bright playroom floor with orange race loops, wooden bridges, and colorful stacking blocks)",
+  "detected_text": "Any numbers, logos, or text visible on the toy"
 }
 """
             payload = {
@@ -98,8 +91,7 @@ Berikan output HANYA dalam format JSON valid (tanpa markdown backtick ```json) d
                     res_json = resp.json()
                     candidates = res_json.get("candidates", [])
                     if candidates:
-                        text_resp = candidates[0].get("content", {}).get("parts", [{}])[0].get("text", "")
-                        text_resp = text_resp.strip()
+                        text_resp = candidates[0].get("content", {}).get("parts", [{}])[0].get("text", "").strip()
                         if text_resp.startswith("```json"):
                             text_resp = text_resp[7:]
                         if text_resp.startswith("```"):
@@ -110,18 +102,18 @@ Berikan output HANYA dalam format JSON valid (tanpa markdown backtick ```json) d
                         parsed_data["source"] = "Gemini 1.5 Flash Vision AI (Kids Toy Specialist)"
                         return parsed_data
         except Exception as e:
-            print(f"[Gemini Vision Kids Warning] {e}, falling back to smart local detection.")
+            print(f"[Gemini Vision Warning] {e}")
 
-    # Smart Local Fallback for Kids Video
+    # Fallback
     return {
-        "product_name": "Mainan Mobil Balap & Monster Truck Anak Ceria",
+        "product_name": "Gleaming Red & Yellow Stunt Monster Truck",
         "category": "Kids Toy Adventure & Car Play",
-        "visual_description": "Mainan mobil-mobilan anak berwarna merah-kuning cerah mengkilap dengan ban besar bermotif bergerigi, desain kartun ramah anak bergaya 3D Pixar, lampu depan bulat menggemaskan",
-        "recommended_anchor_product": "Mainan mobil balap anak berwarna merah menyala dengan strip kuning cerah, ban off-road besar bertekstur karet hitam, bodi mengkilap bergaya 3D animasi ramah anak",
-        "recommended_anchor_subject": "Anak kecil berusia 4 tahun berambut cokelat rapi mengenakan kaos garis-garis ceria biru-oranye, wajah tersenyum gembira memegang mobil mainan",
-        "recommended_setting": "Arena lintasan balap mainan warna-warni di kamar bermain anak yang terang dan ceria, dilengkapi jembatan mini, terowongan kartun, dan balok susun",
-        "detected_text": "Kids Car Play Reference",
-        "source": "Smart Local Kids Vision Engine (Tambahkan Gemini API Key untuk deteksi presisi tinggi)"
+        "visual_description": "Vibrant glossy crimson red toy car with sunny yellow racing stripes, oversized black rubber rugged tires, and friendly cartoon headlights in 3D Pixar style",
+        "recommended_anchor_product": "Gleaming crimson red stunt monster truck with sunny yellow racing stripes, oversized black rubber off-road tires, glossy plastic finish, and rounded headlights in 3D Pixar animation style",
+        "recommended_anchor_subject": "Cheerful 4-year-old toddler with neat brown hair wearing a bright blue and orange striped play shirt, beaming with an energetic joyful smile",
+        "recommended_setting": "Sunlit kids playroom track featuring vibrant orange looping ramps, mini wooden suspension bridges, and colorful stacking blocks",
+        "detected_text": "Stunt Car 01",
+        "source": "Smart Kids Vision Engine"
     }
 
 def generate_kids_prompts_with_gemini(
@@ -133,8 +125,7 @@ def generate_kids_prompts_with_gemini(
     api_key: str
 ) -> Optional[List[Dict[str, Any]]]:
     """
-    Uses Gemini API to craft playful, sound-effect rich, 10-second scene prompts for Kids YouTube videos.
-    Enforces object continuity (toy cars & child character) across all 60 scenes.
+    Uses Gemini API to craft continuous English 10s voiceover and connected 3D Pixar style video prompts.
     """
     if not api_key or not api_key.strip():
         return None
@@ -143,35 +134,36 @@ def generate_kids_prompts_with_gemini(
         endpoint = f"{GEMINI_API_URL}/gemini-1.5-flash:generateContent?key={api_key.strip()}"
         
         system_instruction = f"""
-Anda adalah Sutradara & Spesialis Konten YouTube Video Anak-Anak Kelas Dunia (pembuat video viral mainan mobil anak seperti Hot Wheels, Vlad and Niki car toys, Tayo the Little Bus, Monster Truck toys).
-Tugas Anda: Membuat alur prompt video AI per-scene (tepat 10 detik per scene) dengan konsistensi 100% objek mobil mainan dan tokoh anak dari Scene 1 sampai Scene terakhir (maksimal 60 scene).
+You are a YouTube Kids Toy Video Showrunner and AI Video Director.
 
-VISI & KONSEP VIDEO YT INI:
-{video_vision}
-Judul Video: {video_meta.get('title', '')}
+RULES:
+1. SPOKEN DIALOGUE MUST BE 100% IN ENGLISH FOR EVERY SCENE!
+2. FULL 10 SECONDS OF CONTINUOUS SPEECH (22 to 28 words per scene, zero dead air).
+3. SEAMLESS NARRATIVE CONTINUITY ACROSS ALL SCENES: Each scene builds upon the previous one.
+4. STRICT OBJECT & CHARACTER CONTINUITY:
+   - Toy Car: {anchors.get('product', '')}
+   - Child: {anchors.get('subject', '')}
+   - Setting: {anchors.get('setting', '')}
+   - Style: {anchors.get('style', '')}
+5. FLUID CINEMATIC PROMPTS (NO STIFF BRACKETS).
 
-DATA KONSISTENSI UTAMA (WAJIB KONSISTEN DI SEMUA SCENE):
-- Objek Utama (Mobil/Mainan): {anchors.get('product', '')}
-- Karakter Anak / Subjek: {anchors.get('subject', '')}
-- Arena / Latar: {anchors.get('setting', '')}
-- Gaya Visual: {anchors.get('style', '')}
-- Bahasa: {'Bahasa Indonesia' if language == 'id' else 'English'}
+PREMISE: {video_vision}
+TITLE: {video_meta.get('title', '')}
 
-DATA SCENE (Masing-masing 10 detik):
-{json.dumps([{'index': s['scene_index'], 'time': s['time_range'], 'dialogue': s['dialogue']} for s in scenes_data], indent=2)}
+SCENES:
+{json.dumps([{'scene_index': s['scene_index'], 'time_range': s['time_range'], 'cue': s['dialogue']} for s in scenes_data], indent=2)}
 
-Instruksi Khusus Konten Video Anak:
-1. Sertakan elemen sound effect ceria anak di setiap scene, seperti: [SFX: Vroom vroom mesin mobil, Tin tin klakson ceria, suara loncatan boing boing, tawa riang anak-anak, sorak gembira 'Horeee!'].
-2. Aksi visual harus dinamis dan menyenangkan (mobil melaju kencang di turunan, melompati rintangan balok, tabrakan lembut dengan tumpukan pasir, balapan seru, parkir di garasi mini).
-3. Hasilkan output HANYA list JSON array:
+Output ONLY a valid JSON array:
 [
   {{
     "scene_index": 1,
-    "action_description": "Deskripsi aksi seru mobil mainan dan anak selama 10 detik penuh",
-    "sound_effects": "[SFX: Vroom vroom menderu, klakson tin-tin, tawa riang anak]",
-    "video_prompt": "[Visual Style: ...] | [Subject Continuity: ...] | [Primary Toy Car: ...] | [Play Arena: ...] | [Camera Motion: ...] | [10s Action & Sound: ...] | [Consistency Lock: 100% exact toy model & colors]",
-    "camera_directive": "Dynamic Low-Angle Car Chase / Dolly Track / Macro Toy Close-Up",
-    "negative_prompt": "scary, dark, realistic horror, morphing car model, distorted wheels, broken toys, realistic violence, flickering, text watermark"
+    "english_dialogue": "Continuous energetic English dialogue (22-28 words) filling the entire 10 seconds with zero silence.",
+    "story_link": "Connection to the next action",
+    "sound_effects": "[SFX: Vroom vroom engine rev, cheerful horn beep beep, toddler giggle]",
+    "action_description": "Detailed toy car stunt and child interaction",
+    "video_prompt": "Cinematic 3D Pixar animation style, 8K ultra-vibrant colors. (Fluid sentence describing car stunt, child smiles, track obstacles, sound cues, smooth camera motion, 24fps).",
+    "camera_directive": "Dynamic Low-Angle Car Tracking",
+    "negative_prompt": "scary, dark, realistic horror, morphing car model, distorted wheels, broken toys, realistic violence, flickering, text watermark, blurry"
   }}
 ]
 """
@@ -197,9 +189,8 @@ Instruksi Khusus Konten Video Anak:
                         text_resp = text_resp[3:]
                     if text_resp.endswith("```"):
                         text_resp = text_resp[:-3]
-                    gemini_scenes = json.loads(text_resp.strip())
-                    return gemini_scenes
+                    return json.loads(text_resp.strip())
     except Exception as e:
-        print(f"[Gemini Kids Scene Gen Warning] {e}")
+        print(f"[Gemini Scene Gen Warning] {e}")
 
     return None

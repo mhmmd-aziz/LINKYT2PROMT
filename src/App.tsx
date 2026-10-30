@@ -42,7 +42,7 @@ export const App: React.FC = () => {
   const [videoVision, setVideoVision] = useState<KidsVideoVision | null>(null);
   const [transcriptItems, setTranscriptItems] = useState<TranscriptItem[]>([]);
   const [fullTranscriptText, setFullTranscriptText] = useState<string>('');
-  const [detectedLanguage, setDetectedLanguage] = useState<string>('id');
+  const [detectedLanguage, setDetectedLanguage] = useState<string>('en');
 
   // Image Upload & Vision state (1 Foto Mainan Mobil / Tokoh)
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -50,12 +50,12 @@ export const App: React.FC = () => {
 
   // Consistency & Scene Generator state
   const [sceneDuration, setSceneDuration] = useState<number>(10); // Exactly 10s as requested
-  const [language, setLanguage] = useState<string>('id');
+  const [language, setLanguage] = useState<string>('en'); // Always English dialogue as requested
   const [anchors, setAnchors] = useState<SceneAnchors>({
-    subject: 'Anak kecil laki-laki usia 4 tahun berambut cokelat rapi mengenakan kaos garis biru-oranye ceria, wajah riang tersenyum gembira',
-    product: 'Mainan mobil monster truck anak warna merah menyala dengan strip kuning cerah, ban off-road besar bergerigi hitam, bodi 3D Pixar mengkilap',
-    setting: 'Kamar bermain anak yang terang dan ceria dengan lintasan balap melingkar warna oranye, jembatan kayu mini, dan balok susun',
-    style: 'Gaya animasi 3D Pixar/Disney bertekstur ultra-realistis, warna jenuh sangat cerah (vibrant saturated), pencahayaan hangat ramah anak, gerakan halus 24fps'
+    subject: 'Cheerful 4-year-old toddler with neat brown hair wearing a bright blue and orange striped shirt, beaming with a happy energetic smile',
+    product: 'Gleaming crimson red stunt monster truck with bright yellow flame decals, oversized rugged off-road tires, and rounded cartoon headlights in 3D Pixar style',
+    setting: 'Sunlit kids playroom track featuring vibrant orange looping ramps, mini wooden suspension bridges, and colorful stacking blocks',
+    style: 'Cinematic 3D Pixar animation aesthetic, 8K ultra-vibrant saturated colors, warm soft playroom lighting, realistic glossy toy textures, 24fps smooth motion'
   });
 
   // Generated Scenes (Max 60 Scenes)
@@ -111,8 +111,8 @@ export const App: React.FC = () => {
       setVideoVision(data.video_vision || null);
       setTranscriptItems(data.items || []);
       setFullTranscriptText(data.full_text || '');
-      setDetectedLanguage(data.language || 'id');
-      setLanguage(data.language === 'en' ? 'en' : 'id');
+      setDetectedLanguage(data.language || 'en');
+      setLanguage('en'); // Always English dialogue generation
 
       // Update default car and arena anchors if vision detected specific kids theme
       if (data.video_vision) {
@@ -124,7 +124,7 @@ export const App: React.FC = () => {
       }
 
       // Auto generate scenes immediately
-      triggerGenerate(data.items, data.metadata, data.language);
+      triggerGenerate(data.items, data.metadata, 'en');
     } catch (err: any) {
       setExtractError(err.message || 'Terjadi kesalahan saat memproses URL.');
     } finally {
@@ -146,7 +146,7 @@ export const App: React.FC = () => {
   const triggerGenerate = async (
     items = transcriptItems,
     meta = metadata,
-    lang = language
+    lang = 'en'
   ) => {
     if (!meta) return;
 
@@ -160,7 +160,7 @@ export const App: React.FC = () => {
           transcript_items: items,
           duration: meta.duration || (items.length ? items[items.length - 1].end : 60),
           scene_duration: sceneDuration,
-          language: lang,
+          language: 'en', // Strict English dialogue generation
           custom_subject: anchors.subject,
           custom_product: anchors.product,
           custom_setting: anchors.setting,
@@ -204,6 +204,21 @@ export const App: React.FC = () => {
     });
   };
 
+  const handleUpdateSceneDialogue = (index: number, newDialogue: string) => {
+    setScenes((prev) => {
+      const copy = [...prev];
+      if (copy[index]) {
+        copy[index] = {
+          ...copy[index],
+          dialogue: newDialogue,
+          english_dialogue: newDialogue,
+          word_count: newDialogue.split(/\s+/).filter(Boolean).length
+        };
+      }
+      return copy;
+    });
+  };
+
   return (
     <div className="min-h-screen bg-[#0a0b0d] text-gray-100 flex flex-col font-sans selection:bg-amber-600 selection:text-white">
       {/* Sticky Google Flow Header */}
@@ -225,13 +240,13 @@ export const App: React.FC = () => {
         <div className="text-center space-y-2 py-4">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-semibold">
             <Car className="w-3.5 h-3.5" />
-            <span>DeepSeek-V4.1-Flash AI Engine • Kids Video 60 Scene Remake</span>
+            <span>DeepSeek-V4.1-Flash • Continuous 10s English Storyboard</span>
           </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
-            Video YouTube Anak ➔ 60 Scene AI Video Prompts Sinematik
+            Video YouTube Anak ➔ 60 Scene Percakapan English Full 10s Bersambung
           </h2>
           <p className="text-xs sm:text-sm text-gray-400 max-w-2xl mx-auto leading-relaxed">
-            Menghilangkan prompt kaku! Didukung model <span className="text-amber-400 font-semibold">DeepSeek-V4.1-Flash</span> untuk menyusun alur cerita main mobil & sound effects yang hidup, cair, dan menyesuaikan referensi asli video YouTube (Maksimal 60 Scene).
+            Satu scene <span className="text-emerald-400 font-semibold">full 10 detik percakapan English tanpa jeda kosong</span> dan <span className="text-amber-400 font-semibold">alur bersambung di setiap scene</span>. Objek mobil mainan & tokoh anak dikunci 100% konsisten tanpa morphing!
           </p>
         </div>
 
@@ -327,6 +342,7 @@ export const App: React.FC = () => {
               referenceImage={imagePreview}
               engineUsed={engineUsed}
               onUpdateScenePrompt={handleUpdateScenePrompt}
+              onUpdateSceneDialogue={handleUpdateSceneDialogue}
             />
           </div>
         )}
@@ -365,14 +381,14 @@ export const App: React.FC = () => {
           <div className="flex items-center gap-2">
             <span className="font-bold text-gray-400">imsy tools yt</span>
             <span>•</span>
-            <span>Powered by DeepSeek-V4.1-Flash & Google Flow</span>
+            <span>Full 10s Continuous English Speech & Story Flow</span>
           </div>
           <div className="flex items-center gap-4 text-gray-400 text-[11px]">
-            <span>Fluid Cinematic Prompts</span>
+            <span>Full 10s Spoken English</span>
             <span>•</span>
-            <span>No Stiff Brackets</span>
+            <span>Zero Dead Air</span>
             <span>•</span>
-            <span>Toy Car Continuity</span>
+            <span>Toy Car Continuity Lock</span>
             <span>•</span>
             <span>RTX 3050 CUDA</span>
           </div>

@@ -89,6 +89,10 @@ export interface ScenePromptItem {
   end_time: number;
   duration_sec: number;
   dialogue: string;
+  english_dialogue?: string;
+  word_count?: number;
+  speech_duration_est?: string;
+  story_link?: string;
   sound_effects?: string;
   action_description: string;
   camera_directive: string;
