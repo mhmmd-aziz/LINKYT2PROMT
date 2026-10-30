@@ -20,7 +20,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
   if (!isOpen) return null;
 
   const generateAllPromptsText = () => {
-    let result = `=== IMSY TOOLS YT - KIDS 60-SCENE VIDEO FLOW (ENGLISH CONTINUOUS SCRIPT) ===\n`;
+    let result = `=== IMZY TOOLS YT - KIDS 60-SCENE VIDEO FLOW (ENGLISH CONTINUOUS SCRIPT) ===\n`;
     result += `Video Reference: ${metadata?.title || 'Kids YouTube Video'}\n`;
     result += `Total Scenes: ${scenes.length} (Full 10-Second Continuous Spoken English)\n`;
     result += `Object & Character Locking: 100% Consistent\n\n`;
@@ -40,7 +40,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
   };
 
   const generateVoiceoverOnlyScript = () => {
-    let script = `=== IMSY TOOLS YT - FULL ENGLISH VOICEOVER SCRIPT (FOR ELEVENLABS / TTS) ===\n\n`;
+    let script = `=== IMZY TOOLS YT - FULL ENGLISH VOICEOVER SCRIPT (FOR ELEVENLABS / TTS) ===\n\n`;
     scenes.forEach((s) => {
       const dialogue = s.english_dialogue || s.dialogue;
       script += `[Scene ${s.scene_index} - ${s.time_range}]\n${dialogue}\n\n`;
@@ -64,7 +64,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
 
   const handleDownloadJSON = () => {
     const data = {
-      project: "imsy tools yt",
+      project: "imzy tools yt",
       theme: "Kids Video Toy Car Play (Continuous English Story)",
       generated_at: new Date().toISOString(),
       metadata: metadata,
@@ -76,7 +76,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `imsy-tools-yt-60scenes-${metadata?.id || 'export'}.json`;
+    a.download = `imzy-tools-yt-60scenes-${metadata?.id || 'export'}.json`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -87,7 +87,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `imsy-voiceover-script-${metadata?.id || 'voice'}.txt`;
+    a.download = `imzy-voiceover-script-${metadata?.id || 'voice'}.txt`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -104,7 +104,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `imsy-tools-yt-scenes-${metadata?.id || 'export'}.csv`;
+    a.download = `imzy-tools-yt-scenes-${metadata?.id || 'export'}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -130,7 +130,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `imsy-english-subs-${metadata?.id || 'subs'}.srt`;
+    a.download = `imzy-english-subs-${metadata?.id || 'subs'}.srt`;
     a.click();
     URL.revokeObjectURL(url);
   };

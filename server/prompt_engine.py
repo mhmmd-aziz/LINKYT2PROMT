@@ -65,7 +65,7 @@ STORY_ARC_ENGLISH_DIALOGUE = [
     "A perfect four-wheel landing right on the plush playroom mat! That was the smoothest jump of the entire day, absolutely fantastic!",
     "The toddler can barely contain his joy, giggling out loud as he grabs the car and positions it for the final obstacle stretch!",
     "Look ahead, there is a mini ring of ribbons! The car accelerates with a determined engine rev, lining up perfectly with the center!",
-    "Straight through the colorful ribbon ring it blasts! Ribbons flutter everywhere like festive parade streamers celebrating our brave journey!",
+    "Straight through the colorful ribbon ring it blasts at full speed! Colorful ribbons flutter everywhere like festive parade streamers celebrating our brave journey forward together!",
     "Now entering the nighttime glow-in-the-dark sector! The glowing track illuminates the glossy crimson red body with magical glowing neon colors!",
     "The rounded headlights pierce through the colorful glow, casting cheerful beams across the floor as the car glides like a shooting star!",
     "Back into the warm bright daylight! The cheerful toddler waves his hand, shouting enthusiastic encouragement to his favorite toy companion!",
@@ -77,14 +77,14 @@ STORY_ARC_ENGLISH_DIALOGUE = [
     "Ahead lies the final mega ramp of the championship! The biggest, steepest, most thrilling incline on the entire playroom circuit!",
     "Full throttle ahead! Listen to the mighty vroom-vroom roar as the red monster truck attacks the incline with sheer enthusiasm!",
     "Over the crest it leaps! Soaring through the air in majestic slow-motion with cartoon sparkles dancing around the rugged black wheels!",
-    "Touchdown! A flawless landing right into the final straightaway lane, heading straight toward the checkered finish line banners!",
+    "Touchdown! That was a flawless four-wheel landing right into the final straightaway lane, accelerating smoothly and heading straight toward the checkered finish line banners!",
     "The crowd of toy spectators goes wild with cheering! Hear the applause, the whistling, and the joyful shouting from all around the room!",
     "Only a few meters left to go! The toddler leans forward with anticipation, eyes sparkling with sheer delight and festive excitement!",
     "Here comes the final sprint! The monster truck unleashes every bit of turbo power left in its playful little battery engine!",
     "And across the finish line it zooms! The checkered flag drops as colorful cartoon confetti pops in every direction with joy!",
     "Victory is ours! The red monster truck parks proudly on the top winner's podium with headlights flashing like celebratory disco lights!",
     "The happy child jumps up in pure elation, raising his hands high in the air and shouting: Hooray, we won the championship today!",
-    "What an unforgettable toy car adventure we shared together, filled with thrilling jumps, funny sound effects, and nonstop laughter!",
+    "What an unforgettable toy car adventure we shared together today, packed with thrilling ramp jumps, hilarious cartoon sound effects, and nonstop playful laughter with friends!",
     "Thank you so much for racing with us today, best friends! Don't forget to smile, keep playing, and see you in the next race!"
 ]
 
@@ -215,16 +215,24 @@ def build_fluid_cinematic_prompt(
     cam_motion: str
 ) -> str:
     """
-    Builds a fluid, natural, cinematic AI video prompt WITHOUT stiff bracket tags!
-    Formatted specifically to deliver peak results in Google Veo, Kling AI, Runway Gen-3, Luma, and Sora.
+    Builds a unified, natural, cinematic AI video prompt that embeds:
+    - 3D Pixar visual style & playroom atmosphere
+    - Locked toy car & child character continuity
+    - 10-second physical toy action & stunt
+    - FULL 10-second continuous spoken English dialogue (22-26 words, filling all 10s with no dead air!)
+    - Playful sound effects (SFX)
+    - Cinematic camera movement
+    - Strict visual continuity lock
+    When copied, this single prompt gives Google Flow / Kling / Veo / Runway everything needed!
     """
     prompt = (
         f"{style}. "
         f"{action} "
-        f"Featuring {product} guided with joyful enthusiasm by {subject} inside {setting}. "
-        f"Cinematic camera capture: {cam_motion}. "
-        f"Audio ambiance features continuous English voiceover: \"{dialogue}\" accompanied by {sfx}. "
-        f"100% exact toy model continuity, vibrant paint colors, and child character appearance locked across all scenes, warm natural playroom daylight, smooth 24fps motion, no morphing."
+        f"Featuring the locked primary toy car {product}, steered with joyful energy by the child character {subject} inside {setting}. "
+        f"Spoken Dialogue (Full 10-Second Continuous English Speech): \"{dialogue}\" "
+        f"Sound Effects: {sfx}. "
+        f"Cinematic Camera: {cam_motion}. "
+        f"Visual Continuity Lock: 100% exact toy car model, glossy paint colors, wheel diameter, child face, and playroom atmosphere strictly identical across all scenes, warm natural playroom daylight, smooth 24fps motion, no morphing, no distortion."
     )
     return prompt
 
@@ -275,12 +283,25 @@ def generate_consistent_scene_prompts(
             english_dialogue = l_data.get("english_dialogue") or l_data.get("dialogue") or STORY_ARC_ENGLISH_DIALOGUE[idx % len(STORY_ARC_ENGLISH_DIALOGUE)]
             story_link = l_data.get("story_link") or f"Builds directly toward Scene {scene_num + 1} stunt"
             action = l_data.get("action_description", "")
-            video_prompt = l_data.get("video_prompt", "")
-            negative_prompt = l_data.get("negative_prompt", "scary, dark, realistic horror, morphing car model, distorted wheels, broken toys, realistic violence, flickering, text watermark, blurry")
             sound_effects = l_data.get("sound_effects") or sfx
             cam_dir = l_data.get("camera_directive") or f"{cam['type']} ({cam['motion']})"
+            
+            # If LLM didn't embed dialogue in video_prompt, build the complete unified prompt
+            video_prompt = l_data.get("video_prompt", "")
+            if not video_prompt or ("Spoken Dialogue" not in video_prompt and len(video_prompt) < 200):
+                video_prompt = build_fluid_cinematic_prompt(
+                    style=style_anchor,
+                    action=action,
+                    product=product_anchor,
+                    subject=subject_anchor,
+                    setting=setting_anchor,
+                    dialogue=english_dialogue,
+                    sfx=sound_effects,
+                    cam_motion=cam["motion"]
+                )
+            negative_prompt = l_data.get("negative_prompt", "scary, dark, realistic horror, morphing car model, distorted wheels, broken toys, realistic violence, flickering, text watermark, blurry")
         else:
-            # Continuous 10s English Speech Generator (No empty space, 22-28 words guaranteed!)
+            # Continuous 10s English Speech Generator (No empty space, 22-26 words guaranteed!)
             english_dialogue = STORY_ARC_ENGLISH_DIALOGUE[idx % len(STORY_ARC_ENGLISH_DIALOGUE)]
             sound_effects = sfx
 
@@ -317,7 +338,7 @@ def generate_consistent_scene_prompts(
                     f"{product_anchor} navigates past toy building blocks across {setting_anchor}, steered with joyful energy by {subject_anchor}."
                 )
 
-            # Generate natural, fluid cinematic prompt (NO STIFF BRACKETS!)
+            # Generate natural, fluid cinematic prompt with embedded full 10s dialogue!
             video_prompt = build_fluid_cinematic_prompt(
                 style=style_anchor,
                 action=action,

@@ -47,9 +47,9 @@ except ImportError:
     )
 
 app = FastAPI(
-    title="imsy tools yt API",
+    title="imzy tools yt API",
     description="Backend for Kids YouTube Video Remake with DeepSeek-V4.1-Flash LLM Integration (Google Flow Style)",
-    version="2.1.0"
+    version="2.2.0"
 )
 
 # Enable CORS for frontend development
@@ -78,7 +78,7 @@ class GenerateRequest(BaseModel):
     transcript_items: List[Dict[str, Any]]
     duration: float
     scene_duration: float = 10.0
-    language: str = "id"
+    language: str = "en"
     custom_subject: Optional[str] = None
     custom_product: Optional[str] = None
     custom_setting: Optional[str] = None
@@ -89,7 +89,7 @@ class GenerateRequest(BaseModel):
 
 @app.get("/api/health")
 def health_check():
-    return {"status": "ok", "app": "imsy tools yt", "llm_supported": ["DeepSeek-V4.1-Flash", "DeepSeek Official", "Gemini 1.5 Flash"]}
+    return {"status": "ok", "app": "imzy tools yt", "llm_supported": ["DeepSeek-V4.1-Flash", "DeepSeek Official", "Gemini 1.5 Flash"]}
 
 @app.get("/api/hardware")
 def get_hardware_info():
@@ -155,7 +155,7 @@ def extract_youtube(req: ExtractRequest):
 def generate_prompts(req: GenerateRequest):
     """
     Splits transcript into exact 10-second scenes (capped to max 60 scenes)
-    and produces visually consistent, non-stiff fluid prompts with toy car continuity and sound effects.
+    and produces visually consistent, non-stiff fluid prompts with toy car continuity and full 10s English speech.
     Uses DeepSeek V4.1 Flash (Hugging Face) if provided, DeepSeek Official, Gemini, or smart local director.
     """
     try:

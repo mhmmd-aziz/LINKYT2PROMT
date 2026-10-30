@@ -30,6 +30,8 @@ export const LlmApiKeyModal: React.FC<LlmApiKeyModalProps> = ({
   const handleTestAndSave = async () => {
     if (!inputToken.trim()) {
       setApiToken('');
+      localStorage.removeItem('imzy_llm_token');
+      localStorage.removeItem('imzy_llm_provider');
       localStorage.removeItem('imsy_llm_token');
       localStorage.removeItem('imsy_llm_provider');
       setTestResult({ valid: false, message: 'Token dikosongkan. Beralih ke Smart Kids Director Engine (Dynamic Local Mode).' });
@@ -53,6 +55,8 @@ export const LlmApiKeyModal: React.FC<LlmApiKeyModalProps> = ({
       if (data.valid) {
         setApiToken(inputToken.trim());
         setProvider(data.provider || selectedProvider);
+        localStorage.setItem('imzy_llm_token', inputToken.trim());
+        localStorage.setItem('imzy_llm_provider', data.provider || selectedProvider);
         localStorage.setItem('imsy_llm_token', inputToken.trim());
         localStorage.setItem('imsy_llm_provider', data.provider || selectedProvider);
       }

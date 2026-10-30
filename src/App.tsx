@@ -26,10 +26,10 @@ export const App: React.FC = () => {
 
   // AI LLM Engine & API Token state (DeepSeek-V4.1-Flash default)
   const [apiToken, setApiToken] = useState<string>(() => {
-    return localStorage.getItem('imsy_llm_token') || localStorage.getItem('imsy_gemini_api_key') || '';
+    return localStorage.getItem('imzy_llm_token') || localStorage.getItem('imsy_llm_token') || localStorage.getItem('imsy_gemini_api_key') || '';
   });
   const [llmProvider, setLlmProvider] = useState<string>(() => {
-    return localStorage.getItem('imsy_llm_provider') || 'huggingface_deepseek';
+    return localStorage.getItem('imzy_llm_provider') || localStorage.getItem('imsy_llm_provider') || 'huggingface_deepseek';
   });
   const [apiKeyModalOpen, setApiKeyModalOpen] = useState<boolean>(false);
   const [engineUsed, setEngineUsed] = useState<string>('Smart Kids Director Engine');
@@ -83,7 +83,7 @@ export const App: React.FC = () => {
     fetchHardware();
   }, []);
 
-  // Handle YouTube URL Extraction
+  // Handle YouTube URL Extraction (Does NOT auto-generate; user can upload photo first!)
   const handleExtract = async (overrideUrl?: string) => {
     const targetUrl = overrideUrl || url;
     if (!targetUrl.trim()) return;
@@ -123,8 +123,10 @@ export const App: React.FC = () => {
         }));
       }
 
-      // Auto generate scenes immediately
-      triggerGenerate(data.items, data.metadata, 'en');
+      // If user has already uploaded an image before extracting URL, auto-trigger combined generation!
+      if (imageAnalysis) {
+        triggerGenerate(data.items, data.metadata, 'en', imageAnalysis);
+      }
     } catch (err: any) {
       setExtractError(err.message || 'Terjadi kesalahan saat memproses URL.');
     } finally {
@@ -134,19 +136,26 @@ export const App: React.FC = () => {
 
   // Apply Image Analysis to Anchors
   const handleApplyImageAnchors = (analysis: ImageAnalysisResult) => {
+    setImageAnalysis(analysis);
     setAnchors((prev) => ({
       ...prev,
       product: analysis.recommended_anchor_product || analysis.product_name,
       subject: analysis.recommended_anchor_subject || prev.subject,
       setting: analysis.recommended_setting || prev.setting
     }));
+
+    // If YouTube link metadata is already present, trigger or prepare combined generation!
+    if (metadata && transcriptItems.length > 0) {
+      triggerGenerate(transcriptItems, metadata, 'en', analysis);
+    }
   };
 
-  // Trigger Prompt Generation (Max 60 Scenes)
+  // Trigger Prompt Generation (Max 60 Scenes combining YouTube Vision + Image Context)
   const triggerGenerate = async (
     items = transcriptItems,
     meta = metadata,
-    lang = 'en'
+    lang = 'en',
+    currentImageAnalysis = imageAnalysis
   ) => {
     if (!meta) return;
 
@@ -165,7 +174,7 @@ export const App: React.FC = () => {
           custom_product: anchors.product,
           custom_setting: anchors.setting,
           custom_style: anchors.style,
-          image_context: imageAnalysis || undefined,
+          image_context: currentImageAnalysis || undefined,
           api_token: apiToken || undefined,
           provider: llmProvider || undefined
         })
@@ -289,6 +298,48 @@ export const App: React.FC = () => {
           </div>
         </div>
 
+        {/* COMBINED ACTION CTA: Analisis Video YT + Foto Mainan & Buat 60 Scene Prompt Konsisten */}
+        {metadata && (
+          <div className="relative p-5 sm:p-6 rounded-2xl bg-gradient-to-r from-[#1b1510] via-[#1c1412] to-[#17121b] border-2 border-amber-500/40 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4 animate-in fade-in duration-200">
+            <div className="space-y-1.5 flex-1">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+                <span className="text-xs font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                  {imagePreview ? '🎯 Siap Analisis: Video YouTube + Foto Mainan Terhubung!' : '💡 Langkah Berikutnya: Upload Foto Mainan Mobil'}
+                </span>
+              </div>
+              <p className="text-sm font-bold text-white leading-snug">
+                {imagePreview
+                  ? `Mobil Mainan "${imageAnalysis?.product_name || 'Foto Terdeteksi'}" diselaraskan ke alur video "${metadata.title.slice(0, 50)}..."`
+                  : 'Upload 1 foto mobil mainan di Node 02 di atas agar model dan warna mobilmu terkunci 100% konsisten di seluruh 60 scene.'}
+              </p>
+              <p className="text-xs text-gray-400 leading-relaxed">
+                Menghasilkan alur 60 scene bersambung dengan <span className="text-emerald-400 font-semibold">percakapan English full 10 detik tanpa jeda kosong</span> dan tombol salin prompt siap pakai untuk Google Flow / Veo / Kling.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              disabled={generating}
+              onClick={() => triggerGenerate()}
+              className="w-full sm:w-auto shrink-0 flex items-center justify-center gap-2.5 px-6 py-4 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-red-600 hover:from-amber-400 hover:to-red-500 text-white font-extrabold text-sm shadow-xl shadow-amber-900/50 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
+            >
+              {generating ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <span>Menganalisis & Menyusun 60 Scene...</span>
+                </>
+              ) : (
+                <>
+                  <Car className="w-4 h-4 text-white" />
+                  <span>{imagePreview ? '🚀 Analisis Video + Foto & Buat 60 Scene AI Prompt' : '🚀 Buat 60 Scene AI Prompt Konsisten'}</span>
+                </>
+              )}
+            </button>
+          </div>
+        )}
+
         {/* FLOW NODE 03: Consistency & 10s Scene Controls (Max 60 Scenes) */}
         <div className="relative">
           <ConsistencyNode
@@ -379,7 +430,7 @@ export const App: React.FC = () => {
       <footer className="border-t border-white/10 bg-[#0c0d10] py-6 px-4 text-center text-xs text-gray-500">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-gray-400">imsy tools yt</span>
+            <span className="font-bold text-gray-400">imzy tools yt</span>
             <span>•</span>
             <span>Full 10s Continuous English Speech & Story Flow</span>
           </div>

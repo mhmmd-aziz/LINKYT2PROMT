@@ -1,7 +1,7 @@
-# 🚗 imsy tools yt (v2.2)
+# 🚗 imzy tools yt (v2.2)
 > **Google Flow Edition: Kids YouTube Remake Engine (Full 10-Second Continuous Spoken English Script + Seamless 60-Scene Story Flow)**
 
-**imsy tools yt** adalah aplikasi web modern berbasis **React TSX + FastAPI** yang dirancang khusus untuk membuat ulang (*remake*) konten **video YouTube anak-anak (lagi main mobil-mobilan, monster truck, Hot Wheels, balapan ceria, suara vroom-vroom/sound effects kartun)** ke format **60 scene prompt**.
+**imzy tools yt** adalah aplikasi web modern berbasis **React TSX + FastAPI** yang dirancang khusus untuk membuat ulang (*remake*) konten **video YouTube anak-anak (lagi main mobil-mobilan, monster truck, Hot Wheels, balapan ceria, suara vroom-vroom/sound effects kartun)** ke format **60 scene prompt**.
 
 Setiap scene kini menghasilkan **percakapan / voiceover penuh 10 detik tanpa jeda kosong dalam bahasa Inggris (English)** yang saling menyambung dari Scene 1 sampai Scene 60, lengkap dengan kunci konsistensi objek mobil & karakter 100% paten.
 

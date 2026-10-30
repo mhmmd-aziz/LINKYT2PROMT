@@ -158,18 +158,19 @@ export const SceneFlowNode: React.FC<SceneFlowNodeProps> = ({
                       <span>{isCopiedDialogue ? 'Voice Tersalin!' : 'Copy Voiceover'}</span>
                     </button>
 
-                    {/* Copy Video Prompt Button */}
+                    {/* Copy Video Prompt Button - Unified Prompt + Full 10s Dialogue */}
                     <button
                       type="button"
                       onClick={() => handleCopyPrompt(scene.video_prompt, idx)}
-                      className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                      title="Salin prompt lengkap (mencakup naskah percakapan English full 10s, kunci objek mobil, karakter anak, dan camera motion)"
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-md ${
                         isCopiedPrompt
-                          ? 'bg-emerald-600 text-white shadow-md shadow-emerald-900/40'
-                          : 'bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white'
+                          ? 'bg-emerald-600 text-white shadow-emerald-900/50 scale-[1.02]'
+                          : 'bg-gradient-to-r from-amber-600 via-orange-600 to-red-600 hover:from-amber-500 hover:to-orange-500 text-white shadow-amber-900/40'
                       }`}
                     >
-                      {isCopiedPrompt ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                      <span>{isCopiedPrompt ? 'Prompt Tersalin!' : 'Copy Video Prompt'}</span>
+                      {isCopiedPrompt ? <Check className="w-3.5 h-3.5 text-emerald-100" /> : <Copy className="w-3.5 h-3.5" />}
+                      <span>{isCopiedPrompt ? 'Prompt & Percakapan Full 10s Tersalin! ✅' : 'Salin Prompt (Video + Dialog Full 10s)'}</span>
                     </button>
                   </div>
                 </div>
@@ -271,12 +272,12 @@ export const SceneFlowNode: React.FC<SceneFlowNodeProps> = ({
                   </div>
                 </div>
 
-                {/* Section 3: Natural Fluid AI Video Prompt */}
+                {/* Section 3: Natural Fluid AI Video Prompt with Embedded Dialogue */}
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] font-bold text-amber-400 flex items-center gap-1">
                       <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-                      Prompt Sinematik Alami (Siap Masuk Google Veo / Kling AI / Runway):
+                      Prompt Siap Masuk Flow (Video + Percakapan English Full 10s Menyatu):
                     </span>
                     <button
                       type="button"

@@ -9,10 +9,10 @@ def print_banner():
     banner = """
 ========================================================================
    ___ __  __ ______   __  _____ ___   ___  _     ____    __   _______ 
-  |_ _|  \/  / ___\ \ / / |_   _/ _ \ / _ \| |   / ___|   \ \ / /_   _|
-   | || |\/| \___ \\ V /    | || | | | | | | |   \___ \    \ V /  | |  
-   | || |  | |___) || |     | || |_| | |_| | |___ ___) |    | |   | |  
-  |___|_|  |_|____/ |_|     |_| \___/ \___/|_____|____/     |_|   |_|  
+  |_ _|  \/  |__  / \ / / |_   _/ _ \ / _ \| |   / ___|   \ \ / /_   _|
+   | || |\/| | / / \ V /    | || | | | | | | |   \___ \    \ V /  | |  
+   | || |  | |/ /_  | |     | || |_| | |_| | |___ ___) |    | |   | |  
+  |___|_|  |_/____| |_|     |_| \___/ \___/|_____|____/     |_|   |_|  
                                                                         
   Google Flow Edition: Kids YouTube Remake -> 60 Consistent Scene Prompts
 ========================================================================
@@ -22,7 +22,7 @@ def print_banner():
 def open_browser(port):
     time.sleep(1.5)
     url = f"http://127.0.0.1:{port}"
-    print(f"\n[Browser] Membuka antarmuka web imsy tools yt di: {url}")
+    print(f"\n[Browser] Membuka antarmuka web imzy tools yt di: {url}")
     try:
         webbrowser.open(url)
     except Exception:
@@ -56,7 +56,7 @@ def main():
         subprocess.run(["npm", "run", "build"], cwd=root_dir, shell=True)
 
     port = 8000
-    print(f"[*] Menjalankan server imsy tools yt di http://127.0.0.1:{port} ...")
+    print(f"[*] Menjalankan server imzy tools yt di http://127.0.0.1:{port} ...")
 
     # Launch browser in a separate thread
     threading.Thread(target=open_browser, args=(port,), daemon=True).start()

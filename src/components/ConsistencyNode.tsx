@@ -224,12 +224,12 @@ export const ConsistencyNode: React.FC<ConsistencyNodeProps> = ({
             {generating ? (
               <>
                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                <span>Menghasilkan Alur Video Anak ({totalCalculatedScenes} Scene)...</span>
+                <span>Menganalisis & Menyusun {totalCalculatedScenes} Scene Prompt...</span>
               </>
             ) : (
               <>
                 <Car className="w-4 h-4 text-white" />
-                <span>Buat 60 Scene Alur Video Anak Konsisten</span>
+                <span>{hasUploadedImage ? '🚀 Analisis Video + Foto & Buat 60 Scene AI Prompt' : '🚀 Buat 60 Scene Alur Video Anak Konsisten'}</span>
               </>
             )}
           </button>

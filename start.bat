@@ -1,6 +1,6 @@
 @echo off
-title imsy tools yt - Kids YouTube to 60 Scene AI Video Prompt Flow
+title imzy tools yt - Kids YouTube to 60 Scene AI Video Prompt Flow
 cd /d "%~dp0"
-echo Menjalankan imsy tools yt...
+echo Menjalankan imzy tools yt...
 python run.py
 pause
