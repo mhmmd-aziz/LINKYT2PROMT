@@ -182,11 +182,22 @@ def generate_prompts(req: GenerateRequest):
             "style": req.custom_style or ""
         }
 
+        # If user uploaded an image photo, lock the product anchor from image analysis
+        if req.image_context:
+            rec_car = req.image_context.get("recommended_anchor_product") or req.image_context.get("product_name")
+            if rec_car and not req.custom_product:
+                anchors_dict["product"] = rec_car
+            if req.image_context.get("recommended_anchor_subject") and not req.custom_subject:
+                anchors_dict["subject"] = req.image_context.get("recommended_anchor_subject")
+            if req.image_context.get("recommended_setting") and not req.custom_setting:
+                anchors_dict["setting"] = req.image_context.get("recommended_setting")
+
         token = (req.api_token or "").strip()
         llm_scenes = None
         engine_used = "Smart Kids Director Engine (Dynamic Local Mode)"
 
         # Step 2: Route to DeepSeek V4.1 Flash, DeepSeek Official, or Gemini
+        # Both models receive the full video title, transcript, and user's uploaded photo!
         if token:
             prov = req.provider or detect_api_provider(token)
             if prov in ("huggingface_deepseek", "deepseek_official"):
@@ -197,7 +208,9 @@ def generate_prompts(req: GenerateRequest):
                     video_vision=vision["vision_summary"],
                     language=req.language,
                     api_token=token,
-                    provider=prov
+                    provider=prov,
+                    image_context=req.image_context,
+                    full_transcript=full_text
                 )
                 if llm_scenes:
                     engine_used = "DeepSeek-V4.1-Flash-1017 (Hugging Face AI)" if prov == "huggingface_deepseek" else "DeepSeek Official AI"
@@ -208,7 +221,9 @@ def generate_prompts(req: GenerateRequest):
                     video_meta=req.metadata,
                     video_vision=vision["vision_summary"],
                     language=req.language,
-                    api_key=token
+                    api_key=token,
+                    image_context=req.image_context,
+                    full_transcript=full_text
                 )
                 if llm_scenes:
                     engine_used = "Google Gemini 1.5 Flash Vision AI"

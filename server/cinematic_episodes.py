@@ -1,3 +1,5 @@
+from typing import List, Dict, Any
+
 """
 20 & 60 Unique Cinematic Story Episodes for Kids YouTube Video Remake.
 Organized into 8 Progressive Acts with:
@@ -247,6 +249,463 @@ CINEMATIC_20_SCENE_ARC = [
         "is_closing": True
     }
 ]
+
+# Dedicated 20-Scene Police Chase & Rescue Mission Arc
+POLICE_CHASE_20_ARC = [
+    {
+        "scene_index": 1,
+        "act": "Act 1: The Precinct Alarm",
+        "milestone": "Station Alarm & Siren Activation",
+        "action": "At the miniature police station garage inside {setting}, dual red and blue sirens burst to life atop {product} as {subject} presses the siren button.",
+        "dialogue": "Emergency alert in Toy Town, best friends! Our super brave {product_short} switches on its flashing sirens! Let us rev the engine and roll out on patrol together!",
+        "sfx": "[SFX: High-pitched mini police wail 'wee-woo-wee-woo!', engine ignition roar, toddler shout 'Police to the rescue!']",
+        "vfx": "Flashing red and blue LED strobe reflections on shiny toy car body, volumetric garage dust beams",
+        "story_link": "Speeding out of the precinct onto the main city boulevard",
+        "is_closing": False
+    },
+    {
+        "scene_index": 2,
+        "act": "Act 1: The Precinct Alarm",
+        "milestone": "Garage Door Acceleration",
+        "action": "{product} rockets out of the police garage bay doors onto the smooth carpet boulevard, tires chirping with sudden acceleration.",
+        "dialogue": "Rolling out at top speed! The garage doors swing wide open as the little police cruiser accelerates down the smooth road to protect our toy city!",
+        "sfx": "[SFX: Tire rubber chirp, rapid acceleration whoosh, exciting drum march rhythm, child giggling excitedly]",
+        "vfx": "Motion blur streaks on tires, animated cartoon smoke puffs from rear bumper",
+        "story_link": "Heading into the busy city intersection following dispatch",
+        "is_closing": False
+    },
+    {
+        "scene_index": 3,
+        "act": "Act 2: The High-Speed Pursuit",
+        "milestone": "Boulevard Traffic Weave",
+        "action": "{product} weaves nimbly around parked pastel toy buses and miniature traffic lights, blue sirens flashing as {subject} steers with sharp focus.",
+        "dialogue": "Look at that skillful driving! Zipping smoothly past the parked toy buses without touching a single mirror! We are hot on the trail of the runaway car!",
+        "sfx": "[SFX: Nimble steering squeaks, rapid dual sirens 'wee-woo!', child whispering 'Keep your eyes on the road!']",
+        "vfx": "Sweeping camera pan blur, reflective store window reflections in 8K detail",
+        "story_link": "Spotting the speeding suspect vehicle turning into the market lane",
+        "is_closing": False
+    },
+    {
+        "scene_index": 4,
+        "act": "Act 2: The High-Speed Pursuit",
+        "milestone": "Market Lane Power Drift",
+        "action": "{product} executes a high-speed power drift around a colorful fruit stand made of building blocks, keeping tires perfectly balanced on the road.",
+        "dialogue": "Sharp left drift around the fruit market! Not a single pretend apple gets bumped! Look at the control our little police hero has on the steering wheel!",
+        "sfx": "[SFX: Lateral tire squeal 'skrrrrt!', cheerful horn honk 'beep-beep!', toddler laughing loudly]",
+        "vfx": "Cartoon speed stars sparking from outer tires, dynamic low-angle tracking shot",
+        "story_link": "The suspect turns into the narrow alleyway shortcut",
+        "is_closing": False
+    },
+    {
+        "scene_index": 5,
+        "act": "Act 2: The High-Speed Pursuit",
+        "milestone": "Narrow Alleyway Squeeze",
+        "action": "{product} accelerates down the narrow alleyway between cardboard toy buildings, mirrors folding slightly as siren echoes loudly against walls.",
+        "dialogue": "Through the narrow alleyway we zoom! The sirens echo with exciting energy as we close the distance inch by inch! You can do it, little cruiser!",
+        "sfx": "[SFX: Hollow alleyway echo siren reverberation, turbo engine whir, child cheering 'Faster, faster!']",
+        "vfx": "Dramatic shadows between buildings, blue and red strobe pulses lighting the alley walls",
+        "story_link": "Emerging onto the open playground bridge approach",
+        "is_closing": False
+    },
+    {
+        "scene_index": 6,
+        "act": "Act 3: The Bridge Roadblock",
+        "milestone": "Suspension Bridge Sprint",
+        "action": "{product} chases the runaway car across the wooden suspension bridge, wooden planks clattering rhythmically under the rugged tires.",
+        "dialogue": "Across the wooden suspension bridge at full speed! Listen to the planks rattle under our wheels as the bridge sways gently in the exciting playground breeze!",
+        "sfx": "[SFX: Wooden plank rhythmic clatter 'clack-clack-clack!', siren echo over water, toddler cheering]",
+        "vfx": "Soft wooden plank vibrations, water reflections shimmering beneath the bridge",
+        "story_link": "Reaching the city park on the other side of the bridge",
+        "is_closing": False
+    },
+    {
+        "scene_index": 7,
+        "act": "Act 3: The Bridge Roadblock",
+        "milestone": "Deploying the Roadblock Cones",
+        "action": "{subject} places bright neon orange cones across the path ahead, while {product} angles aggressively to create an impenetrable roadblock.",
+        "dialogue": "Quick thinking! We set up a row of bright orange cones ahead! The runway has nowhere left to go as our brave police car stands ready!",
+        "sfx": "[SFX: Plastic cone tap 'thump-thump!', brakes hissing to a halt, child whisper 'Stop right there!']",
+        "vfx": "Bright neon orange cones glowing under playroom lighting, sharp macro focus on front grille",
+        "story_link": "The suspect tries to swerve toward the sandbox hill",
+        "is_closing": False
+    },
+    {
+        "scene_index": 8,
+        "act": "Act 4: The Sand Hill Stunt",
+        "milestone": "Kinetic Sand Hill Chase",
+        "action": "{product} powers up the steep purple kinetic sand hill, all-wheel drive tires digging deep to maintain pursuit speed.",
+        "dialogue": "He is trying to escape up the sandbox mountain! But our {product_short} has all-wheel drive power! Digging into the sand and climbing right behind him!",
+        "sfx": "[SFX: Low torque engine grind, sand crunch 'shhhhk-crunch!', determined toddler grunt 'Go, go!']",
+        "vfx": "Kinetic sand spraying from rear wheels, macro rim detail in 8K resolution",
+        "story_link": "Reaching the crest of the hill overlooking the playground plaza",
+        "is_closing": False
+    },
+    {
+        "scene_index": 9,
+        "act": "Act 4: The Sand Hill Stunt",
+        "milestone": "Crest Jump Descent",
+        "action": "{product} leaps off the sand hill crest in a controlled four-wheel jump, landing smoothly on the soft playroom mat below.",
+        "dialogue": "Over the sand hill it flies! A smooth jump through the air and a perfect four-wheel landing on the mat! Now we are right on his bumper!",
+        "sfx": "[SFX: Spring bounce 'BOING!', soft mat thud 'thump!', child shouting 'Woohoo!']",
+        "vfx": "Slow-motion hangtime at apex, dust motes drifting in sunbeams, shock absorbers compressing",
+        "story_link": "Cornering the runaway car inside the roundabout",
+        "is_closing": False
+    },
+    {
+        "scene_index": 10,
+        "act": "Act 5: The Subway Underpass",
+        "milestone": "Underpass Tunnel Rush",
+        "action": "{product} darts into the curved arched tunnel beneath the playroom table, headlights cutting through the dark with warm golden beams.",
+        "dialogue": "Into the dark underpass tunnel! The glowing headlights illuminate the way forward while the dual sirens bounce off the ceiling with incredible superhero energy!",
+        "sfx": "[SFX: Deep tunnel cavern echo, rapid engine throttle rev, cheerful child giggle]",
+        "vfx": "Volumetric headlight dust beams piercing shadows, glowing dashboard gauges",
+        "story_link": "Exiting the tunnel into the city town square",
+        "is_closing": False
+    },
+    {
+        "scene_index": 11,
+        "act": "Act 5: The Subway Underpass",
+        "milestone": "Town Square Pincer Move",
+        "action": "{product} sweeps in a tight semi-circle around the town square statue, cutting off the escape angle with tactical precision.",
+        "dialogue": "Swinging around the town square fountain with lightning speed! We cut off the corner and block the exit path! Perfect police maneuvering in action!",
+        "sfx": "[SFX: Lateral tire squeak, loudspeaker chirp 'chirp-chirp!', toddler shouting 'Got you!']",
+        "vfx": "Circular tire dust arc on rug, dynamic camera boom sweep from above",
+        "story_link": "Executing the gentle stop maneuver",
+        "is_closing": False
+    },
+    {
+        "scene_index": 12,
+        "act": "Act 6: The Safe Cornering",
+        "milestone": "Bumper-to-Bumper Block",
+        "action": "{product} pulls gently in front of the runaway car, bumper-to-bumper, bringing both vehicles safely to a complete halt.",
+        "dialogue": "And stop! Safe and sound without a single scratch! The runaway car comes to a gentle halt right against our sturdy police bumper! Mission accomplished!",
+        "sfx": "[SFX: Gentle plastic bumper tap 'clack!', brakes squeak, victorious child cheer 'Hooray, we did it!']",
+        "vfx": "Headlights flashing playfully in synchronization, soft camera dolly in",
+        "story_link": "The toy citizens and animals gather to celebrate",
+        "is_closing": False
+    },
+    {
+        "scene_index": 13,
+        "act": "Act 6: The Safe Cornering",
+        "milestone": "Officer High-Five",
+        "action": "{subject} steps into frame, smiling from ear to ear, giving a proud high-five to the front bumper of {product}.",
+        "dialogue": "Give me a high-five, partner! Our proud little officer smiles brightly, celebrating the safest and most exciting police rescue mission in toy city history!",
+        "sfx": "[SFX: Crisp hand clap high-five 'SLAP!', joyful toddler laughter, playful horn honk]",
+        "vfx": "Warm sunlight framing the child's smiling face, golden bokeh in background",
+        "story_link": "Leading the peaceful escort back to precinct",
+        "is_closing": False
+    },
+    {
+        "scene_index": 14,
+        "act": "Act 7: The Victory Parade",
+        "milestone": "Escort Convoy Roll",
+        "action": "{product} leads a friendly convoy of toy vehicles down the boulevard, headlights winking cheerfully like festive holiday lights.",
+        "dialogue": "Now leading the friendly escort parade down the main street! All the toy animal spectators are waving their paws and cheering for our hero car!",
+        "sfx": "[SFX: Cheerful parade brass melody, friendly siren chirps, crowd of toys applauding]",
+        "vfx": "Colorful parade balloons floating in background, lens flare glint off police badge decal",
+        "story_link": "Arriving at the city hall podium for the award",
+        "is_closing": False
+    },
+    {
+        "scene_index": 15,
+        "act": "Act 7: The Victory Parade",
+        "milestone": "City Hall Podium Arrival",
+        "action": "{product} parks proudly atop the steps of the toy city hall, while {subject} places a shiny gold star medal on the roof.",
+        "dialogue": "Here we are at city hall! Our brave cruiser earns the gold star medal of bravery! Look at how proudly the shiny star sparkles in the sunlight!",
+        "sfx": "[SFX: Medal clink 'ting!', triumphant fanfare flourish, child giggling with pride]",
+        "vfx": "Gold medal starburst glint, crystal clear 8K macro focus on polished police paint",
+        "story_link": "The celebratory confetti explosion begins",
+        "is_closing": False
+    },
+    {
+        "scene_index": 16,
+        "act": "Act 7: The Victory Parade",
+        "milestone": "Rainbow Confetti Burst",
+        "action": "A shower of festive rainbow confetti bursts into the air above {product}, drifting down like celebratory snowflakes across {setting}.",
+        "dialogue": "Pop, pop, pop! A giant explosion of colorful confetti rains down from above celebrating our victory! What an incredible day of heroic teamwork and fun!",
+        "sfx": "[SFX: Confetti popper 'POP-POP-POP!', paper flutter rustle, toddler joyful cheering]",
+        "vfx": "Thousands of colorful confetti flakes floating in slow-motion, warm golden lighting",
+        "story_link": "Switching sirens into celebratory disco rhythm",
+        "is_closing": False
+    },
+    {
+        "scene_index": 17,
+        "act": "Act 8: The Grand Celebration & Penutup",
+        "milestone": "Disco Siren Dance",
+        "action": "{product} wiggles playfully on its tires while sirens flash rhythmically like disco lights, child dancing alongside happily.",
+        "dialogue": "Look at the police car dancing! It wiggles its tires to the happy music while the sirens flash like a cheerful disco party for all our friends!",
+        "sfx": "[SFX: Upbeat cartoon disco rhythm, rhythmic siren beeps, child giggling and dancing]",
+        "vfx": "Animated cartoon musical notes floating above car, colorful neon light floor glow",
+        "story_link": "Gathering around for the final group photo",
+        "is_closing": False
+    },
+    {
+        "scene_index": 18,
+        "act": "Act 8: The Grand Celebration & Penutup",
+        "milestone": "The Golden Sunset Glow",
+        "action": "Warm late-afternoon sunlight fills {setting}, casting a golden glow over {product} and the peaceful toy city boulevard.",
+        "dialogue": "The golden sun is setting over our peaceful toy city! Every street is safe, every friend is happy, and our favorite police cruiser rests with pride!",
+        "sfx": "[SFX: Gentle acoustic guitar chords, engine purring softly, calm evening birdsong chime]",
+        "vfx": "Warm golden hour sunset lighting, soft lens flare, gentle atmospheric dust motes",
+        "story_link": "Preparing for the heartfelt movie farewell to viewers",
+        "is_closing": False
+    },
+    {
+        "scene_index": 19,
+        "act": "Act 8: The Grand Celebration & Penutup",
+        "milestone": "Holding the Hero Car",
+        "action": "{subject} gently lifts {product} with two caring hands, cradling the toy police car with a loving, proud expression.",
+        "dialogue": "Our little boy holds his favorite toy hero close to his heart! What a wonderful day of rescue adventures we shared with all our amazing friends!",
+        "sfx": "[SFX: Soft child giggle, gentle chime, peaceful melodic background tune]",
+        "vfx": "Macro close-up portrait of child and toy car, soft pastel bokeh background",
+        "story_link": "The warm final farewell and movie closing to viewers",
+        "is_closing": False
+    },
+    {
+        "scene_index": 20,
+        "act": "Act 8: The Grand Celebration & Penutup",
+        "milestone": "PENUTUP: Heartfelt Movie Farewell",
+        "action": "In a warm emotional close-up, {subject} looks straight into the camera lens with a loving smile and waves goodbye with one hand while holding {product}.",
+        "dialogue": "Thank you so much for joining our police patrol adventure today, best friends! You are all champions! Keep playing, keep smiling, and see you next time! Bye-bye!",
+        "sfx": "[SFX: Warm acoustic lullaby melody, child saying 'Bye-bye friends!', gentle horn beep 'beep-beep', closing applause]",
+        "vfx": "Heartfelt close-up of child holding toy car and waving goodbye directly to camera, soft warm vignette fade, movie ending credits atmosphere",
+        "story_link": "Grand movie ending (penutup), story complete",
+        "is_closing": True
+    }
+]
+
+# Dedicated 20-Scene Muddy Offroad & Automatic Car Wash Adventure Arc
+MUD_CARWASH_20_ARC = [
+    {
+        "scene_index": 1,
+        "act": "Act 1: The Dirty Trail Adventure",
+        "milestone": "Dirt Trail Rollout",
+        "action": "At the start of the rugged playroom trail in {setting}, {product} revs its oversized offroad tires, kicking up imaginary dust as {subject} pushes forward.",
+        "dialogue": "Welcome friends! Today our awesome {product_short} is going on a super messy muddy off-road adventure! Let us count down together: three, two, one, vroom!",
+        "sfx": "[SFX: Deep knobby tire hum, engine throttle rev 'vroom-vroom!', child giggling 'Let us get muddy!']",
+        "vfx": "Warm morning sunlight filtering across the carpet trail, cartoon dust puffs behind wheels",
+        "story_link": "Approaching the giant muddy obstacle puddle ahead",
+        "is_closing": False
+    },
+    {
+        "scene_index": 2,
+        "act": "Act 1: The Dirty Trail Adventure",
+        "milestone": "Approaching the Mud Bog",
+        "action": "{product} accelerates down a dirt hill slope toward a giant wet brown mud puddle created with pretend slime and water.",
+        "dialogue": "Look out ahead, friends! There is a giant gooey mud puddle right across the path! He speeds up and gets ready for the biggest splash ever!",
+        "sfx": "[SFX: Accelerating engine whoosh, wet squelch sound, toddler shouting 'Splash incoming!']",
+        "vfx": "Brown mud puddle surface reflecting the room, low-angle tracking camera following tires",
+        "story_link": "Tires hit the mud puddle at full speed",
+        "is_closing": False
+    },
+    {
+        "scene_index": 3,
+        "act": "Act 1: The Dirty Trail Adventure",
+        "milestone": "The Giant Mud Splash",
+        "action": "{product} plunges directly into the deep mud bog, sending giant arches of brown mud and watery droplets splashing high into the air.",
+        "dialogue": "SPLASH! Right into the deep muddy puddle! Look at the giant brown mud arches flying everywhere! That was the funniest and messiest splash of the day!",
+        "sfx": "[SFX: Enormous wet splash 'KABLOOSH!', mud splatters, toddler laughing hysterically]",
+        "vfx": "Slow-motion mud droplet spray frozen in mid-air, cartoon mud droplets splattering on camera lens",
+        "story_link": "Tires churning through the sticky mud pit",
+        "is_closing": False
+    },
+    {
+        "scene_index": 4,
+        "act": "Act 2: The Mud Bog Battle",
+        "milestone": "Spinning Mud Wheels",
+        "action": "{product} spins its rugged tires deep in the thick brown mud, mud rooster tails shooting backward as the powerful motor digs in.",
+        "dialogue": "The mud is so thick and sticky! The oversized tires spin with power, shooting muddy rooster tails everywhere as our little truck pushes forward with all its might!",
+        "sfx": "[SFX: Wet tire spinning 'shhhk-shhhk!', deep engine groaning with torque, child cheering 'Push, push!']",
+        "vfx": "Thick mud coating the wheel rims and fenders, dynamic camera shake on tire struggle",
+        "story_link": "Climbing up the slippery muddy embankment",
+        "is_closing": False
+    },
+    {
+        "scene_index": 5,
+        "act": "Act 2: The Mud Bog Battle",
+        "milestone": "Muddy Hill Climb",
+        "action": "{product} grips the slippery slope with its deep knobby treads, pulling itself out of the mud pit inch by inch to reach dry land.",
+        "dialogue": "Inch by inch we climb up the slippery bank! Those rugged off-road treads never give up, and—YES! We made it out of the mud pit!",
+        "sfx": "[SFX: Mud suction release 'SCHLUCK!', engine triumph roar, toddler clapping enthusiastically]",
+        "vfx": "Pebbles of dried mud dropping from undercarriage, bright sunlight illuminating muddy paint",
+        "story_link": "Inspecting how completely dirty the vehicle is",
+        "is_closing": False
+    },
+    {
+        "scene_index": 6,
+        "act": "Act 3: Time for the Car Wash",
+        "milestone": "Completely Muddy Inspection",
+        "action": "Camera slowly rotates around {product}, completely covered from bumper to spoiler in funny brown cartoon mud splatters, while {subject} laughs.",
+        "dialogue": "Haha, look at our truck now! It is completely covered in brown gooey mud from top to bottom! You know what that means: it is time for a car wash!",
+        "sfx": "[SFX: Playful cartoon trombone slide 'wah-wah-wah!', child laughing out loud, horn beep 'beep-beep']",
+        "vfx": "Thick textured 3D mud splatters covering shiny decals, comical mud eyebrows on headlights",
+        "story_link": "Driving toward the automated toy car wash building",
+        "is_closing": False
+    },
+    {
+        "scene_index": 7,
+        "act": "Act 3: Time for the Car Wash",
+        "milestone": "Car Wash Station Arrival",
+        "action": "{product} drives up the paved approach to the colorful toy car wash station with neon flashing lights and rotating foam brushes.",
+        "dialogue": "Here is the ultimate automatic toy car wash! Look at the cheerful rainbow lights and colorful rotating brushes waiting to make our truck sparkle like new!",
+        "sfx": "[SFX: Car wash mechanical motor hum, digital chime 'ding-ding!', child whispering 'So cool!']",
+        "vfx": "Flashing neon signage reflecting off wet puddle, steam rising gently from wash entrance",
+        "story_link": "Entering the wash tunnel conveyor belt",
+        "is_closing": False
+    },
+    {
+        "scene_index": 8,
+        "act": "Act 4: The Pre-Rinse & Soap Bath",
+        "milestone": "Water Jet Pre-Rinse",
+        "action": "{product} rolls into the wash portal as high-pressure water nozzles spray warm crystal water jets, loosening the thick outer crust of mud.",
+        "dialogue": "Rolling inside! Whoosh! High-pressure water jets blast from both sides, washing away the first thick layer of mud with powerful spraying water streams!",
+        "sfx": "[SFX: High-pressure water spray 'PSSSHHHH-WHOOSH!', water gushing, child gasping in awe]",
+        "vfx": "Streaming water droplets cascading over muddy body panels, mud melting away in brown rivulets",
+        "story_link": "Moving into the foaming soap chamber",
+        "is_closing": False
+    },
+    {
+        "scene_index": 9,
+        "act": "Act 4: The Pre-Rinse & Soap Bath",
+        "milestone": "Foam Cannon Explosion",
+        "action": "Giant overhead nozzles shower {product} in a thick blanket of pink, blue, and yellow cartoon soap foam that bubbles with rainbow reflections.",
+        "dialogue": "Foam party time! Giant soap cannons explode with fluffy pink, yellow, and blue bubbles, covering the whole truck like a giant delicious ice cream sundae!",
+        "sfx": "[SFX: Foam nozzle 'FOOOMPH!', popping soap bubbles 'pop-pop-pop!', toddler giggling joyfully]",
+        "vfx": "Thick volumetric foam suds bubbling on roof, rainbow iridescence shining inside each soap bubble",
+        "story_link": "Rolling into the giant rotating scrubber brushes",
+        "is_closing": False
+    },
+    {
+        "scene_index": 10,
+        "act": "Act 5: The Scrubbing Brushes",
+        "milestone": "Vertical Brush Scrub",
+        "action": "Two giant spinning blue foam brushes hug the sides of {product}, scrubbing the doors and muddy wheels with cheerful swirling motions.",
+        "dialogue": "Here come the giant spinning scrubber brushes! Swish, swash, swish! They spin around the sides, tickling the doors and scrubbing every speck of dirt away!",
+        "sfx": "[SFX: Whirring sponge scrub 'swish-swash-swish!', motor hum, child shouting 'Tickle, tickle!']",
+        "vfx": "Soap foam flying off spinning brush bristles, bright pastel foam splattering playfully",
+        "story_link": "Top overhead roller brush sweeps down over hood and roof",
+        "is_closing": False
+    },
+    {
+        "scene_index": 11,
+        "act": "Act 5: The Scrubbing Brushes",
+        "milestone": "Overhead Roller Brush",
+        "action": "A massive yellow roller brush rolls over the hood, windshield, and roof of {product}, leaving a pristine streak of sparkling red paint behind.",
+        "dialogue": "Down comes the big yellow top brush rolling right over the hood and roof! Look, friends, the glossy red paint is already starting to shine through!",
+        "sfx": "[SFX: Soft foam roller sound 'woosh-woosh!', squeak of clean glass, toddler cheering 'So clean!']",
+        "vfx": "Revealing sparkling clean paint beneath foam, glittering starburst shines on cleaned hood",
+        "story_link": "Specialized wheel scrubbers clean the tire rims",
+        "is_closing": False
+    },
+    {
+        "scene_index": 12,
+        "act": "Act 6: The Wheel Scrub & Rinse",
+        "milestone": "Tire Tread Wheel Scrub",
+        "action": "Miniature spinning bristle pads clean each oversized tire and wheel rim, removing all the trapped mud between the deep rubber treads.",
+        "dialogue": "Do not forget those awesome oversized tires! Dedicated wheel scrubbers spin against the rims, making the deep rubber treads look brand new and ready to roll!",
+        "sfx": "[SFX: Bristle scrub 'chika-chika!', water squirt, child giggling 'Clean tires!']",
+        "vfx": "Deep black rubber texture restored in 8K macro detail, water spray glistening on rims",
+        "story_link": "Passing under the waterfall rinse arch",
+        "is_closing": False
+    },
+    {
+        "scene_index": 13,
+        "act": "Act 6: The Wheel Scrub & Rinse",
+        "milestone": "Waterfall Cascade Rinse",
+        "action": "{product} drives through a cascading waterfall arch of crystal-pure water, washing away every last soap bubble into the drainage grate.",
+        "dialogue": "Through the crystal waterfall rinse we glide! All the colorful soap bubbles wash away, revealing our gleaming champion underneath brighter than ever before!",
+        "sfx": "[SFX: Heavy waterfall cascade 'SPLAAASH-RUSH!', gurgling drain, child clapping hands]",
+        "vfx": "Sheets of crystal water cascading off aerodynamic curves, brilliant light refractions",
+        "story_link": "Entering the giant warm air drying bay",
+        "is_closing": False
+    },
+    {
+        "scene_index": 14,
+        "act": "Act 7: The Jet Blow Dryer",
+        "milestone": "Warm Air Blow Dryers",
+        "action": "Giant cartoon blow dryers blast warm air from all angles, sending water droplets dancing and skittering off the glossy hood of {product}.",
+        "dialogue": "Whooosh! Giant warm air jet dryers roar to life! Watch the little water droplets race right off the shiny hood like tiny speed skaters heading for adventure!",
+        "sfx": "[SFX: Powerful jet dryer wind 'WHOOOOOOSH!', water droplets skittering, child laughing loudly]",
+        "vfx": "Dynamic air ripples blowing across glossy paint, dancing water beads atomizing into mist",
+        "story_link": "Rolling onto the automated waxing buffer pads",
+        "is_closing": False
+    },
+    {
+        "scene_index": 15,
+        "act": "Act 7: The Jet Blow Dryer",
+        "milestone": "Diamond Wax & Polish",
+        "action": "Soft velvet buffer pads buff the body panels of {product}, giving the glossy finish a mirror-like cartoon diamond shine.",
+        "dialogue": "Now for the special diamond wax and polish! Soft velvet pads buff the finish until the shiny decals sparkle like stars in the midnight sky!",
+        "sfx": "[SFX: Gentle buffer squeak 'rub-a-dub!', diamond sparkle chime 'TING-TING!', toddler in awe 'Ooooh!']",
+        "vfx": "Glittering starburst glints reflecting off vehicle hood, ultra-deep mirror gloss reflection",
+        "story_link": "Exiting the car wash tunnel into the sunny playroom",
+        "is_closing": False
+    },
+    {
+        "scene_index": 16,
+        "act": "Act 8: The Sparkling Clean Finale",
+        "milestone": "Car Wash Exit Portal",
+        "action": "{product} rolls out of the car wash exit portal into the warm sunlit playroom, pristine, spotless, and sparkling with showroom brilliance.",
+        "dialogue": "And out into the bright sunshine it rolls! Spotless, pristine, and dazzling! Not a single speck of mud left, looking completely brand new and gorgeous!",
+        "sfx": "[SFX: Triumphant horn honk 'beep-beep!', joyful engine rev, toddler cheering 'Look at that shine!']",
+        "vfx": "Dramatic sun glare starbursts on front bumper, warm soft lighting illuminating playroom",
+        "story_link": "Victory rev on the clean carpet runway",
+        "is_closing": False
+    },
+    {
+        "scene_index": 17,
+        "act": "Act 8: The Sparkling Clean Finale",
+        "milestone": "Victory Carpet Sprint",
+        "action": "{product} accelerates down the colorful playroom carpet with new energy, shiny tires rolling smoothly as {subject} cheers proudly.",
+        "dialogue": "Off it zooms down the playroom carpet with pure joy and speed! A clean car is a fast car, and our champion is ready for the next race!",
+        "sfx": "[SFX: Smooth tire roll on carpet, happy purring engine, child laughing happily]",
+        "vfx": "Speed lines trailing behind shiny spoiler, crystal sharp 8K macro focus on clean flame decals",
+        "story_link": "Child picks up the sparkling clean toy car",
+        "is_closing": False
+    },
+    {
+        "scene_index": 18,
+        "act": "Act 8: The Sparkling Clean Finale",
+        "milestone": "Close-up Clean Mirror Inspection",
+        "action": "{subject} points to the mirror reflection in the shiny car door, showing their happy smiling face reflected in the glossy paintwork.",
+        "dialogue": "Look in the mirror reflection on the door! You can see the happy smiling face of our little toddler reflected right in the shiny paint! How awesome is that!",
+        "sfx": "[SFX: Toddler giggle, playful horn tap, cheerful acoustic melody]",
+        "vfx": "Clear mirror reflection of child's smile on vehicle door panel, cinematic studio lighting",
+        "story_link": "The warm final farewell and movie closing to viewers",
+        "is_closing": False
+    },
+    {
+        "scene_index": 19,
+        "act": "Act 8: The Sparkling Clean Finale",
+        "milestone": "Cradling the Clean Champion",
+        "action": "{subject} holds {product} close with two loving hands, admiring the spotless tires and sparkling headlights with pure childlike wonder.",
+        "dialogue": "Holding our shiny companion gently in two hands! From the messiest mud bog to the cleanest car wash sparkle, what an unforgettable adventure we had together today!",
+        "sfx": "[SFX: Gentle chime, soft child chuckle, peaceful bedtime lullaby guitar]",
+        "vfx": "Warm golden vignette around frame, soft playroom bokeh, wholesome atmosphere",
+        "story_link": "Preparing for the heartfelt movie farewell to viewers",
+        "is_closing": False
+    },
+    {
+        "scene_index": 20,
+        "act": "Act 8: The Sparkling Clean Finale",
+        "milestone": "PENUTUP: Heartfelt Movie Farewell",
+        "action": "In a warm emotional close-up, {subject} looks straight into the camera lens with a loving smile and waves goodbye with one hand while holding the sparkling {product}.",
+        "dialogue": "Thank you so much for joining our messy mud and car wash adventure today, best friends! You are all champions! Keep playing, keep smiling, and see you next time! Bye-bye!",
+        "sfx": "[SFX: Warm acoustic lullaby melody, child saying 'Bye-bye friends!', gentle horn beep 'beep-beep', closing applause]",
+        "vfx": "Heartfelt close-up of child holding toy car and waving goodbye directly to camera, soft warm vignette fade, movie ending credits atmosphere",
+        "story_link": "Grand movie ending (penutup), story complete",
+        "is_closing": True
+    }
+]
+
+def get_thematic_20_scene_arc(category: str) -> List[Dict[str, Any]]:
+    """Returns the dedicated 20-scene story arc matching the detected video theme."""
+    cat = (category or "").lower()
+    if any(k in cat for k in ["police", "polisi", "patrol", "cop"]):
+        return POLICE_CHASE_20_ARC
+    elif any(k in cat for k in ["mud", "lumpur", "wash", "cuci"]):
+        return MUD_CARWASH_20_ARC
+    return CINEMATIC_20_SCENE_ARC
 
 CINEMATIC_STORY_EPISODES = [
     # --- ACT 1: THE GRAND COUNTDOWN & LAUNCH (SCENES 1-5) ---

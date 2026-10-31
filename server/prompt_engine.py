@@ -3,13 +3,26 @@ import re
 from typing import List, Dict, Any, Optional
 
 try:
-    from server.cinematic_episodes import CINEMATIC_20_SCENE_ARC, CINEMATIC_STORY_EPISODES
+    from server.cinematic_episodes import (
+        CINEMATIC_20_SCENE_ARC,
+        CINEMATIC_STORY_EPISODES,
+        get_thematic_20_scene_arc,
+        POLICE_CHASE_20_ARC,
+        MUD_CARWASH_20_ARC
+    )
 except ImportError:
     try:
-        from cinematic_episodes import CINEMATIC_20_SCENE_ARC, CINEMATIC_STORY_EPISODES
+        from cinematic_episodes import (
+            CINEMATIC_20_SCENE_ARC,
+            CINEMATIC_STORY_EPISODES,
+            get_thematic_20_scene_arc,
+            POLICE_CHASE_20_ARC,
+            MUD_CARWASH_20_ARC
+        )
     except ImportError:
         CINEMATIC_20_SCENE_ARC = []
         CINEMATIC_STORY_EPISODES = []
+        def get_thematic_20_scene_arc(cat): return []
 
 def extract_car_short_name(car_name: str) -> str:
     """Extracts a short, punchy category name for a car."""
@@ -162,30 +175,45 @@ def format_timestamp(seconds: float) -> str:
 def extract_kids_video_vision(title: str, full_transcript: str) -> Dict[str, str]:
     """
     Analyzes the pasted YouTube video title and transcript to extract the core vision,
-    storyline premise, and child play theme.
+    storyline premise, and child play theme dynamically rather than forcing a rigid template.
     """
-    sample = (title + " " + full_transcript[:1500]).lower()
+    sample = (title + " " + full_transcript[:3000]).lower()
 
-    if any(k in sample for k in ["monster", "truk", "truck", "offroad", "lumpur", "mud"]):
+    if any(k in sample for k in ["polisi", "police", "cop", "patrol", "siren", "sirine", "penjahat", "thief", "chase"]):
+        story_cat = "police"
+        theme = "City Police Patrol & High-Speed Pursuit Mission"
+        car_default = "Cheerful blue and white toy police patrol car with flashing dual red-blue sirens and smiling cartoon headlights in 3D Pixar style"
+        arena_default = "Miniature pastel kids toy town with cartoon houses, tiny traffic lights, and smooth carpeted roads"
+    elif any(k in sample for k in ["mud", "muddy", "lumpur", "wash", "cuci", "sabun", "soap", "kotor"]):
+        story_cat = "mud_wash"
+        theme = "Messy Muddy Offroad Trail & Automatic Toy Car Wash Adventure"
+        car_default = "Rugged offroad 4x4 toy truck with knobby mud tires, snorkel exhaust, and durable glossy finish in 3D Pixar style"
+        arena_default = "Sunlit backyard dirt trail with wet gooey mud bog and a colorful automatic toy car wash station"
+    elif any(k in sample for k in ["fire", "pemadam", "damkar", "kebakaran", "rescue", "api"]):
+        story_cat = "fire"
+        theme = "Emergency Fire Truck Rescue & Water Cannon Mission"
+        car_default = "Bright crimson red toy fire rescue truck with extendable ladder, flashing yellow beacons, and water hoses"
+        arena_default = "Miniature kids playroom town with building block towers and rescue fire station"
+    elif any(k in sample for k in ["monster", "truk", "truck", "offroad"]):
+        story_cat = "monster_truck"
         theme = "Stunt Monster Truck Playroom Rally & Obstacle Course Adventure"
         car_default = "Gleaming crimson red stunt monster truck with bright yellow flame decals, oversized rugged off-road tires, and rounded cartoon headlights in 3D Pixar style"
         arena_default = "Sunlit kids playroom track featuring vibrant orange looping ramps, mini wooden suspension bridges, and colorful stacking blocks"
-    elif any(k in sample for k in ["polisi", "police", "fire", "pemadam", "rescue", "tayo", "ambulance"]):
-        theme = "City Toy Car Rescue Mission & Friendly Patrol Adventure"
-        car_default = "Cheerful blue and white toy police patrol car with flashing dual sirens, smiling cartoon headlights, and glossy finish in 3D animation style"
-        arena_default = "Miniature pastel kids toy town with cartoon houses, tiny traffic lights, and smooth carpeted roads"
     elif any(k in sample for k in ["race", "balap", "hot wheels", "track", "lintasan", "loop", "cepat"]):
+        story_cat = "hotwheels_loop"
         theme = "High-Speed Hot Wheels Toy Car Championship & Stunt Loop Race"
         car_default = "Ultra-fast metallic red aerodynamic racer with glowing neon yellow stripes and black low-profile tires"
         arena_default = "Expansive multi-tier orange loop-the-loop stunt track setup on a colorful playroom rug"
     else:
+        story_cat = "general"
         theme = "Cheerful Kids Toy Car Play Adventure with Stunts and Sound Effects"
         car_default = "Gleaming red and yellow toy car with rugged off-road tires, glossy plastic finish, and expressive rounded headlights in 3D Pixar style"
         arena_default = "Vibrant kids playroom track filled with orange loops, mini wooden suspension bridges, and colorful stacking blocks"
 
-    vision_summary = f"YouTube Video Concept: {theme}. Tells a continuous, action-packed toy car story filled with fast ramps, stunt jumps, and joyful sound effects that captivate kids worldwide."
+    vision_summary = f"YouTube Video Concept: {theme}. The story follows an exciting kid toy adventure tailored from the video's actual storyline, featuring our hero vehicle."
 
     return {
+        "story_category": story_cat,
         "vision_theme": theme,
         "vision_summary": vision_summary,
         "default_car": car_default,
@@ -364,14 +392,17 @@ def generate_consistent_scene_prompts(
         cam = KIDS_CAMERA_MOVEMENTS[idx % len(KIDS_CAMERA_MOVEMENTS)]
 
         ep = None
-        # Fetch matching cinematic story episode template (prefer dedicated 20-scene cohesive arc)
-        if total_scenes <= 20 and CINEMATIC_20_SCENE_ARC:
+        # Fetch matching cinematic story episode template (prefer dedicated 20-scene cohesive arc based on detected video theme)
+        if total_scenes <= 20:
+            thematic_arc = get_thematic_20_scene_arc(vision_info.get("story_category", ""))
+            if not thematic_arc:
+                thematic_arc = CINEMATIC_20_SCENE_ARC
             if idx == total_scenes - 1:
-                ep = CINEMATIC_20_SCENE_ARC[-1]  # Scene 20 (PENUTUP: Heartfelt Movie Farewell)
+                ep = thematic_arc[-1]  # Scene 20 (PENUTUP: Heartfelt Movie Farewell)
             elif idx == total_scenes - 2 and total_scenes >= 2:
-                ep = CINEMATIC_20_SCENE_ARC[-2]  # Scene 19 (Victory Finish Line & Trophy)
+                ep = thematic_arc[-2]  # Scene 19 (Victory Finish Line & Trophy)
             else:
-                ep = CINEMATIC_20_SCENE_ARC[min(idx, len(CINEMATIC_20_SCENE_ARC) - 1)]
+                ep = thematic_arc[min(idx, len(thematic_arc) - 1)]
         elif CINEMATIC_STORY_EPISODES:
             # If at the end of the video, ensure we reach the grand climax & penutup
             if idx == total_scenes - 1 and total_scenes >= 2:
@@ -429,6 +460,9 @@ def generate_consistent_scene_prompts(
             action = l_data.get("action_description") or base_action
             sound_effects = l_data.get("sound_effects") or sfx
             visual_effects = l_data.get("visual_effects") or vfx
+            act = l_data.get("act") or act
+            milestone = l_data.get("milestone") or milestone
+            is_closing = l_data.get("is_closing", False) or (idx == total_scenes - 1)
             cam_dir = l_data.get("camera_directive") or f"{cam['type']} ({cam['motion']})"
             
             video_prompt = l_data.get("video_prompt", "")

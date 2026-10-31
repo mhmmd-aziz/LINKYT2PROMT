@@ -214,10 +214,13 @@ def generate_kids_prompts_with_gemini(
     video_meta: Dict[str, Any],
     video_vision: str,
     language: str,
-    api_key: str
+    api_key: str,
+    image_context: Optional[Dict[str, Any]] = None,
+    full_transcript: Optional[str] = None
 ) -> Optional[List[Dict[str, Any]]]:
     """
-    Uses Gemini API to craft continuous English 10s voiceover and connected 3D Pixar style video prompts.
+    Uses Gemini API to deeply analyze the original YouTube video and uploaded photo
+    to craft a custom 20-scene remake matching the video's actual storyline with continuous English speech.
     """
     if not api_key or not api_key.strip():
         return None
@@ -225,37 +228,69 @@ def generate_kids_prompts_with_gemini(
     try:
         endpoint = f"{GEMINI_API_URL}/gemini-1.5-flash:generateContent?key={api_key.strip()}"
         
+        video_title = video_meta.get("title", "")
+        video_desc = video_meta.get("description", "")
+        if len(video_desc) > 800:
+            video_desc = video_desc[:800] + "..."
+        
+        transcript_text = (full_transcript or "").strip()
+        if len(transcript_text) > 3000:
+            transcript_text = transcript_text[:3000] + "... [transcript continues]"
+            
+        image_desc = ""
+        if image_context:
+            prod_n = image_context.get("recommended_anchor_product") or image_context.get("product_name", "")
+            cat_n = image_context.get("category", "")
+            vis_n = image_context.get("visual_description", "")
+            image_desc = f"Uploaded User Toy Photo: {prod_n} (Category: {cat_n}). Visual Details: {vis_n}"
+
         system_instruction = f"""
-You are a YouTube Kids Toy Video Showrunner and AI Video Director.
+You are an elite YouTube Kids Toy Video Showrunner, AI Video Director, and Voiceover Scriptwriter.
 
-RULES:
-1. SPOKEN DIALOGUE MUST BE 100% IN ENGLISH FOR EVERY SCENE!
-2. FULL 10 SECONDS OF CONTINUOUS SPEECH (22 to 28 words per scene, zero dead air).
-3. SEAMLESS NARRATIVE CONTINUITY ACROSS ALL SCENES: Each scene builds upon the previous one.
-4. STRICT OBJECT & CHARACTER CONTINUITY:
-   - Toy Car: {anchors.get('product', '')}
-   - Child: {anchors.get('subject', '')}
-   - Setting: {anchors.get('setting', '')}
-   - Style: {anchors.get('style', '')}
-5. FLUID CINEMATIC PROMPTS (NO STIFF BRACKETS).
+CORE MISSION:
+The user wants to REMAKE THIS SPECIFIC YOUTUBE VIDEO into an action-packed 20-scene story (~3.3 minutes), starring their uploaded toy car and child character!
+DO NOT use a rigid or unrelated pre-made script. You MUST analyze what actually happens in the YouTube video (from its title, description, and transcript below) and adapt THAT SPECIFIC STORY into a 20-scene narrative arc!
 
-PREMISE: {video_vision}
-TITLE: {video_meta.get('title', '')}
+SOURCE YOUTUBE VIDEO TO REMAKE:
+- Title: {video_title}
+- Description: {video_desc}
+- Full Transcript / Dialogue in Video: {transcript_text if transcript_text else '(Music/visual action based video, understand story from title & description)'}
+- Detected Vision Theme: {video_vision}
+- User's Uploaded Toy Photo: {image_desc if image_desc else 'Standard toy vehicle'}
 
-SCENES:
-{json.dumps([{'scene_index': s['scene_index'], 'time_range': s['time_range'], 'cue': s['dialogue']} for s in scenes_data], indent=2)}
+LOCKED CHARACTER & OBJECT CONTINUITY (100% IDENTICAL ACROSS ALL 20 SCENES):
+- Hero Toy Car: {anchors.get('product', 'Locked primary toy car')}
+- Child Character: {anchors.get('subject', 'Cheerful 4-year-old child in bright playwear with an enthusiastic smiling face')}
+- Story Setting: {anchors.get('setting', 'Play environment matching the video theme')}
+- Visual Style: {anchors.get('style', 'Cinematic 3D Pixar animation aesthetic, 8K ultra-vibrant saturated colors, warm soft playroom lighting, 24fps smooth motion')}
 
-Output ONLY a valid JSON array:
+20-SCENE REMAKE STRUCTURE:
+- Scene 1: Introduction of the hero toy car and setting up the core mission/challenge from the video.
+- Scenes 2 to 18: Progressive obstacles, stunts, story events, and fun challenges adapted directly from the video (e.g. if police chase, follow the pursuit and roadblock; if mud/carwash, follow the mud pit and soap foam wash; if fire rescue, follow the emergency sirens, ladder, and water spray; if loop race, follow the speed challenge).
+- Scene 19: Grand Climax & Mission Success (victory celebration, mission accomplished, trophy/celebration).
+- Scene 20 (PENUTUP): Heartfelt Movie Farewell where the child holds the toy car, looks straight at the camera lens with a loving smile, and waves goodbye to young viewers ("Thank you so much for joining our adventure today, best friends! You are all champions! Keep playing, keep smiling, and see you next time! Bye-bye!").
+
+SPEECH REQUIREMENTS:
+- 100% IN ENGLISH FOR EVERY SINGLE SCENE!
+- Continuous, high-energy speech filling the entire 10 seconds: strictly 22 to 28 words per scene (zero dead air, no short 2-word lines).
+
+SOUND EFFECTS (SFX) & VISUAL EFFECTS (VFX):
+- Provide bespoke, scene-specific Sound Effects (SFX) matching the physical action of that exact scene.
+- Provide movie-grade Cinematic Visual Effects (VFX) for every scene (e.g. mud splatters, water foam, speed lines, neon glow, smoke puffs, confetti).
+
+Output ONLY a valid JSON array of 20 objects:
 [
   {{
     "scene_index": 1,
-    "english_dialogue": "Continuous energetic English dialogue (22-28 words) filling the entire 10 seconds with zero silence.",
-    "story_link": "Connection to the next action",
-    "sound_effects": "[SFX: Vroom vroom engine rev, cheerful horn beep beep, toddler giggle]",
-    "action_description": "Detailed toy car stunt and child interaction",
-    "video_prompt": "Cinematic 3D Pixar animation style, 8K ultra-vibrant colors. (Fluid sentence describing car stunt, child smiles, track obstacles, sound cues, smooth camera motion, 24fps).",
-    "camera_directive": "Dynamic Low-Angle Car Tracking",
-    "negative_prompt": "scary, dark, realistic horror, morphing car model, distorted wheels, broken toys, realistic violence, flickering, text watermark, blurry"
+    "act": "Act 1: The Mission Setup",
+    "milestone": "Descriptive Event Name",
+    "english_dialogue": "Energetic 22-28 word continuous English monologue filling all 10 seconds without silence.",
+    "story_link": "How this connects to the next scene action",
+    "sound_effects": "[SFX: High-RPM engine throttle revs, digital countdown beeps, child cheer]",
+    "visual_effects": "Subtle heat haze shimmering above exhaust, warm morning playroom sunbeams",
+    "action_description": "Precise toy car movement, stunts, and child interaction during these 10 seconds",
+    "camera_directive": "Dynamic Low-Angle Car Tracking (Camera glides smoothly along the track floor)",
+    "is_closing": false
   }}
 ]
 """
