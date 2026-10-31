@@ -64,7 +64,7 @@ Output ONLY a valid JSON object:
   "visual_description": "Extremely detailed visual breakdown: exact color palette (e.g. crimson red glossy body with bright lemon yellow flame decals), wheel diameter, tread pattern, headlight shape, materials",
   "recommended_anchor_product": "Locked description of this toy car to ensure 100% visual identity in all 20 AI video scenes without morphing",
   "recommended_anchor_subject": "Description of the child character (e.g. 4-year-old toddler in colorful playwear with joyful expressive smile)",
-  "recommended_setting": "Playful kids room track setting (e.g. Bright playroom floor with orange race loops, wooden bridges, and colorful stacking blocks)",
+  "recommended_setting": "Exciting adventure setting matching the vehicle (e.g. Sunny backyard grass course with wooden ramps, miniature cartoon city boulevard, or coastal beach sand trail)",
   "detected_text": "Any numbers, logos, or text visible on the toy"
 }
 """
@@ -178,7 +178,7 @@ def analyze_image_locally(clean_b64: str) -> Dict[str, Any]:
         product_name = f"Gleaming {primary_color} & {secondary_color} {car_type}"
         rec_anchor = (
             f"Gleaming {primary_color.lower()} {car_type.lower()} with vibrant {secondary_color.lower()} racing decals, "
-            f"{tires}, rounded cartoon headlights, and glossy finish in 3D Pixar animation style"
+            f"{tires}, rounded cartoon headlights, and glossy finish in premium 3D CGI stylized animation style"
         )
         visual_desc = (
             f"Uploaded reference photo detected: Primary {primary_color} glossy body with {secondary_color} racing accents, "
@@ -191,19 +191,19 @@ def analyze_image_locally(clean_b64: str) -> Dict[str, Any]:
             "visual_description": visual_desc,
             "recommended_anchor_product": rec_anchor,
             "recommended_anchor_subject": "Cheerful 4-year-old child in bright colorful playwear with an enthusiastic smiling face",
-            "recommended_setting": "Sunlit kids playroom track featuring vibrant orange looping ramps, mini wooden suspension bridges, and colorful stacking blocks",
+            "recommended_setting": "Sunny outdoor adventure course featuring bright green lawn grass, miniature wooden bridges, and colorful toy obstacles",
             "detected_text": f"{primary_color} Racer #01",
             "source": f"Smart Local Vision Engine (Detected {primary_color} & {secondary_color})"
         }
     except Exception as e:
         print(f"[Local Image Analysis Error] {e}")
         return {
-            "product_name": "Gleaming Red & Yellow Stunt Monster Truck",
+            "product_name": "Gleaming Red & Yellow Adventure Toy Vehicle",
             "category": "Kids Toy Adventure & Car Play",
-            "visual_description": "Vibrant glossy crimson red toy car with sunny yellow racing stripes, oversized black rubber rugged tires, and friendly cartoon headlights in 3D Pixar style",
-            "recommended_anchor_product": "Gleaming crimson red stunt monster truck with sunny yellow racing stripes, oversized black rubber off-road tires, glossy plastic finish, and rounded headlights in 3D Pixar animation style",
+            "visual_description": "Vibrant glossy crimson red toy car with sunny yellow racing stripes, oversized black rubber rugged tires, and friendly cartoon headlights in premium 3D CGI stylized animation style",
+            "recommended_anchor_product": "Gleaming crimson red toy vehicle with sunny yellow racing stripes, oversized black rubber off-road tires, glossy plastic finish, and rounded headlights in premium 3D CGI stylized animation style",
             "recommended_anchor_subject": "Cheerful 4-year-old toddler with neat brown hair wearing a bright blue and orange striped play shirt, beaming with an energetic joyful smile",
-            "recommended_setting": "Sunlit kids playroom track featuring vibrant orange looping ramps, mini wooden suspension bridges, and colorful stacking blocks",
+            "recommended_setting": "Sunny outdoor adventure course featuring bright green lawn grass, miniature wooden bridges, and colorful toy obstacles",
             "detected_text": "Stunt Car 01",
             "source": "Smart Kids Vision Engine"
         }
@@ -261,8 +261,12 @@ SOURCE YOUTUBE VIDEO TO REMAKE:
 LOCKED CHARACTER & OBJECT CONTINUITY (100% IDENTICAL ACROSS ALL 20 SCENES):
 - Hero Toy Car: {anchors.get('product', 'Locked primary toy car')}
 - Child Character: {anchors.get('subject', 'Cheerful 4-year-old child in bright playwear with an enthusiastic smiling face')}
-- Story Setting: {anchors.get('setting', 'Play environment matching the video theme')}
-- Visual Style: {anchors.get('style', 'Cinematic 3D Pixar animation aesthetic, 8K ultra-vibrant saturated colors, warm soft playroom lighting, 24fps smooth motion')}
+- Story Setting: {anchors.get('setting', 'Exciting adventure environment matching the video theme (outdoor backyard, miniature city streets, beach dunes, or custom obstacle course)')}
+- Visual Style: {anchors.get('style', 'Premium 3D CGI stylized animation aesthetic, 8K ultra-vibrant saturated colors, soft daylight lighting, realistic glossy toy materials, 24fps smooth motion')}
+
+CRITICAL COMPLIANCE FOR AI VIDEO GENERATORS:
+- Never output trademark names like Pixar, Disney, Hot Wheels, or Lego (to prevent third-party copyright filter blocks).
+- Do NOT confine the story to a bedroom or playroom floor; adapt the environment to the video storyline.
 
 20-SCENE REMAKE STRUCTURE:
 - Scene 1: Introduction of the hero toy car and setting up the core mission/challenge from the video.

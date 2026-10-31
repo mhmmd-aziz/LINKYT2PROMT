@@ -88,7 +88,7 @@ export const UrlInputNode: React.FC<UrlInputNodeProps> = ({
               type="text"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              placeholder="Copas link YouTube di sini (contoh: video anak main mobil, Hot Wheels, monster truck, balapan)"
+              placeholder="Copas link YouTube di sini (contoh: video anak main mobil, balapan, truk pemadam, polisi)"
               className="w-full pl-10 pr-24 py-3 rounded-xl bg-[#0f1013] border border-white/15 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-sm text-white placeholder-gray-500 outline-none transition-all"
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && url.trim()) {

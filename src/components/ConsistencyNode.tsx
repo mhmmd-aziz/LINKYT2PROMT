@@ -164,7 +164,7 @@ export const ConsistencyNode: React.FC<ConsistencyNodeProps> = ({
                 rows={2}
                 value={anchors.product}
                 onChange={(e) => setAnchors({ ...anchors, product: e.target.value })}
-                placeholder="Contoh: Mobil Monster Truck merah bergaris kuning neon, roda hitam bergerigi besar, bodi 3D Pixar..."
+                placeholder="Contoh: Mobil petualang merah cerah bergaris kuning neon, roda offroad tangguh, bodi animasi 3D CGI bergaya kartun..."
                 className="w-full bg-transparent text-gray-200 placeholder-gray-600 text-xs outline-none resize-none"
               />
             </div>
@@ -186,13 +186,13 @@ export const ConsistencyNode: React.FC<ConsistencyNodeProps> = ({
             {/* Play Arena / Track */}
             <div className="p-3 rounded-xl bg-[#0f1013] border border-white/10 focus-within:border-purple-500/50 transition-all">
               <label className="font-semibold text-purple-300 block mb-1 flex items-center gap-1">
-                <span>🎪 Arena Bermain & Lintasan Balap:</span>
+                <span>🎪 Arena Bermain & Lingkungan Cerita:</span>
               </label>
               <textarea
                 rows={2}
                 value={anchors.setting}
                 onChange={(e) => setAnchors({ ...anchors, setting: e.target.value })}
-                placeholder="Contoh: Kamar bermain anak yang cerah dengan lintasan balap melingkar oranye, jembatan kayu, dan rintangan balok..."
+                placeholder="Contoh: Taman outdoor rumput hijau yang cerah dengan jembatan kayu, kota kartun mini, jalur pantai berpasir, atau arena balap..."
                 className="w-full bg-transparent text-gray-200 placeholder-gray-600 text-xs outline-none resize-none"
               />
             </div>
@@ -206,7 +206,7 @@ export const ConsistencyNode: React.FC<ConsistencyNodeProps> = ({
                 rows={2}
                 value={anchors.style}
                 onChange={(e) => setAnchors({ ...anchors, style: e.target.value })}
-                placeholder="Contoh: Animasi 3D Pixar/Disney, warna jenuh sangat cerah, pencahayaan ramah anak, sound effect ceria, 24fps..."
+                placeholder="Contoh: Animasi 3D CGI bergaya kartun premium (bebas merek pihak ketiga), warna jenuh cerah, pencahayaan alami lembut, sound effect ceria, 24fps..."
                 className="w-full bg-transparent text-gray-200 placeholder-gray-600 text-xs outline-none resize-none"
               />
             </div>

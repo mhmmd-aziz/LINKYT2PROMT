@@ -189,7 +189,7 @@ export const YouTubePackageNode: React.FC<YouTubePackageNodeProps> = ({
                   </span>
                 </h3>
                 <p className="text-xs text-gray-400">
-                  Prompt sinematik 3D Pixar dengan pop-out mobil melompat ke arah kamera & wajah anak kagum
+                  Prompt sinematik 3D CGI dengan pop-out mobil melompat ke arah kamera & wajah anak kagum
                 </p>
               </div>
             </div>

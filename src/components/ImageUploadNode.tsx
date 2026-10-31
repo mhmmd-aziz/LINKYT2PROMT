@@ -156,7 +156,7 @@ export const ImageUploadNode: React.FC<ImageUploadNodeProps> = ({
               Klik untuk upload atau drag & drop <span className="text-amber-400">1 foto mainan mobil / karakter</span>
             </p>
             <p className="text-xs text-gray-400 mt-1">
-              Format JPG, PNG, atau WebP (Foto mainan mobil, Hot Wheels, monster truck, atau anak yang sedang main)
+              Format JPG, PNG, atau WebP (Foto mainan mobil, diecast, monster truck, atau anak yang sedang main)
             </p>
           </div>
           <span className="text-[11px] px-3 py-1 rounded-full bg-white/5 border border-white/10 text-gray-300">

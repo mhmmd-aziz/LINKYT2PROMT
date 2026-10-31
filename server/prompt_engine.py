@@ -182,33 +182,33 @@ def extract_kids_video_vision(title: str, full_transcript: str) -> Dict[str, str
     if any(k in sample for k in ["polisi", "police", "cop", "patrol", "siren", "sirine", "penjahat", "thief", "chase"]):
         story_cat = "police"
         theme = "City Police Patrol & High-Speed Pursuit Mission"
-        car_default = "Cheerful blue and white toy police patrol car with flashing dual red-blue sirens and smiling cartoon headlights in 3D Pixar style"
-        arena_default = "Miniature pastel kids toy town with cartoon houses, tiny traffic lights, and smooth carpeted roads"
+        car_default = "Cheerful blue and white toy police patrol car with flashing dual red-blue sirens and smiling cartoon headlights in premium 3D CGI stylized animation style"
+        arena_default = "Miniature vibrant toy city with cartoon pastel buildings, tiny traffic lights, and paved miniature roadways"
     elif any(k in sample for k in ["mud", "muddy", "lumpur", "wash", "cuci", "sabun", "soap", "kotor"]):
         story_cat = "mud_wash"
         theme = "Messy Muddy Offroad Trail & Automatic Toy Car Wash Adventure"
-        car_default = "Rugged offroad 4x4 toy truck with knobby mud tires, snorkel exhaust, and durable glossy finish in 3D Pixar style"
-        arena_default = "Sunlit backyard dirt trail with wet gooey mud bog and a colorful automatic toy car wash station"
+        car_default = "Rugged offroad 4x4 toy truck with knobby mud tires, snorkel exhaust, and durable glossy finish in premium 3D CGI stylized animation style"
+        arena_default = "Sunlit outdoor backyard dirt trail with wet gooey mud bog and a colorful automatic bubble car wash station"
     elif any(k in sample for k in ["fire", "pemadam", "damkar", "kebakaran", "rescue", "api"]):
         story_cat = "fire"
         theme = "Emergency Fire Truck Rescue & Water Cannon Mission"
-        car_default = "Bright crimson red toy fire rescue truck with extendable ladder, flashing yellow beacons, and water hoses"
-        arena_default = "Miniature kids playroom town with building block towers and rescue fire station"
+        car_default = "Bright crimson red toy fire rescue truck with extendable ladder, flashing yellow beacons, and water hoses in premium 3D CGI stylized animation style"
+        arena_default = "Miniature cartoon city square with building block towers, water hydrant, and rescue fire station"
     elif any(k in sample for k in ["monster", "truk", "truck", "offroad"]):
         story_cat = "monster_truck"
-        theme = "Stunt Monster Truck Playroom Rally & Obstacle Course Adventure"
-        car_default = "Gleaming crimson red stunt monster truck with bright yellow flame decals, oversized rugged off-road tires, and rounded cartoon headlights in 3D Pixar style"
-        arena_default = "Sunlit kids playroom track featuring vibrant orange looping ramps, mini wooden suspension bridges, and colorful stacking blocks"
+        theme = "Stunt Monster Truck Arena Rally & Obstacle Course Adventure"
+        car_default = "Gleaming crimson red stunt monster truck with bright yellow flame decals, oversized rugged off-road tires, and rounded cartoon headlights in premium 3D CGI stylized animation style"
+        arena_default = "Outdoor sunny arena with dirt mounds, wooden launch ramps, colorful flags, and cheerful obstacle gates"
     elif any(k in sample for k in ["race", "balap", "track", "lintasan", "loop", "cepat", "speed"]):
         story_cat = "stunt_race"
         theme = "High-Speed Toy Car Championship & Stunt Circuit Race"
-        car_default = "Ultra-fast metallic red aerodynamic racer with glowing neon yellow stripes and black low-profile tires in 3D Pixar style"
-        arena_default = "Expansive multi-tier colorful stunt track setup with bright curves on a cozy playroom rug"
+        car_default = "Ultra-fast metallic red aerodynamic racer with glowing neon yellow stripes and black low-profile tires in premium 3D CGI stylized animation style"
+        arena_default = "Expansive championship speed circuit with colorful curving tracks, neon finish gates, and stadium grandstand banners"
     else:
         story_cat = "general"
-        theme = "Cheerful Kids Toy Car Play Adventure with Stunts and Sound Effects"
-        car_default = "Gleaming glossy adventure toy car with rugged off-road tires, colorful finish, and expressive rounded headlights in 3D Pixar style"
-        arena_default = "Vibrant kids playroom landscape filled with mini wooden suspension bridges and colorful stacking blocks"
+        theme = "Cheerful Kids Toy Car Adventure with Stunts and Sound Effects"
+        car_default = "Gleaming glossy adventure toy car with rugged off-road tires, colorful finish, and expressive rounded headlights in premium 3D CGI stylized animation style"
+        arena_default = "Sunny outdoor backyard garden trail with green grass, mini wooden suspension bridges, and colorful stepping stone obstacles"
 
     vision_summary = f"YouTube Video Concept: {theme}. The story follows an exciting kid toy adventure tailored from the video's actual storyline, featuring our hero vehicle."
 
@@ -241,14 +241,14 @@ def detect_subject_context(
                 "subject": rec_subj or "Cheerful 4-year-old child in bright blue and orange playwear with an enthusiastic smiling face",
                 "product": rec_car,
                 "setting": rec_set or vision_info["default_arena"],
-                "style": "Cinematic 3D Pixar animation style, 8K ultra-vibrant saturated colors, soft daylight, 24fps smooth motion"
+                "style": "Premium 3D CGI stylized animation aesthetic, 8K ultra-vibrant saturated colors, soft daylight lighting, realistic glossy toy textures, 24fps smooth motion"
             }
 
     return {
         "subject": "Cheerful 4-year-old toddler with neat brown hair wearing a bright blue and orange striped shirt, beaming with a happy energetic smile",
         "product": vision_info["default_car"],
         "setting": vision_info["default_arena"],
-        "style": "Cinematic 3D Pixar animation aesthetic, 8K ultra-vibrant saturated colors, warm soft playroom lighting, realistic glossy toy textures, 24fps smooth motion"
+        "style": "Premium 3D CGI stylized animation aesthetic, 8K ultra-vibrant saturated colors, soft daylight lighting, realistic glossy toy textures, 24fps smooth motion"
     }
 
 def chunk_transcript_to_10s_scenes(
@@ -310,7 +310,7 @@ def build_fluid_cinematic_prompt(
 ) -> str:
     """
     Builds a unified, natural, cinematic AI video prompt that embeds:
-    - 3D Pixar visual style & playroom atmosphere
+    - Premium 3D CGI stylized animation aesthetic
     - Locked toy car & child character continuity
     - 10-second physical toy action & stunt
     - FULL 10-second continuous spoken English dialogue (22-28 words, filling all 10s with no dead air!)
@@ -323,7 +323,7 @@ def build_fluid_cinematic_prompt(
     prompt = (
         f"{style}. "
         f"{action} "
-        f"Featuring the locked primary toy car {product}, steered with joyful energy by the child character {subject} inside {setting}. "
+        f"Featuring the locked primary toy vehicle {product}, steered with joyful energy by the child character {subject} in {setting}. "
         f"Spoken Dialogue (Full 10-Second Continuous English Speech): \"{dialogue}\" "
         f"Sound Effects (SFX): {sfx}. "
     )
@@ -331,7 +331,7 @@ def build_fluid_cinematic_prompt(
         prompt += f"Cinematic Visual Effects (VFX): {vfx}. "
     prompt += (
         f"Cinematic Camera: {cam_motion}. "
-        f"Visual Continuity Lock: 100% exact toy car model, glossy paint colors, wheel diameter, child face, and playroom atmosphere strictly identical across all scenes, warm natural playroom daylight, smooth 24fps motion, no morphing, no distortion."
+        f"Visual Continuity Lock: 100% exact toy vehicle model, glossy paint colors, wheel diameter, child face, and {setting} lighting strictly identical across all scenes, warm natural daylight, smooth 24fps motion, no morphing, no distortion."
     )
     return prompt
 
@@ -736,12 +736,12 @@ def generate_youtube_viral_package(
         f"✨ WHAT MAKES THIS VIDEO AWESOME:\n"
         f"• Full 10-second continuous English narrative without dead air or pauses!\n"
         f"• 100% consistent toy vehicle and character continuity throughout all 20 scenes!\n"
-        f"• Vibrant 3D Pixar-style visuals with cheerful playroom ambiance!\n"
+        f"• Vibrant 3D CGI stylized animation with rich colorful visual details!\n"
         f"• Wholesome, safe, and family-friendly entertainment for children.\n\n"
         f"👍 If you enjoyed this toy adventure, please smash the LIKE button, SHARE with your best friends, and SUBSCRIBE for daily cartoon adventures!\n"
         f"🔔 Turn on notifications so you never miss our next exciting video!\n"
         f"💬 QUESTION OF THE DAY: What was your favorite scene in today's story? Let us know in the comments below! 👇\n\n"
-        f"#KidsVideo #{car_short.replace(' ', '')} #{theme_tag} #ToyCars #PixarAnimation #KidsStory #FamilyFun #ToddlerFun"
+        f"#KidsVideo #{car_short.replace(' ', '')} #{theme_tag} #ToyCars #3DAnimation #KidsStory #FamilyFun #ToddlerFun"
     )
 
     tags = [
@@ -750,12 +750,12 @@ def generate_youtube_viral_package(
         f"{car_short.lower()} for kids",
         "kids toy car video",
         "toy car story",
-        "pixar cars style",
+        "3d cartoon animation",
         "preschool learning",
         "car cartoon for toddlers",
         "fun kids adventure",
         "sound effects for kids",
-        "playroom race",
+        "toy car adventure",
         "educational toy video",
         "stunt toy car",
         "cheerful toddler fun",
@@ -769,30 +769,30 @@ def generate_youtube_viral_package(
         f"#{car_short.replace(' ', '')}",
         f"#{theme_tag}",
         "#ToyCars",
-        "#PixarCars",
+        "#3DAnimation",
         "#KidsStory",
         "#StoryForKids",
         "#FamilyFun"
     ]
 
     primary_thumbnail_prompt = (
-        f"A hyper-viral, high-CTR YouTube video thumbnail in ultra-vivid 3D Pixar and Disney animation aesthetic, 16:9 widescreen format (1280x720). "
+        f"A hyper-viral, high-CTR YouTube video thumbnail in ultra-vivid, premium 3D CGI stylized animation aesthetic, 16:9 widescreen format (1280x720). "
         f"Embedded 3D Thumbnail Text: Bold, punchy 3D extruded cartoon typography prominently rendered across the top reading exactly \"{clean_text}\" in glowing sunny yellow gradient letters with thick comic black outlines, vibrant red drop shadows, and sparkling speed starbursts. "
         f"Hero Action Subject: The primary {car_name} powers through the action scene directly toward the camera lens with dynamic 3D pop-out effect, "
         f"front tires angled sharply, deep rubber treads in ultra-crisp 8K detail, ultra-glossy reflective finish with vibrant decals, and bright glowing rounded headlights. "
         f"Expressive Character Anchor: In the upper-right background, a {child_name} with huge sparkling joyful eyes, open-mouthed expression of sheer wonder, and both hands raised high in cheerful triumph. "
-        f"Adventure Environment: Behind the vehicle, {arena_name} filled with vibrant cheerful playroom props and colorful details. "
-        f"Lighting & Special Effects: Warm golden playroom sunlight with volumetric god rays, colorful flying cartoon confetti and speed stars, dynamic motion blur on the background to emphasize motion while the vehicle and text remain razor-sharp 8K crisp focus. "
+        f"Adventure Environment: Behind the vehicle, {arena_name} filled with vibrant cheerful scenic props and colorful details. "
+        f"Lighting & Special Effects: Warm golden daylight sunlight with volumetric rays, colorful flying cartoon confetti and speed stars, dynamic motion blur on the background to emphasize motion while the vehicle and text remain razor-sharp 8K crisp focus. "
         f"Color Palette: Saturated neon orange, electric cyan blue, candy apple red, and sunshine yellow with cinematic high contrast. "
         f"Composition: Designed specifically for YouTube thumbnail algorithms: eye-catching from small mobile screens, crystal clear legible 3D title text \"{clean_text}\", zero dark muddy tones, wholesome, ultra-appealing and captivating for kids and parents."
     )
 
     closeup_thumbnail_prompt = (
-        f"A viral kids YouTube thumbnail in 3D Pixar animation style, 16:9 widescreen ratio (1280x720). "
+        f"A viral kids YouTube thumbnail in premium 3D CGI stylized animation style, 16:9 widescreen ratio (1280x720). "
         f"Embedded 3D Thumbnail Text: Huge, expressive 3D embossed comic text situated at the top reading \"{clean_text}\" in glossy electric cyan and orange gradient with thick white borders and shiny cartoon reflections. "
         f"Macro eye-level portrait of a {child_name} beaming proudly with an ecstatic happy smile, holding the gleaming {car_name} right in front of the camera lens so the bumper and wheels appear huge and tactile. "
         f"The toy vehicle features pristine glossy paint, rounded friendly headlights casting warm cartoon light, and rugged tires. "
-        f"The background reveals {arena_name} with warm playroom lighting and soft pastel bokeh. "
+        f"The background reveals {arena_name} with warm natural daylight and soft pastel bokeh. "
         f"Ultra-saturated cheerful colors, crystal clear 8K resolution, cinematic studio lighting, high emotional connection, perfect for YouTube Kids CTR."
     )
 

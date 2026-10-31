@@ -218,6 +218,10 @@ The user has provided a YouTube video reference and an uploaded photo of their t
 You must REMAKE THAT EXACT YOUTUBE VIDEO into an action-packed 20-scene story (~3.3 minutes), starring the user's uploaded toy car and child character!
 DO NOT use a rigid or unrelated pre-made script. You MUST analyze what actually happens in the YouTube video (from its title, description, and transcript below) and adapt THAT SPECIFIC STORY into a 20-scene narrative arc!
 
+CRITICAL COMPLIANCE RULES FOR AI VIDEO GENERATORS (GOOGLE FLOW / VEO COMPLIANT):
+1. ZERO THIRD-PARTY TRADEMARKS: Absolutely NEVER use trademark studio or brand names like "Pixar", "Disney", "Hot Wheels", "Lego", "DreamWorks", "Mattel", or "Barbie"! These trigger immediate copyright rejections in Google Flow / Veo ("penyedia konten pihak ketiga"). Instead, describe the style as "Premium 3D CGI stylized animation aesthetic, 8K ultra-vibrant saturated colors, soft golden daylight lighting, realistic glossy toy materials, 24fps smooth motion".
+2. DIVERSE SETTINGS (DO NOT CONFINE TO BEDROOM / PLAYROOM): DO NOT always set the scene inside a bedroom or playroom! Adapt the environment dynamically: sunny outdoor backyard lawn with green grass and wooden bridges, miniature toy city boulevard with cartoon buildings, sandy coastal beach trail with dunes, muddy offroad track with automatic wash, or stadium grand arena.
+
 SOURCE YOUTUBE VIDEO TO REMAKE:
 - Title: {video_title}
 - Description: {video_desc}
@@ -228,8 +232,8 @@ SOURCE YOUTUBE VIDEO TO REMAKE:
 LOCKED CHARACTER & OBJECT CONTINUITY (100% IDENTICAL ACROSS ALL 20 SCENES):
 - Hero Toy Car: {anchors.get('product', 'Locked primary toy car')}
 - Child Character: {anchors.get('subject', 'Cheerful 4-year-old child in bright playwear with an enthusiastic smiling face')}
-- Story Setting: {anchors.get('setting', 'Play environment matching the video theme')}
-- Visual Style: {anchors.get('style', 'Cinematic 3D Pixar animation aesthetic, 8K ultra-vibrant saturated colors, warm soft playroom lighting, 24fps smooth motion')}
+- Story Setting: {anchors.get('setting', 'Exciting adventure environment matching the video theme')}
+- Visual Style: {anchors.get('style', 'Premium 3D CGI stylized animation aesthetic, 8K ultra-vibrant saturated colors, soft daylight lighting, realistic glossy toy materials, 24fps smooth motion')}
 
 20-SCENE REMAKE STRUCTURE:
 - Scene 1: Introduction of the hero toy car and setting up the core mission/challenge from the video.
@@ -255,9 +259,9 @@ Respond ONLY with a valid JSON array of 20 objects (pure JSON, no markdown forma
     "english_dialogue": "Energetic 22-28 word continuous English monologue filling all 10 seconds without silence.",
     "story_link": "How this connects to the next scene action",
     "sound_effects": "[SFX: High-RPM engine throttle revs, digital countdown beeps, child cheer]",
-    "visual_effects": "Subtle heat haze shimmering above exhaust, warm morning playroom sunbeams",
+    "visual_effects": "Subtle heat haze shimmering above exhaust, warm morning golden sunbeams",
     "action_description": "Precise toy car movement, stunts, and child interaction during these 10 seconds",
-    "camera_directive": "Dynamic Low-Angle Car Tracking (Camera glides smoothly along the track floor)",
+    "camera_directive": "Dynamic Low-Angle Tracking (Camera glides smoothly catching the spinning wheels in motion)",
     "is_closing": false
   }}
 ]

@@ -55,9 +55,9 @@ export const App: React.FC = () => {
   const [language, setLanguage] = useState<string>('en'); // Always English dialogue as requested
   const [anchors, setAnchors] = useState<SceneAnchors>({
     subject: 'Cheerful 4-year-old toddler with neat brown hair wearing a bright blue and orange striped shirt, beaming with a happy energetic smile',
-    product: 'Gleaming crimson red stunt monster truck with bright yellow flame decals, oversized rugged off-road tires, and rounded cartoon headlights in 3D Pixar style',
-    setting: 'Sunlit kids playroom track featuring vibrant orange looping ramps, mini wooden suspension bridges, and colorful stacking blocks',
-    style: 'Cinematic 3D Pixar animation aesthetic, 8K ultra-vibrant saturated colors, warm soft playroom lighting, realistic glossy toy textures, 24fps smooth motion'
+    product: 'Gleaming crimson red stunt monster truck with bright yellow flame decals, oversized rugged off-road tires, and rounded cartoon headlights in premium 3D CGI stylized animation style',
+    setting: 'Sunny outdoor backyard adventure course featuring green grass, smooth wooden ramps, colorful arched bridges, and vibrant toy flags',
+    style: 'Premium 3D CGI stylized animation aesthetic, 8K ultra-vibrant saturated colors, soft daylight lighting, realistic glossy toy textures, 24fps smooth motion'
   });
 
   // Generated Scenes (Max 20 Scenes) & Viral YouTube Kit
