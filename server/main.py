@@ -201,7 +201,7 @@ def generate_prompts(req: GenerateRequest):
         if token:
             prov = req.provider or detect_api_provider(token)
             print(f"[Engine] Token terdeteksi ({prov}). Memulai request ke {prov}...")
-            if prov in ("huggingface_deepseek", "deepseek_official"):
+            if prov in ("tokenharbor", "huggingface_deepseek", "deepseek_official"):
                 llm_scenes = generate_scenes_with_deepseek(
                     scenes_data=raw_scenes,
                     anchors=anchors_dict,
@@ -214,7 +214,12 @@ def generate_prompts(req: GenerateRequest):
                     full_transcript=full_text
                 )
                 if llm_scenes:
-                    engine_used = "DeepSeek-V4.1-Flash-1017 (Hugging Face AI)" if prov == "huggingface_deepseek" else "DeepSeek Official AI"
+                    if prov == "tokenharbor":
+                        engine_used = "DeepSeek-V4.1-Flash (Token Harbor AI)"
+                    elif prov == "huggingface_deepseek":
+                        engine_used = "DeepSeek-V4.1-Flash-1017 (Hugging Face AI)"
+                    else:
+                        engine_used = "DeepSeek Official AI"
                     print(f"[Engine] Berhasil! Alur 20-scene disusun langsung oleh {engine_used}!")
                 else:
                     print(f"[Engine Fallback] DeepSeek ({prov}) gagal merespons atau token tidak valid. Beralih otomatis ke Smart Kids Director Engine.")

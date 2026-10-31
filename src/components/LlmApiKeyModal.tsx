@@ -21,11 +21,25 @@ export const LlmApiKeyModal: React.FC<LlmApiKeyModalProps> = ({
   engineStatus
 }) => {
   const [inputToken, setInputToken] = useState(apiToken);
-  const [selectedProvider, setSelectedProvider] = useState(provider || 'huggingface_deepseek');
+  const [selectedProvider, setSelectedProvider] = useState(provider || (apiToken.startsWith('thk_') ? 'tokenharbor' : 'huggingface_deepseek'));
   const [testing, setTesting] = useState(false);
   const [testResult, setTestResult] = useState<{ valid: boolean; message: string } | null>(null);
 
   if (!isOpen) return null;
+
+  const handleInputChange = (val: string) => {
+    setInputToken(val);
+    const trimmed = val.trim();
+    if (trimmed.startsWith('thk_')) {
+      setSelectedProvider('tokenharbor');
+    } else if (trimmed.startsWith('hf_')) {
+      setSelectedProvider('huggingface_deepseek');
+    } else if (trimmed.startsWith('sk-')) {
+      setSelectedProvider('deepseek_official');
+    } else if (trimmed.startsWith('AIza')) {
+      setSelectedProvider('gemini');
+    }
+  };
 
   const handleTestAndSave = async () => {
     if (!inputToken.trim()) {
@@ -96,39 +110,53 @@ export const LlmApiKeyModal: React.FC<LlmApiKeyModalProps> = ({
         {/* Provider Switcher */}
         <div className="mb-4">
           <label className="text-xs font-semibold text-gray-300 block mb-2">Pilih Model / Provider LLM:</label>
-          <div className="grid grid-cols-3 gap-2 text-xs">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+            <button
+              type="button"
+              onClick={() => setSelectedProvider('tokenharbor')}
+              className={`p-2 rounded-xl border text-center transition-all ${
+                selectedProvider === 'tokenharbor'
+                  ? 'bg-amber-600/30 border-amber-500 text-amber-200 font-bold'
+                  : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10'
+              }`}
+            >
+              <span className="block text-sm mb-0.5">⚓</span>
+              <span>Token Harbor</span>
+              <span className="block text-[10px] text-amber-400/80">(DeepSeek-V4.1)</span>
+            </button>
+
             <button
               type="button"
               onClick={() => setSelectedProvider('huggingface_deepseek')}
-              className={`p-2.5 rounded-xl border text-center transition-all ${
+              className={`p-2 rounded-xl border text-center transition-all ${
                 selectedProvider === 'huggingface_deepseek'
                   ? 'bg-amber-600/30 border-amber-500 text-amber-200 font-bold'
                   : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10'
               }`}
             >
               <span className="block text-sm mb-0.5">🤗</span>
-              <span>DeepSeek-V4.1</span>
-              <span className="block text-[10px] text-amber-400/80">(Hugging Face)</span>
+              <span>HuggingFace</span>
+              <span className="block text-[10px] text-amber-400/80">(DeepSeek HF)</span>
             </button>
 
             <button
               type="button"
               onClick={() => setSelectedProvider('deepseek_official')}
-              className={`p-2.5 rounded-xl border text-center transition-all ${
+              className={`p-2 rounded-xl border text-center transition-all ${
                 selectedProvider === 'deepseek_official'
                   ? 'bg-blue-600/30 border-blue-500 text-blue-200 font-bold'
                   : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10'
               }`}
             >
               <span className="block text-sm mb-0.5">🐳</span>
-              <span>DeepSeek API</span>
+              <span>DeepSeek</span>
               <span className="block text-[10px] text-blue-400/80">(Official API)</span>
             </button>
 
             <button
               type="button"
               onClick={() => setSelectedProvider('gemini')}
-              className={`p-2.5 rounded-xl border text-center transition-all ${
+              className={`p-2 rounded-xl border text-center transition-all ${
                 selectedProvider === 'gemini'
                   ? 'bg-purple-600/30 border-purple-500 text-purple-200 font-bold'
                   : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10'
@@ -146,13 +174,26 @@ export const LlmApiKeyModal: React.FC<LlmApiKeyModalProps> = ({
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <label className="text-xs font-semibold text-gray-300">
-                {selectedProvider === 'huggingface_deepseek'
-                  ? 'Hugging Face User Access Token (hf_...):'
+                {selectedProvider === 'tokenharbor'
+                  ? 'Token Harbor Universal Key (thk_live_...):'
+                  : selectedProvider === 'huggingface_deepseek'
+                  ? 'Hugging Face Token (hf_...):'
                   : selectedProvider === 'deepseek_official'
                   ? 'DeepSeek Official API Key (sk-...):'
                   : 'Google Gemini API Key (AIza...):'}
               </label>
 
+              {selectedProvider === 'tokenharbor' && (
+                <a
+                  href="https://tokenharbor.ai/dashboard"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-[11px] text-amber-400 hover:text-amber-300 flex items-center gap-1 transition-colors"
+                >
+                  <span>Token Harbor Dashboard</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              )}
               {selectedProvider === 'huggingface_deepseek' && (
                 <a
                   href="https://huggingface.co/settings/tokens"
@@ -191,9 +232,11 @@ export const LlmApiKeyModal: React.FC<LlmApiKeyModalProps> = ({
             <input
               type="password"
               value={inputToken}
-              onChange={(e) => setInputToken(e.target.value)}
+              onChange={(e) => handleInputChange(e.target.value)}
               placeholder={
-                selectedProvider === 'huggingface_deepseek'
+                selectedProvider === 'tokenharbor'
+                  ? 'Tempel Token Harbor Key (thk_live_...)'
+                  : selectedProvider === 'huggingface_deepseek'
                   ? 'Tempel Hugging Face Token (hf_...)'
                   : selectedProvider === 'deepseek_official'
                   ? 'Tempel DeepSeek Key (sk-...)'
@@ -202,8 +245,10 @@ export const LlmApiKeyModal: React.FC<LlmApiKeyModalProps> = ({
               className="w-full px-3.5 py-2.5 rounded-xl bg-[#0f1013] border border-white/15 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 text-xs text-white placeholder-gray-500 outline-none font-mono"
             />
             <p className="text-[11px] text-gray-500">
-              {selectedProvider === 'huggingface_deepseek'
-                ? 'Model yang digunakan: deepseek-ai/DeepSeek-V4.1-Flash-1017 via Hugging Face Router.'
+              {selectedProvider === 'tokenharbor'
+                ? 'Model: deepseek-v4.1-flash via Token Harbor AI Gateway.'
+                : selectedProvider === 'huggingface_deepseek'
+                ? 'Model: deepseek-ai/DeepSeek-V4.1-Flash-1017 via Hugging Face Router.'
                 : 'Token disimpan aman di browser lokal Anda.'}
             </p>
           </div>

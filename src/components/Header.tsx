@@ -30,6 +30,7 @@ export const Header: React.FC<HeaderProps> = ({
 
   const getEnginePillText = () => {
     if (!isTokenActive) return 'AI: Kids Director ⚡';
+    if (provider === 'tokenharbor') return 'AI: DeepSeek-V4.1 ⚓';
     if (provider === 'huggingface_deepseek') return 'AI: DeepSeek-V4.1 🤗';
     if (provider === 'deepseek_official') return 'AI: DeepSeek 🐳';
     if (provider === 'gemini') return 'AI: Gemini 1.5 ✨';

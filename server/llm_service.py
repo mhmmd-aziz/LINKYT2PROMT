@@ -7,20 +7,23 @@ from typing import Dict, Any, Optional, List
 # Endpoints
 HF_ROUTER_URL = "https://router.huggingface.co/hf-inference/models/deepseek-ai/DeepSeek-V4.1-Flash-1017/v1/chat/completions"
 DEEPSEEK_OFFICIAL_URL = "https://api.deepseek.com/chat/completions"
+TOKENHARBOR_URL = "https://tokenharbor.ai/v1/chat/completions"
 GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models"
 
 def detect_api_provider(token_or_key: str) -> str:
     """
-    Detects whether the provided token is HuggingFace (hf_...), DeepSeek (sk-...), or Gemini (AIza...).
+    Detects whether the provided token is TokenHarbor (thk_live_...), HuggingFace (hf_...), DeepSeek (sk-...), or Gemini (AIza...).
     """
     token = (token_or_key or "").strip()
-    if token.startswith("hf_"):
+    if token.startswith("thk_live_") or token.startswith("thk_"):
+        return "tokenharbor"
+    elif token.startswith("hf_"):
         return "huggingface_deepseek"
     elif token.startswith("sk-"):
         return "deepseek_official"
     elif token.startswith("AIza"):
         return "gemini"
-    return "huggingface_deepseek"
+    return "tokenharbor" if "thk" in token else "huggingface_deepseek"
 
 def verify_llm_key(api_key: str, provider: Optional[str] = None) -> Dict[str, Any]:
     """
@@ -32,8 +35,51 @@ def verify_llm_key(api_key: str, provider: Optional[str] = None) -> Dict[str, An
         
     prov = provider or detect_api_provider(key)
     
-    # 1. DeepSeek via Hugging Face Router
-    if prov == "huggingface_deepseek":
+    # 1. Token Harbor (tokenharbor.ai) with DeepSeek models
+    if prov == "tokenharbor":
+        headers = {
+            "Authorization": f"Bearer {key}",
+            "Content-Type": "application/json"
+        }
+        test_payload = {
+            "model": "deepseek-v4.1-flash",
+            "messages": [{"role": "user", "content": "hi"}],
+            "max_tokens": 5
+        }
+        try:
+            with httpx.Client(timeout=15.0) as client:
+                resp = client.post(TOKENHARBOR_URL, headers=headers, json=test_payload)
+                if resp.status_code == 200:
+                    return {
+                        "valid": True,
+                        "provider": "tokenharbor",
+                        "model": "deepseek-v4.1-flash",
+                        "message": "Token Harbor (DeepSeek-V4.1-Flash) Berhasil Terhubung! 🟢"
+                    }
+                else:
+                    err_text = resp.text
+                    try:
+                        err_json = resp.json()
+                        err_msg = err_json.get("error", {}).get("message", err_text)
+                    except Exception:
+                        err_msg = err_text
+
+                    if "email_verification_required" in err_text or "Verify your email" in err_msg:
+                        return {
+                            "valid": False,
+                            "provider": "tokenharbor",
+                            "message": "⚠️ Email belum diverifikasi di Token Harbor! Buka inbox email Anda atau buka tokenharbor.ai/dashboard untuk klik link verifikasi, lalu coba lagi."
+                        }
+                    return {
+                        "valid": False,
+                        "provider": "tokenharbor",
+                        "message": f"Token Harbor ditolak ({resp.status_code}): {err_msg}"
+                    }
+        except Exception as e:
+            return {"valid": False, "provider": "tokenharbor", "message": f"Koneksi Token Harbor gagal: {str(e)}"}
+
+    # 2. DeepSeek via Hugging Face Router
+    elif prov == "huggingface_deepseek":
         headers = {
             "Authorization": f"Bearer {key}",
             "Content-Type": "application/json"
@@ -215,7 +261,45 @@ Respond ONLY with a valid JSON array of 20 objects (pure JSON, no markdown forma
 ]
 """
 
-    if prov == "huggingface_deepseek":
+    if prov == "tokenharbor":
+        headers = {
+            "Authorization": f"Bearer {key}",
+            "Content-Type": "application/json"
+        }
+        for target_model in ["deepseek-v4.1-flash", "deepseek-chat"]:
+            payload = {
+                "model": target_model,
+                "messages": [
+                    {"role": "system", "content": "You are a world-class kids video director and English scriptwriter. Always reply with a valid JSON array."},
+                    {"role": "user", "content": system_prompt}
+                ],
+                "temperature": 0.5,
+                "max_tokens": 4096
+            }
+            try:
+                print(f"[DeepSeek] Mengirim permintaan 20-scene ke Token Harbor (model: {target_model})...")
+                with httpx.Client(timeout=120.0) as client:
+                    resp = client.post(TOKENHARBOR_URL, headers=headers, json=payload)
+                    if resp.status_code == 200:
+                        data = resp.json()
+                        content = data.get("choices", [{}])[0].get("message", {}).get("content", "").strip()
+                        if content.startswith("```json"):
+                            content = content[7:]
+                        if content.startswith("```"):
+                            content = content[3:]
+                        if content.endswith("```"):
+                            content = content[:-3]
+                        parsed = json.loads(content.strip())
+                        print(f"[DeepSeek] Berhasil menghasilkan {len(parsed)} scene dari Token Harbor ({target_model})! 🟢")
+                        return parsed
+                    else:
+                        print(f"[Token Harbor Error] Status {resp.status_code}: {resp.text}")
+                        if resp.status_code == 404:
+                            continue
+            except Exception as e:
+                print(f"[Token Harbor Exception] {e}")
+
+    elif prov == "huggingface_deepseek":
         headers = {
             "Authorization": f"Bearer {key}",
             "Content-Type": "application/json"
