@@ -34,16 +34,16 @@ export const YouTubePackageNode: React.FC<YouTubePackageNodeProps> = ({
   const [thumbnailTab, setThumbnailTab] = useState<'primary' | 'alt'>('primary');
   const [showFullDesc, setShowFullDesc] = useState<boolean>(false);
   const [selectedText, setSelectedText] = useState<string>(
-    packageData.thumbnail_text || 'EPIC JUMP! 🏎️'
+    packageData.thumbnail_text || 'VROOM VROOM! 🚗'
   );
   const [customText, setCustomText] = useState<string>('');
 
   const defaultTextOptions = packageData.thumbnail_text_options || [
-    'EPIC JUMP! 🏎️',
-    '360° LOOP! 🔄',
-    'CAN IT SURVIVE?! 😱',
-    'SUPER FAST! ⚡',
-    'VROOM VROOM! 🏁'
+    'VROOM VROOM! 🚗',
+    'SUPER SPEED! ⚡',
+    'MISSION WIN! 🏆',
+    'LET\'S GO! 🚀',
+    'GO GO GO! 🏁'
   ];
 
   const handleCopyText = (text: string, type: 'title' | 'thumbnail' | 'desc' | 'tags', index?: number) => {

@@ -26,12 +26,12 @@ export const App: React.FC = () => {
   const [hardwareLoading, setHardwareLoading] = useState<boolean>(true);
   const [selectedDevice, setSelectedDevice] = useState<'cuda' | 'cpu'>('cuda');
 
-  // AI LLM Engine & API Token state (DeepSeek-V4.1-Flash default)
+  // AI LLM Engine & API Token state (DeepSeek-V4.1-Flash via Token Harbor default)
   const [apiToken, setApiToken] = useState<string>(() => {
-    return localStorage.getItem('imzy_llm_token') || localStorage.getItem('imsy_llm_token') || localStorage.getItem('imsy_gemini_api_key') || '';
+    return localStorage.getItem('imzy_llm_token') || localStorage.getItem('imsy_llm_token') || 'thk_live_1X5at6wWf9RE-eQ_4NLfe3GXtruROeYwEzA93ffLhTdyZ_YoRKVX95sDlmWyrDJg';
   });
   const [llmProvider, setLlmProvider] = useState<string>(() => {
-    return localStorage.getItem('imzy_llm_provider') || localStorage.getItem('imsy_llm_provider') || 'huggingface_deepseek';
+    return localStorage.getItem('imzy_llm_provider') || localStorage.getItem('imsy_llm_provider') || 'tokenharbor';
   });
   const [apiKeyModalOpen, setApiKeyModalOpen] = useState<boolean>(false);
   const [engineUsed, setEngineUsed] = useState<string>('Smart Kids Director Engine');
@@ -119,12 +119,12 @@ export const App: React.FC = () => {
       setDetectedLanguage(data.language || 'en');
       setLanguage('en'); // Always English dialogue generation
 
-      // Update default arena if vision detected specific kids theme
+      // Update vehicle and arena dynamically based on extracted YouTube video vision
       if (data.video_vision) {
         setAnchors((prev) => ({
           ...prev,
-          product: imageAnalysis ? (imageAnalysis.recommended_anchor_product || imageAnalysis.product_name) : (prev.product.includes('monster truck') ? (data.video_vision.default_car || prev.product) : prev.product),
-          setting: data.video_vision.default_arena || prev.setting
+          product: imageAnalysis ? (imageAnalysis.recommended_anchor_product || imageAnalysis.product_name) : (data.video_vision.default_car || prev.product),
+          setting: imageAnalysis ? (imageAnalysis.recommended_setting || prev.setting) : (data.video_vision.default_arena || prev.setting)
         }));
       }
 
