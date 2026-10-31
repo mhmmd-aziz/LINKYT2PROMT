@@ -230,7 +230,8 @@ Respond ONLY with a valid JSON array of 20 objects (pure JSON, no markdown forma
             "max_tokens": 4096
         }
         try:
-            with httpx.Client(timeout=60.0) as client:
+            print(f"[DeepSeek] Mengirim permintaan 20-scene ke Hugging Face DeepSeek-V4.1-Flash...")
+            with httpx.Client(timeout=120.0) as client:
                 resp = client.post(HF_ROUTER_URL, headers=headers, json=payload)
                 if resp.status_code == 200:
                     data = resp.json()
@@ -241,9 +242,13 @@ Respond ONLY with a valid JSON array of 20 objects (pure JSON, no markdown forma
                         content = content[3:]
                     if content.endswith("```"):
                         content = content[:-3]
-                    return json.loads(content.strip())
+                    parsed = json.loads(content.strip())
+                    print(f"[DeepSeek] Berhasil menghasilkan {len(parsed)} scene dari DeepSeek-V4.1-Flash! 🟢")
+                    return parsed
+                else:
+                    print(f"[DeepSeek HF Error] Status {resp.status_code}: {resp.text}")
         except Exception as e:
-            print(f"[HF DeepSeek-V4.1 Error] {e}")
+            print(f"[HF DeepSeek-V4.1 Exception] {e}")
 
     elif prov == "deepseek_official":
         headers = {
@@ -260,7 +265,8 @@ Respond ONLY with a valid JSON array of 20 objects (pure JSON, no markdown forma
             "max_tokens": 4096
         }
         try:
-            with httpx.Client(timeout=60.0) as client:
+            print(f"[DeepSeek] Mengirim permintaan 20-scene ke Official DeepSeek API...")
+            with httpx.Client(timeout=120.0) as client:
                 resp = client.post(DEEPSEEK_OFFICIAL_URL, headers=headers, json=payload)
                 if resp.status_code == 200:
                     data = resp.json()
@@ -271,8 +277,12 @@ Respond ONLY with a valid JSON array of 20 objects (pure JSON, no markdown forma
                         content = content[3:]
                     if content.endswith("```"):
                         content = content[:-3]
-                    return json.loads(content.strip())
+                    parsed = json.loads(content.strip())
+                    print(f"[DeepSeek] Berhasil menghasilkan {len(parsed)} scene dari DeepSeek Official! 🟢")
+                    return parsed
+                else:
+                    print(f"[DeepSeek Official Error] Status {resp.status_code}: {resp.text}")
         except Exception as e:
-            print(f"[DeepSeek Official API Error] {e}")
+            print(f"[DeepSeek Official API Exception] {e}")
 
     return None

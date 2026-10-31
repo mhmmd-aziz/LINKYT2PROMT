@@ -200,6 +200,7 @@ def generate_prompts(req: GenerateRequest):
         # Both models receive the full video title, transcript, and user's uploaded photo!
         if token:
             prov = req.provider or detect_api_provider(token)
+            print(f"[Engine] Token terdeteksi ({prov}). Memulai request ke {prov}...")
             if prov in ("huggingface_deepseek", "deepseek_official"):
                 llm_scenes = generate_scenes_with_deepseek(
                     scenes_data=raw_scenes,
@@ -214,6 +215,9 @@ def generate_prompts(req: GenerateRequest):
                 )
                 if llm_scenes:
                     engine_used = "DeepSeek-V4.1-Flash-1017 (Hugging Face AI)" if prov == "huggingface_deepseek" else "DeepSeek Official AI"
+                    print(f"[Engine] Berhasil! Alur 20-scene disusun langsung oleh {engine_used}!")
+                else:
+                    print(f"[Engine Fallback] DeepSeek ({prov}) gagal merespons atau token tidak valid. Beralih otomatis ke Smart Kids Director Engine.")
             elif prov == "gemini":
                 llm_scenes = generate_kids_prompts_with_gemini(
                     scenes_data=raw_scenes,
@@ -227,6 +231,11 @@ def generate_prompts(req: GenerateRequest):
                 )
                 if llm_scenes:
                     engine_used = "Google Gemini 1.5 Flash Vision AI"
+                    print(f"[Engine] Berhasil! Alur 20-scene disusun oleh Gemini Vision!")
+                else:
+                    print(f"[Engine Fallback] Gemini gagal merespons. Beralih otomatis ke Smart Kids Director Engine.")
+        else:
+            print("[Engine] Belum ada API Token LLM. Menggunakan Smart Kids Director Engine (Mode Dinamis Otomatis).")
         
         # Step 3: Generate and assemble fluid, cinematic AI video generation prompts
         processed_scenes = generate_consistent_scene_prompts(
