@@ -61,9 +61,9 @@ def main():
     # Launch browser in a separate thread
     threading.Thread(target=open_browser, args=(port,), daemon=True).start()
 
-    # Start Uvicorn server
+    # Start Uvicorn server with auto-reload
     import uvicorn
-    uvicorn.run("server.main:app", host="127.0.0.1", port=port, reload=False)
+    uvicorn.run("server.main:app", host="127.0.0.1", port=port, reload=True)
 
 if __name__ == "__main__":
     main()

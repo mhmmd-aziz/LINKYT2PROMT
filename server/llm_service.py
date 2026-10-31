@@ -41,42 +41,44 @@ def verify_llm_key(api_key: str, provider: Optional[str] = None) -> Dict[str, An
             "Authorization": f"Bearer {key}",
             "Content-Type": "application/json"
         }
-        test_payload = {
-            "model": "deepseek-v4.1-flash",
-            "messages": [{"role": "user", "content": "hi"}],
-            "max_tokens": 5
-        }
-        try:
-            with httpx.Client(timeout=15.0) as client:
-                resp = client.post(TOKENHARBOR_URL, headers=headers, json=test_payload)
-                if resp.status_code == 200:
-                    return {
-                        "valid": True,
-                        "provider": "tokenharbor",
-                        "model": "deepseek-v4.1-flash",
-                        "message": "Token Harbor (DeepSeek-V4.1-Flash) Berhasil Terhubung! 🟢"
-                    }
-                else:
-                    err_text = resp.text
-                    try:
-                        err_json = resp.json()
-                        err_msg = err_json.get("error", {}).get("message", err_text)
-                    except Exception:
-                        err_msg = err_text
-
-                    if "email_verification_required" in err_text or "Verify your email" in err_msg:
+        # Try free tier first, then standard tier
+        for model_name in ["deepseek-v4.1-flash:free", "deepseek-v4.1-flash", "deepseek-v4-flash:free"]:
+            test_payload = {
+                "model": model_name,
+                "messages": [{"role": "user", "content": "hi"}],
+                "max_tokens": 5
+            }
+            try:
+                with httpx.Client(timeout=15.0) as client:
+                    resp = client.post(TOKENHARBOR_URL, headers=headers, json=test_payload)
+                    if resp.status_code == 200:
                         return {
-                            "valid": False,
+                            "valid": True,
                             "provider": "tokenharbor",
-                            "message": "⚠️ Email belum diverifikasi di Token Harbor! Buka inbox email Anda atau buka tokenharbor.ai/dashboard untuk klik link verifikasi, lalu coba lagi."
+                            "model": model_name,
+                            "message": f"Token Harbor DeepSeek-V4.1 ({model_name}) Berhasil Terhubung! 🟢"
                         }
-                    return {
-                        "valid": False,
-                        "provider": "tokenharbor",
-                        "message": f"Token Harbor ditolak ({resp.status_code}): {err_msg}"
-                    }
-        except Exception as e:
-            return {"valid": False, "provider": "tokenharbor", "message": f"Koneksi Token Harbor gagal: {str(e)}"}
+                    elif resp.status_code == 402:
+                        # balance zero, try next (free model)
+                        continue
+                    else:
+                        err_text = resp.text
+                        try:
+                            err_json = resp.json()
+                            err_msg = err_json.get("error", {}).get("message", err_text)
+                        except Exception:
+                            err_msg = err_text
+
+                        if "email_verification_required" in err_text or "Verify your email" in err_msg:
+                            return {
+                                "valid": False,
+                                "provider": "tokenharbor",
+                                "message": "⚠️ Email belum diverifikasi di Token Harbor! Buka inbox email Anda atau buka tokenharbor.ai/dashboard untuk klik link verifikasi, lalu coba lagi."
+                            }
+            except Exception as e:
+                return {"valid": False, "provider": "tokenharbor", "message": f"Koneksi Token Harbor gagal: {str(e)}"}
+
+        return {"valid": False, "provider": "tokenharbor", "message": "Token Harbor tidak dapat mengakses model DeepSeek. Cek saldo atau limit akun di tokenharbor.ai/dashboard"}
 
     # 2. DeepSeek via Hugging Face Router
     elif prov == "huggingface_deepseek":
@@ -266,7 +268,7 @@ Respond ONLY with a valid JSON array of 20 objects (pure JSON, no markdown forma
             "Authorization": f"Bearer {key}",
             "Content-Type": "application/json"
         }
-        for target_model in ["deepseek-v4.1-flash", "deepseek-chat"]:
+        for target_model in ["deepseek-v4.1-flash:free", "deepseek-v4.1-flash", "deepseek-v4-flash:free"]:
             payload = {
                 "model": target_model,
                 "messages": [
@@ -292,9 +294,12 @@ Respond ONLY with a valid JSON array of 20 objects (pure JSON, no markdown forma
                         parsed = json.loads(content.strip())
                         print(f"[DeepSeek] Berhasil menghasilkan {len(parsed)} scene dari Token Harbor ({target_model})! 🟢")
                         return parsed
+                    elif resp.status_code == 402:
+                        print(f"[Token Harbor] Model {target_model} membutuhkan balance, mencoba fallback free model...")
+                        continue
                     else:
                         print(f"[Token Harbor Error] Status {resp.status_code}: {resp.text}")
-                        if resp.status_code == 404:
+                        if resp.status_code in (404, 400):
                             continue
             except Exception as e:
                 print(f"[Token Harbor Exception] {e}")
