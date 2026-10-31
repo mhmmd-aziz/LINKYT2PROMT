@@ -158,17 +158,17 @@ def extract_youtube(req: ExtractRequest):
 @app.post("/api/generate")
 def generate_prompts(req: GenerateRequest):
     """
-    Splits transcript into exact 10-second scenes (capped to max 60 scenes)
+    Splits transcript into exact 10-second scenes (capped to max 20 scenes)
     and produces visually consistent, non-stiff fluid prompts with toy car continuity and full 10s English speech.
     Uses DeepSeek V4.1 Flash (Hugging Face) if provided, DeepSeek Official, Gemini, or smart local director.
     """
     try:
-        # Step 1: Chunk into 10s scenes (strictly max 60 scenes)
+        # Step 1: Chunk into 10s scenes (strictly max 20 scenes)
         raw_scenes = chunk_transcript_to_10s_scenes(
             transcript_items=req.transcript_items,
             total_duration_sec=req.duration,
             scene_duration=req.scene_duration,
-            max_scenes=60
+            max_scenes=20
         )
 
         title = req.metadata.get("title", "")
@@ -240,7 +240,7 @@ def generate_prompts(req: GenerateRequest):
         return {
             "status": "success",
             "total_scenes": len(processed_scenes),
-            "max_scenes_limit": 60,
+            "max_scenes_limit": 20,
             "scene_duration_sec": req.scene_duration,
             "video_duration_sec": req.duration,
             "video_vision": vision,

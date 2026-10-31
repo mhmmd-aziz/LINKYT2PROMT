@@ -3,11 +3,12 @@ import re
 from typing import List, Dict, Any, Optional
 
 try:
-    from server.cinematic_episodes import CINEMATIC_STORY_EPISODES
+    from server.cinematic_episodes import CINEMATIC_20_SCENE_ARC, CINEMATIC_STORY_EPISODES
 except ImportError:
     try:
-        from cinematic_episodes import CINEMATIC_STORY_EPISODES
+        from cinematic_episodes import CINEMATIC_20_SCENE_ARC, CINEMATIC_STORY_EPISODES
     except ImportError:
+        CINEMATIC_20_SCENE_ARC = []
         CINEMATIC_STORY_EPISODES = []
 
 def extract_car_short_name(car_name: str) -> str:
@@ -226,10 +227,10 @@ def chunk_transcript_to_10s_scenes(
     transcript_items: List[Dict[str, Any]],
     total_duration_sec: float,
     scene_duration: float = 10.0,
-    max_scenes: int = 60
+    max_scenes: int = 20
 ) -> List[Dict[str, Any]]:
     """
-    Splits video into exact 10-second scenes (up to strictly 60 scenes).
+    Splits video into exact 10-second scenes (up to strictly 20 scenes).
     """
     if total_duration_sec <= 0:
         if transcript_items:
@@ -362,18 +363,27 @@ def generate_consistent_scene_prompts(
         scene_num = scene["scene_index"]
         cam = KIDS_CAMERA_MOVEMENTS[idx % len(KIDS_CAMERA_MOVEMENTS)]
 
-        # Fetch matching cinematic story episode template from the 60 unique episodes
-        if CINEMATIC_STORY_EPISODES:
+        ep = None
+        # Fetch matching cinematic story episode template (prefer dedicated 20-scene cohesive arc)
+        if total_scenes <= 20 and CINEMATIC_20_SCENE_ARC:
+            if idx == total_scenes - 1:
+                ep = CINEMATIC_20_SCENE_ARC[-1]  # Scene 20 (PENUTUP: Heartfelt Movie Farewell)
+            elif idx == total_scenes - 2 and total_scenes >= 2:
+                ep = CINEMATIC_20_SCENE_ARC[-2]  # Scene 19 (Victory Finish Line & Trophy)
+            else:
+                ep = CINEMATIC_20_SCENE_ARC[min(idx, len(CINEMATIC_20_SCENE_ARC) - 1)]
+        elif CINEMATIC_STORY_EPISODES:
             # If at the end of the video, ensure we reach the grand climax & penutup
             if idx == total_scenes - 1 and total_scenes >= 2:
-                ep = CINEMATIC_STORY_EPISODES[-1]  # Scene 60 (PENUTUP: Heartfelt Movie Farewell)
+                ep = CINEMATIC_STORY_EPISODES[-1]  # (PENUTUP: Heartfelt Movie Farewell)
             elif idx == total_scenes - 2 and total_scenes >= 3:
-                ep = CINEMATIC_STORY_EPISODES[-2]  # Scene 59 (Winner's Podium Trophy Ceremony)
+                ep = CINEMATIC_STORY_EPISODES[-2]  # (Winner's Podium Trophy Ceremony)
             elif idx == total_scenes - 3 and total_scenes >= 4:
-                ep = CINEMATIC_STORY_EPISODES[-3]  # Scene 58 (Victory Finish Line Crossing)
+                ep = CINEMATIC_STORY_EPISODES[-3]  # (Victory Finish Line Crossing)
             else:
                 ep = CINEMATIC_STORY_EPISODES[idx % len(CINEMATIC_STORY_EPISODES)]
 
+        if ep:
             act = ep.get("act", "")
             milestone = ep.get("milestone", "")
             is_closing = ep.get("is_closing", False) or (idx == total_scenes - 1)
@@ -558,16 +568,30 @@ def generate_youtube_viral_package(
     chapters = []
     total_scenes = len(scenes)
     if total_scenes > 0:
-        chapter_indices = [
-            (0, "🏁 Starting Line & High-Energy Engine Rev"),
-            (min(5, total_scenes - 1), "🚀 Launch Down the High-Speed Ramp"),
-            (min(15, total_scenes - 1), "🔄 The Giant 360-Degree Loop Challenge"),
-            (min(25, total_scenes - 1), "🌉 Narrow Wooden Suspension Bridge Crossing"),
-            (min(35, total_scenes - 1), "🌪️ The Whirlwind Spiral Tower Ascent"),
-            (min(45, total_scenes - 1), "🔥 Bumpy Kinetic Sand Mountain Climb"),
-            (min(54, total_scenes - 1), "⚡ Ultimate Airborne Mega Ramp Jump"),
-            (total_scenes - 1, "🏆 Grand Finish Line Celebration & Confetti!")
-        ]
+        if total_scenes <= 20:
+            chapter_indices = [
+                (0, "🏁 Starting Line & High-Energy Engine Rev"),
+                (min(2, total_scenes - 1), "🚀 Launch Down the High-Speed Ramp"),
+                (min(5, total_scenes - 1), "✨ 360° Airborne Stunt Jump"),
+                (min(8, total_scenes - 1), "🌈 Glowing Rainbow Tunnel Adventure"),
+                (min(10, total_scenes - 1), "🔥 Bumpy Kinetic Sand Mountain & Suspension Bridge"),
+                (min(12, total_scenes - 1), "🔄 The Giant 360-Degree Vertical Loop"),
+                (min(14, total_scenes - 1), "💦 Water Splash Zone & Domino Slalom"),
+                (min(16, total_scenes - 1), "⚡ Grand Duel & Mega Ramp Apex Leap"),
+                (min(18, total_scenes - 1), "🏆 Victory Finish Line & Trophy Celebration"),
+                (total_scenes - 1, "👋 Heartfelt Movie Farewell (Penutup)!")
+            ]
+        else:
+            chapter_indices = [
+                (0, "🏁 Starting Line & High-Energy Engine Rev"),
+                (min(5, total_scenes - 1), "🚀 Launch Down the High-Speed Ramp"),
+                (min(15, total_scenes - 1), "🔄 The Giant 360-Degree Loop Challenge"),
+                (min(25, total_scenes - 1), "🌉 Narrow Wooden Suspension Bridge Crossing"),
+                (min(35, total_scenes - 1), "🌪️ The Whirlwind Spiral Tower Ascent"),
+                (min(45, total_scenes - 1), "🔥 Bumpy Kinetic Sand Mountain Climb"),
+                (min(54, total_scenes - 1), "⚡ Ultimate Airborne Mega Ramp Jump"),
+                (total_scenes - 1, "🏆 Grand Finish Line Celebration & Confetti!")
+            ]
         seen_idx = set()
         for idx, label in chapter_indices:
             if idx not in seen_idx and idx < total_scenes:

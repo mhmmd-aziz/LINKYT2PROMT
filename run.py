@@ -14,7 +14,7 @@ def print_banner():
    | || |  | |/ /_  | |     | || |_| | |_| | |___ ___) |    | |   | |  
   |___|_|  |_/____| |_|     |_| \___/ \___/|_____|____/     |_|   |_|  
                                                                         
-  Google Flow Edition: Kids YouTube Remake -> 60 Consistent Scene Prompts
+  Google Flow Edition: Kids YouTube Remake -> 20 Consistent Scene Prompts
 ========================================================================
 """
     print(banner)

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ScenePromptItem } from '../types';
-import { Copy, Check, Edit3, Camera, Clock, ShieldCheck, Film, Sparkles, MessageCircle, Volume2, Car, Mic, ArrowRight, Link } from 'lucide-react';
+import { Copy, Check, Edit3, Camera, Clock, ShieldCheck, Film, Sparkles, Volume2, Car, Mic, Link, CheckCircle2, RotateCcw, ArrowDownCircle } from 'lucide-react';
 
 interface SceneFlowNodeProps {
   scenes: ScenePromptItem[];
@@ -17,8 +17,32 @@ export const SceneFlowNode: React.FC<SceneFlowNodeProps> = ({
   onUpdateScenePrompt,
   onUpdateSceneDialogue
 }) => {
-  const [copiedPromptIndex, setCopiedPromptIndex] = useState<number | null>(null);
-  const [copiedDialogueIndex, setCopiedDialogueIndex] = useState<number | null>(null);
+  // Persistent tracking of last copied scene (NEVER resets back to default, stays permanently visible!)
+  const [lastCopiedPromptIndex, setLastCopiedPromptIndex] = useState<number | null>(() => {
+    try {
+      const saved = localStorage.getItem('imzy_last_copied_prompt_index');
+      return saved !== null ? parseInt(saved, 10) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  const [copiedPromptIndices, setCopiedPromptIndices] = useState<Set<number>>(() => {
+    try {
+      const saved = localStorage.getItem('imzy_copied_prompt_indices');
+      return saved ? new Set(JSON.parse(saved)) : new Set();
+    } catch {
+      return new Set();
+    }
+  });
+
+  const [lastCopiedDialogueIndex, setLastCopiedDialogueIndex] = useState<number | null>(null);
+  const [copiedDialogueIndices, setCopiedDialogueIndices] = useState<Set<number>>(new Set());
+
+  // Brief flash feedback for instant click feel (1.2s pulse, but persistent state remains forever!)
+  const [justCopiedPromptIndex, setJustCopiedPromptIndex] = useState<number | null>(null);
+  const [justCopiedDialogueIndex, setJustCopiedDialogueIndex] = useState<number | null>(null);
+
   const [editingPromptIndex, setEditingPromptIndex] = useState<number | null>(null);
   const [editPromptText, setEditPromptText] = useState<string>('');
   const [editingDialogueIndex, setEditingDialogueIndex] = useState<number | null>(null);
@@ -26,14 +50,46 @@ export const SceneFlowNode: React.FC<SceneFlowNodeProps> = ({
 
   const handleCopyPrompt = (text: string, index: number) => {
     navigator.clipboard.writeText(text);
-    setCopiedPromptIndex(index);
-    setTimeout(() => setCopiedPromptIndex(null), 2000);
+    setLastCopiedPromptIndex(index);
+    setCopiedPromptIndices((prev) => {
+      const next = new Set(prev).add(index);
+      try {
+        localStorage.setItem('imzy_copied_prompt_indices', JSON.stringify(Array.from(next)));
+      } catch {}
+      return next;
+    });
+    try {
+      localStorage.setItem('imzy_last_copied_prompt_index', index.toString());
+    } catch {}
+
+    setJustCopiedPromptIndex(index);
+    setTimeout(() => setJustCopiedPromptIndex(null), 1200);
   };
 
   const handleCopyDialogue = (text: string, index: number) => {
     navigator.clipboard.writeText(text);
-    setCopiedDialogueIndex(index);
-    setTimeout(() => setCopiedDialogueIndex(null), 2000);
+    setLastCopiedDialogueIndex(index);
+    setCopiedDialogueIndices((prev) => new Set(prev).add(index));
+    setJustCopiedDialogueIndex(index);
+    setTimeout(() => setJustCopiedDialogueIndex(null), 1200);
+  };
+
+  const handleResetCopyProgress = () => {
+    setLastCopiedPromptIndex(null);
+    setCopiedPromptIndices(new Set());
+    setLastCopiedDialogueIndex(null);
+    setCopiedDialogueIndices(new Set());
+    try {
+      localStorage.removeItem('imzy_last_copied_prompt_index');
+      localStorage.removeItem('imzy_copied_prompt_indices');
+    } catch {}
+  };
+
+  const scrollToScene = (index: number) => {
+    const el = document.getElementById(`scene-card-${index}`);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
   };
 
   const handleStartEditPrompt = (index: number, currentPrompt: string) => {
@@ -64,10 +120,12 @@ export const SceneFlowNode: React.FC<SceneFlowNodeProps> = ({
     return null;
   }
 
+  const nextUncopiedIndex = scenes.findIndex((_, i) => !copiedPromptIndices.has(i));
+
   return (
     <div className="relative rounded-2xl bg-[#16171c] border border-white/10 p-5 sm:p-6 shadow-xl transition-all">
       {/* Node Header */}
-      <div className="flex flex-wrap items-center justify-between pb-4 mb-6 border-b border-white/10 gap-3">
+      <div className="flex flex-wrap items-center justify-between pb-4 mb-4 border-b border-white/10 gap-3">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 via-orange-500 to-red-600 flex items-center justify-center text-white shadow-md">
             <Film className="w-4 h-4" />
@@ -77,7 +135,7 @@ export const SceneFlowNode: React.FC<SceneFlowNodeProps> = ({
               <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-white/5 text-gray-400 border border-white/10">
                 FINAL FLOW NODE
               </span>
-              <h2 className="text-base font-bold text-white">Alur 60 Scene Video Anak (Full Percakapan English 10s Bersambung)</h2>
+              <h2 className="text-base font-bold text-white">Alur {scenes.length} Scene Video Anak (Full Percakapan English 10s Bersambung)</h2>
             </div>
             <p className="text-xs text-gray-400">
               Percakapan full 10 detik tanpa jeda kosong dalam bahasa Inggris + Objek mobil & karakter terkunci 100% konsisten
@@ -99,11 +157,71 @@ export const SceneFlowNode: React.FC<SceneFlowNodeProps> = ({
         </div>
       </div>
 
+      {/* Persistent Copy Tracker Bar */}
+      <div className="mb-6 p-3.5 rounded-xl bg-gradient-to-r from-[#17201c] via-[#151c19] to-[#14151a] border border-emerald-500/30 flex flex-wrap items-center justify-between gap-3 text-xs shadow-inner">
+        <div className="flex items-center gap-2.5">
+          <div className="w-7 h-7 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-300">
+            <CheckCircle2 className="w-4 h-4" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-emerald-300">
+                Progress Salin ke Flow: {copiedPromptIndices.size} / {scenes.length} Scene
+              </span>
+              {copiedPromptIndices.size === scenes.length && (
+                <span className="px-2 py-0.5 rounded bg-emerald-500 text-black font-extrabold text-[10px]">
+                  SELESAI SEMUA! 🎉
+                </span>
+              )}
+            </div>
+            <p className="text-[11px] text-gray-300">
+              {lastCopiedPromptIndex !== null ? (
+                <>
+                  <span className="text-amber-400 font-semibold">Terakhir Disalin:</span> Scene {(lastCopiedPromptIndex + 1).toString().padStart(2, '0')} ({scenes[lastCopiedPromptIndex]?.time_range})
+                </>
+              ) : (
+                'Klik "Salin Prompt" pada scene pertama untuk mulai paste ke Google Flow.'
+              )}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          {nextUncopiedIndex !== -1 && nextUncopiedIndex !== 0 && (
+            <button
+              type="button"
+              onClick={() => scrollToScene(nextUncopiedIndex)}
+              className="px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-semibold flex items-center gap-1.5 transition-all"
+            >
+              <ArrowDownCircle className="w-3.5 h-3.5 text-amber-400" />
+              <span>Lanjut ke Scene {(nextUncopiedIndex + 1).toString().padStart(2, '0')}</span>
+            </button>
+          )}
+
+          {copiedPromptIndices.size > 0 && (
+            <button
+              type="button"
+              onClick={handleResetCopyProgress}
+              className="px-2.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-gray-200 border border-white/10 text-xs flex items-center gap-1 transition-all"
+              title="Reset tanda bekas salin jika ingin membuat video baru"
+            >
+              <RotateCcw className="w-3 h-3" />
+              <span>Reset Penanda</span>
+            </button>
+          )}
+        </div>
+      </div>
+
       {/* Google Flow Connection Timeline */}
       <div className="relative space-y-6 before:absolute before:inset-0 before:left-5 before:w-0.5 before:bg-gradient-to-b before:from-amber-500 before:via-orange-500 before:to-emerald-500 before:hidden md:before:block">
         {scenes.map((scene, idx) => {
-          const isCopiedPrompt = copiedPromptIndex === idx;
-          const isCopiedDialogue = copiedDialogueIndex === idx;
+          const isLastCopiedPrompt = lastCopiedPromptIndex === idx;
+          const isPreviouslyCopiedPrompt = copiedPromptIndices.has(idx);
+          const isJustCopiedPrompt = justCopiedPromptIndex === idx;
+
+          const isLastCopiedDialogue = lastCopiedDialogueIndex === idx;
+          const isPreviouslyCopiedDialogue = copiedDialogueIndices.has(idx);
+
           const isEditingPrompt = editingPromptIndex === idx;
           const isEditingDialogue = editingDialogueIndex === idx;
           const dialogueText = scene.english_dialogue || scene.dialogue;
@@ -112,28 +230,64 @@ export const SceneFlowNode: React.FC<SceneFlowNodeProps> = ({
           return (
             <div
               key={scene.scene_index}
+              id={`scene-card-${idx}`}
               className="relative pl-0 md:pl-12 group transition-all"
             >
               {/* Timeline Flow Node Dot */}
-              <div className="hidden md:flex absolute left-3.5 top-6 -translate-x-1/2 w-4 h-4 rounded-full bg-[#16171c] border-2 border-amber-500 group-hover:border-emerald-400 group-hover:scale-125 transition-all z-10 items-center justify-center">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 group-hover:bg-emerald-300"></span>
+              <div className={`hidden md:flex absolute left-3.5 top-6 -translate-x-1/2 w-4 h-4 rounded-full bg-[#16171c] border-2 ${
+                isLastCopiedPrompt
+                  ? 'border-emerald-400 scale-125 ring-2 ring-emerald-500/50'
+                  : isPreviouslyCopiedPrompt
+                  ? 'border-emerald-600'
+                  : 'border-amber-500 group-hover:border-emerald-400 group-hover:scale-125'
+              } transition-all z-10 items-center justify-center`}>
+                <span className={`w-1.5 h-1.5 rounded-full ${
+                  isLastCopiedPrompt
+                    ? 'bg-emerald-300'
+                    : isPreviouslyCopiedPrompt
+                    ? 'bg-emerald-600'
+                    : 'bg-amber-400 group-hover:bg-emerald-300'
+                }`}></span>
               </div>
 
               {/* Scene Card */}
-              <div className={`rounded-xl bg-[#0f1013] border ${
-                scene.is_closing
-                  ? 'border-amber-400/80 shadow-amber-900/30 ring-1 ring-amber-500/50'
-                  : 'border-white/10 hover:border-amber-500/40'
-              } p-4 sm:p-5 transition-all shadow-md`}>
+              <div className={`rounded-xl transition-all shadow-md p-4 sm:p-5 ${
+                isLastCopiedPrompt
+                  ? 'bg-[#0f1712] border-2 border-emerald-500 shadow-xl shadow-emerald-950/50 ring-2 ring-emerald-500/40'
+                  : isPreviouslyCopiedPrompt
+                  ? 'bg-[#0e1114] border border-emerald-800/50'
+                  : scene.is_closing
+                  ? 'bg-[#0f1013] border border-amber-400/80 shadow-amber-900/30 ring-1 ring-amber-500/50'
+                  : 'bg-[#0f1013] border border-white/10 hover:border-amber-500/40'
+              }`}>
                 {/* Scene Meta Bar */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pb-3 mb-3 border-b border-white/5">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="px-2.5 py-1 rounded-lg bg-amber-600/20 text-amber-300 border border-amber-500/30 text-xs font-mono font-bold flex items-center gap-1">
+                    <span className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold flex items-center gap-1 ${
+                      isLastCopiedPrompt
+                        ? 'bg-emerald-500/30 text-emerald-300 border border-emerald-400/50'
+                        : 'bg-amber-600/20 text-amber-300 border border-amber-500/30'
+                    }`}>
                       <Car className="w-3 h-3" />
                       SCENE {scene.scene_index.toString().padStart(2, '0')} / {scenes.length}
                     </span>
+
+                    {/* Prominent Badge for Last Copied Scene */}
+                    {isLastCopiedPrompt && (
+                      <span className="px-2.5 py-1 rounded-lg bg-emerald-500 text-black font-extrabold text-xs shadow-md flex items-center gap-1 animate-pulse">
+                        📌 TERAKHIR DISALIN (SIAP PASTE KE FLOW)
+                      </span>
+                    )}
+
+                    {!isLastCopiedPrompt && isPreviouslyCopiedPrompt && (
+                      <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-950/70 text-emerald-400 border border-emerald-800/40 flex items-center gap-1">
+                        <Check className="w-3 h-3 text-emerald-300" />
+                        Sudah Pernah Disalin
+                      </span>
+                    )}
+
                     {scene.is_closing && (
-                      <span className="px-2.5 py-1 rounded-lg bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 text-white font-bold text-xs shadow-md animate-pulse flex items-center gap-1">
+                      <span className="px-2.5 py-1 rounded-lg bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 text-white font-bold text-xs shadow-md flex items-center gap-1">
                         🏆 PENUTUP FILM (Movie Ending & Heartfelt Farewell)
                       </span>
                     )}
@@ -162,29 +316,57 @@ export const SceneFlowNode: React.FC<SceneFlowNodeProps> = ({
                       type="button"
                       onClick={() => handleCopyDialogue(dialogueText, idx)}
                       className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
-                        isCopiedDialogue
-                          ? 'bg-emerald-600 text-white'
+                        isLastCopiedDialogue
+                          ? 'bg-emerald-600 text-white shadow-emerald-900/50'
+                          : isPreviouslyCopiedDialogue
+                          ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-700/40'
                           : 'bg-white/10 hover:bg-white/15 text-gray-200 border border-white/10'
                       }`}
                       title="Copy English Voiceover (untuk ElevenLabs / TTS)"
                     >
-                      {isCopiedDialogue ? <Check className="w-3.5 h-3.5 text-emerald-200" /> : <Mic className="w-3.5 h-3.5 text-amber-400" />}
-                      <span>{isCopiedDialogue ? 'Voice Tersalin!' : 'Copy Voiceover'}</span>
+                      {isLastCopiedDialogue || isPreviouslyCopiedDialogue ? (
+                        <Check className="w-3.5 h-3.5 text-emerald-200" />
+                      ) : (
+                        <Mic className="w-3.5 h-3.5 text-amber-400" />
+                      )}
+                      <span>
+                        {isLastCopiedDialogue
+                          ? 'Voice Terakhir Disalin! ✅'
+                          : isPreviouslyCopiedDialogue
+                          ? '✓ Voice Sudah Disalin'
+                          : 'Copy Voiceover'}
+                      </span>
                     </button>
 
-                    {/* Copy Video Prompt Button - Unified Prompt + Full 10s Dialogue */}
+                    {/* Copy Video Prompt Button - PERSISTENT STATE: Never resets to default! */}
                     <button
                       type="button"
                       onClick={() => handleCopyPrompt(scene.video_prompt, idx)}
                       title="Salin prompt lengkap (mencakup naskah percakapan English full 10s, kunci objek mobil, karakter anak, dan camera motion)"
                       className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-md ${
-                        isCopiedPrompt
-                          ? 'bg-emerald-600 text-white shadow-emerald-900/50 scale-[1.02]'
+                        isLastCopiedPrompt
+                          ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-900/50 ring-2 ring-emerald-400 scale-[1.02]'
+                          : isPreviouslyCopiedPrompt
+                          ? 'bg-emerald-950/90 hover:bg-emerald-900 text-emerald-300 border border-emerald-700/60'
                           : 'bg-gradient-to-r from-amber-600 via-orange-600 to-red-600 hover:from-amber-500 hover:to-orange-500 text-white shadow-amber-900/40'
                       }`}
                     >
-                      {isCopiedPrompt ? <Check className="w-3.5 h-3.5 text-emerald-100" /> : <Copy className="w-3.5 h-3.5" />}
-                      <span>{isCopiedPrompt ? 'Prompt & Percakapan Full 10s Tersalin! ✅' : 'Salin Prompt (Video + Dialog Full 10s)'}</span>
+                      {isLastCopiedPrompt ? (
+                        <>
+                          <Check className="w-3.5 h-3.5 text-emerald-100" />
+                          <span>✅ Terakhir Disalin (Scene {(idx + 1).toString().padStart(2, '0')})</span>
+                        </>
+                      ) : isPreviouslyCopiedPrompt ? (
+                        <>
+                          <Check className="w-3.5 h-3.5 text-emerald-400" />
+                          <span>✓ Sudah Disalin (Klik Ulang)</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3.5 h-3.5" />
+                          <span>Salin Prompt (Video + Dialog Full 10s)</span>
+                        </>
+                      )}
                     </button>
                   </div>
                 </div>
@@ -342,7 +524,11 @@ export const SceneFlowNode: React.FC<SceneFlowNodeProps> = ({
                   ) : (
                     <div
                       onClick={() => handleCopyPrompt(scene.video_prompt, idx)}
-                      className="p-3 rounded-lg bg-black/40 border border-white/10 hover:border-amber-500/50 cursor-pointer text-xs font-mono text-gray-200 leading-relaxed break-words transition-all group/code"
+                      className={`p-3 rounded-lg border cursor-pointer text-xs font-mono leading-relaxed break-words transition-all group/code ${
+                        isLastCopiedPrompt
+                          ? 'bg-emerald-950/30 border-emerald-500/80 text-emerald-200'
+                          : 'bg-black/40 border-white/10 hover:border-amber-500/50 text-gray-200'
+                      }`}
                       title="Klik untuk langsung copy prompt video"
                     >
                       {scene.video_prompt}

@@ -1,13 +1,252 @@
 """
-60 Unique Cinematic Story Episodes for Kids YouTube Video Remake.
+20 & 60 Unique Cinematic Story Episodes for Kids YouTube Video Remake.
 Organized into 8 Progressive Acts with:
 - 100% Unique Physical Stunts and Actions per Scene (No Repetition!)
 - Full 10-Second Continuous Spoken English Dialogue (22-28 words guaranteed, no dead air!)
 - Scene-Specific Contextual Sound Effects (SFX) matched 1:1 to the action
 - Movie-Grade Cinematic Visual Effects (VFX)
 - Narrative Story Link connecting every scene sequentially
-- Grand Climax & Warm Heartfelt Movie Ending (Penutup) in Scenes 58-60
+- Grand Climax & Warm Heartfelt Movie Ending (Penutup) in the Final Scene
 """
+
+# Dedicated 20-Scene Cohesive Cinematic Story Arc for Kids YouTube Video Remake (~3.3 Minutes)
+CINEMATIC_20_SCENE_ARC = [
+    # --- ACT 1: THE GRAND COUNTDOWN & SPEED LAUNCH (SCENES 1-5) ---
+    {
+        "scene_index": 1,
+        "act": "Act 1: The Grand Countdown & Launch",
+        "milestone": "Starting Grid & Countdown Rev",
+        "action": "At the starting line of {setting}, {product} revs its engine with playful glowing rounded headlights, while {subject} holds the rear bumper eagerly ready for the launch countdown.",
+        "dialogue": "Welcome friends to the greatest toy car rally ever! Look at our incredible {product_short} revving its engine at the starting gate! Let us count down together: three, two, one!",
+        "sfx": "[SFX: High-RPM engine throttle revs 'vroom-vroom!', digital countdown beeps 'beep-beep-BEEP!', eager toddler cheer 'Let us go!']",
+        "vfx": "Subtle heat haze shimmering above exhaust, warm morning playroom sunbeams, animated cartoon tachometer needle dancing",
+        "story_link": "High-energy countdown building anticipation toward the opening drop",
+        "is_closing": False
+    },
+    {
+        "scene_index": 2,
+        "act": "Act 1: The Grand Countdown & Launch",
+        "milestone": "Steep Ramp Launch Acceleration",
+        "action": "{product} rockets down the steep orange decline at blistering speed, tires spinning with smoke puffs as {subject} cheers enthusiastically from the sideline.",
+        "dialogue": "Green light! Off it rockets down the steep orange hill at lightning speed! Hold on tight, friends, this race is going to be super fast and exciting!",
+        "sfx": "[SFX: Rubber tires screeching 'skrrrt!', sudden whoosh of acceleration, energetic drum beat, child laughing loudly]",
+        "vfx": "Dynamic motion blur trailing behind wheels, white cartoon speed lines, soft carpet dust dispersion",
+        "story_link": "High velocity descent setting up the first high-speed curve",
+        "is_closing": False
+    },
+    {
+        "scene_index": 3,
+        "act": "Act 1: The Grand Countdown & Launch",
+        "milestone": "Hairpin Cone Drift",
+        "action": "{product} drifts smoothly around bright miniature traffic cones, tires gripping the track edge with animated cartoon sparks dancing off the outer rail.",
+        "dialogue": "Here comes the first sharp hairpin curve! Look at how smoothly our {product_short} drifts past the miniature cones without touching a single one, pure racing skill!",
+        "sfx": "[SFX: Lateral tire squeal 'squeeeak!', rhythmic engine acceleration, playful horn honk 'beep beep!']",
+        "vfx": "Sparks dancing along outer track rail, sweeping camera pan blur, reflective gloss shine on vehicle hood",
+        "story_link": "Flawless curve exit leading into straightaway speed lane",
+        "is_closing": False
+    },
+    {
+        "scene_index": 4,
+        "act": "Act 1: The Grand Countdown & Launch",
+        "milestone": "Straightaway Power Slide",
+        "action": "{product} power-slides onto the open straightaway towards the toy city boulevard, glossy body panels sparkling under playroom daylight as {subject} guides the wheels.",
+        "dialogue": "Straightening out with pure style and power! The shiny paint sparkles under the playroom lights as the toddler guides the wheels with joyful precision and confidence!",
+        "sfx": "[SFX: Deep engine purr, rapid tire rotation sound, joyful toddler giggles, cheerful playful soundtrack]",
+        "vfx": "Lens flare glint off front bumper, crisp 8K macro focus on spinning rim spokes, ambient room depth of field",
+        "story_link": "Momentum carries the vehicle directly toward the neon speed sensor",
+        "is_closing": False
+    },
+    {
+        "scene_index": 5,
+        "act": "Act 1: The Grand Countdown & Launch",
+        "milestone": "Neon Speed Gate Breach",
+        "action": "{product} blasts through the glowing neon speed sensor arch, triggering cheerful flashing LED rainbow lights that illuminate {setting}.",
+        "dialogue": "Blasting right through the neon speed gate! The sensors flash with cheerful colors as we hit top racing speed heading for the stunt obstacle arena right now!",
+        "sfx": "[SFX: Digital chime 'ding-ding-ding!', turbo exhaust pop 'bam!', energetic child shout 'Super fast!']",
+        "vfx": "Neon light streak reflection on vehicle body, colorful digital HUD speed rings expanding outward",
+        "story_link": "Entering the aerial stunt ramp sector with maximum velocity",
+        "is_closing": False
+    },
+
+    # --- ACT 2: THE AERIAL STUNT & BLOCK GAUNTLET (SCENES 6-8) ---
+    {
+        "scene_index": 6,
+        "act": "Act 2: The Aerial Stunt Arena",
+        "milestone": "Airborne 360 Stunt Leap",
+        "action": "{product} launches off the wooden ramp into mid-air, performing a breathtaking 360-degree aerial stunt jump soaring high above a colorful stack of rainbow building blocks.",
+        "dialogue": "Up into the sky it launches! Look at that breathtaking aerial flight high over the towering stack of colorful rainbow blocks, defying gravity with pure magic!",
+        "sfx": "[SFX: Suspension spring release 'BOING!', wind rush 'WHOOOOSH!', slow-motion heartbeat thud, child shouting 'Look at that!']",
+        "vfx": "Slow-motion apex freeze at maximum height, rainbow block colors reflecting on undercarriage, floating dust motes",
+        "story_link": "Gliding gracefully down toward the soft blue landing cushion",
+        "is_closing": False
+    },
+    {
+        "scene_index": 7,
+        "act": "Act 2: The Aerial Stunt Arena",
+        "milestone": "Four-Wheel Cushion Landing",
+        "action": "{product} makes a flawless four-wheel touchdown on the blue foam landing mat, rugged shock absorbers flexing smoothly with a gentle bounce.",
+        "dialogue": "Touchdown! What a flawless four-wheel landing on the soft bounce mat! The shock absorbers flex gently and bounce right back into the race without stopping!",
+        "sfx": "[SFX: Soft rubber thud 'THUMP!', suspension bounce squeak, triumphant child cheer 'Woohoo!', clapping hands]",
+        "vfx": "Puff of cushion compression dust, dynamic camera shake on impact, restored 24fps motion velocity",
+        "story_link": "Rolling off the mat into the building block slalom gauntlet",
+        "is_closing": False
+    },
+    {
+        "scene_index": 8,
+        "act": "Act 2: The Aerial Stunt Arena",
+        "milestone": "Block Slalom Maneuver",
+        "action": "{product} weaves swiftly left and right between towering pastel wooden blocks, tires kicking up imaginary cartoon dust plumes as {subject} steers eagerly.",
+        "dialogue": "Left swerve, right swerve! Precision steering in action as our brave racer zips past the tall wooden towers without knocking down a single colorful piece!",
+        "sfx": "[SFX: Rapid steering tire squeaks, light wooden clack resonance, toddler laughing 'Haha, made it!']",
+        "vfx": "Lateral camera whip pan, stylized cartoon wind streaks behind spoiler, dynamic tilt angle",
+        "story_link": "Exiting the block gauntlet directly toward the rainbow tunnel entrance",
+        "is_closing": False
+    },
+
+    # --- ACT 3: THE RAINBOW TUNNEL & TRANSITION (SCENES 9-10) ---
+    {
+        "scene_index": 9,
+        "act": "Act 3: The Rainbow Tunnel & Transition",
+        "milestone": "Rainbow Tunnel Entry",
+        "action": "{product} speeds into the arched entrance of the glowing rainbow tunnel, headlights illuminating the vibrant curved translucent walls with playful reflections.",
+        "dialogue": "Into the magical rainbow tunnel we go! The headlights glow brightly as glowing neon colors swirl all around us, making the whole room echo with cheerful racing sounds!",
+        "sfx": "[SFX: Tunnel echo reverb whoosh, humming neon LED buzz, happy horn honk 'beep-beep!']",
+        "vfx": "Psychedelic rainbow light refractions dancing across car roof, atmospheric volumetric glow",
+        "story_link": "Racing through the glowing subterranean section toward the sunlight exit",
+        "is_closing": False
+    },
+    {
+        "scene_index": 10,
+        "act": "Act 3: The Rainbow Tunnel & Transition",
+        "milestone": "Sunlight Tunnel Exit Burst",
+        "action": "{product} bursts out from the tunnel portal back into the bright sunlit playroom, glossy paint sparkling as {subject} claps hands enthusiastically.",
+        "dialogue": "Bursting back out into the bright sunshine at top speed! The shiny red body sparkles brilliantly under the cozy sunlit room as the little wheels roll on!",
+        "sfx": "[SFX: Echo fades into crisp daylight acoustic, rapid engine throttle rev, cheerful child giggle]",
+        "vfx": "Blinding lens flare bloom on tunnel exit, lens sparkle starbursts, restored vivid daylight color palette",
+        "story_link": "Entering the rugged terrain obstacle zone ahead",
+        "is_closing": False
+    },
+
+    # --- ACT 4: RUGGED OBSTACLE CHALLENGE (SCENES 11-12) ---
+    {
+        "scene_index": 11,
+        "act": "Act 4: The Rugged Obstacle Challenge",
+        "milestone": "Kinetic Sand Mountain Climb",
+        "action": "{product} attacks the steep purple kinetic sand mountain, oversized off-road tire treads digging firmly into the textured sand as engine hums with power.",
+        "dialogue": "Uh-oh, a bumpy purple sand mountain stands in our way! Watch those rugged oversized tires dig deep into the soft sand, climbing up inch by inch!",
+        "sfx": "[SFX: Deep low-frequency engine chug, kinetic sand crunch 'shhhk-crunch!', determined toddler grunt 'Go, go, go!']",
+        "vfx": "Particles of kinetic sand spraying from rear wheels, macro close-up depth of field on rubber treads",
+        "story_link": "Reaching the summit and rolling onto the suspension bridge",
+        "is_closing": False
+    },
+    {
+        "scene_index": 12,
+        "act": "Act 4: The Rugged Obstacle Challenge",
+        "milestone": "Suspension Bridge Crossing",
+        "action": "{product} drives carefully across the swaying wooden suspension bridge, planks clattering rhythmically as {subject} stabilizes the guide rail with gentle fingers.",
+        "dialogue": "Careful now across the wooden suspension bridge! The planks rattle with a friendly click-clack sound under the sturdy rubber wheels as the toddler guides with patience!",
+        "sfx": "[SFX: Wooden plank rhythmic clatter 'clack-clack-clack!', bridge rope creak, proud child whisper 'Almost across!']",
+        "vfx": "Gentle rope bridge sway physics, soft wooden splinters and warm shadows beneath planks",
+        "story_link": "Crossing to the opposite ledge heading toward the 360 loop",
+        "is_closing": False
+    },
+
+    # --- ACT 5: THE STUNT HEIGHTS & MEGA LOOP (SCENES 13-14) ---
+    {
+        "scene_index": 13,
+        "act": "Act 5: The Stunt Heights & Mega Loop",
+        "milestone": "Vertical 360 Loop Upside-Down",
+        "action": "{product} rockets upside-down through the top arch of a giant 360-degree vertical loop, child in background watching upside down with huge smiling eyes.",
+        "dialogue": "Upside down it goes right through the giant looping track! Defying gravity with pure style and coming out perfectly on the other side with a huge champion smile!",
+        "sfx": "[SFX: Centrifugal loop whoosh 'VRRRRR-SWOOSH!', engine crescendo, child gasping in delight 'Woooow!']",
+        "vfx": "Circular motion blur following track contour, dynamic camera roll matching car inversion, speed lines",
+        "story_link": "Momentum shoots car out of loop into the base of the spiral tower",
+        "is_closing": False
+    },
+    {
+        "scene_index": 14,
+        "act": "Act 5: The Stunt Heights & Mega Loop",
+        "milestone": "Spiral Staircase Tower Climb",
+        "action": "{product} banks into the upward spiral tower, circling continuously around the colorful helix track as camera tracks from overhead in a bird's-eye sweep.",
+        "dialogue": "Round and round up the dizzying spiral tower track! Climbing higher and higher toward the playroom ceiling as the little engine sings with pure energetic power!",
+        "sfx": "[SFX: Rhythmic looping engine pitch climbing higher, playful carnival chime, toddler giggling]",
+        "vfx": "Rotating overhead bird's-eye camera shot, spiral blur on outer rails, soft ambient room reflections",
+        "story_link": "Reaching top balcony ready for the descent hazard zone",
+        "is_closing": False
+    },
+
+    # --- ACT 6: HAZARDS & PRECISION SLALOM (SCENES 15-16) ---
+    {
+        "scene_index": 15,
+        "act": "Act 6: Hazards & Precision Slalom",
+        "milestone": "Water Splash Hazard Puddle",
+        "action": "{product} splashes through a miniature blue water pool zone on the playroom floor, sending crystal droplets and blue plastic balls scattering cheerfully.",
+        "dialogue": "Splash! Right through the sunny water splash puddle! Watch the sparkling droplets fly as our waterproof champion keeps rolling forward with unstoppable energy and bright happy spirit!",
+        "sfx": "[SFX: Water splash 'SPLAAASH!', wet tire spin squeak, child laughing out loud 'Haha, so wet!']",
+        "vfx": "Slow-motion water droplet spray glistening in sunlight, water ripples reflecting playroom lamps",
+        "story_link": "Tires dry instantly on the rug heading straight into the standing dominoes",
+        "is_closing": False
+    },
+    {
+        "scene_index": 16,
+        "act": "Act 6: Hazards & Precision Slalom",
+        "milestone": "Standing Domino Maze Slalom",
+        "action": "{product} weaves with masterclass precision through hundreds of upright rainbow domino tiles, grazing millimeters past them without toppling a single piece.",
+        "dialogue": "Incredible precision driving through the domino maze! Swerving left and right with millimeter accuracy without toppling even one colorful domino, absolute masterclass driving skill!",
+        "sfx": "[SFX: Gentle domino tile tap 'tick!', nimble tire drift, tense child intake of breath, then joyful gasp]",
+        "vfx": "Ultra-shallow depth of field highlighting domino line foreground, crisp focus on razor-thin clearances",
+        "story_link": "Clearing the last domino into the championship sprint lane",
+        "is_closing": False
+    },
+
+    # --- ACT 7: THE GRAND DUEL & APEX STUNT (SCENES 17-18) ---
+    {
+        "scene_index": 17,
+        "act": "Act 7: The Grand Climax & Apex Stunt",
+        "milestone": "Side-by-Side Rival Duel Sprint",
+        "action": "{product} races wheel-to-wheel alongside a rival miniature toy sports car, engines roaring in unison as {subject} watches with thrilling anticipation.",
+        "dialogue": "It is a side-by-side sprint against the rival racer! Both cars are neck and neck, engines roaring at maximum speed as we approach the final mega ramp!",
+        "sfx": "[SFX: Dual engine roar harmonize, wind shear, exciting uptempo percussion, child cheering 'Go red car, go!']",
+        "vfx": "Split-frame dynamic speed lines, tire smoke puffs, synchronized motion blur across both vehicles",
+        "story_link": "Our hero car hits turbo boost pulling ahead onto the ramp lip",
+        "is_closing": False
+    },
+    {
+        "scene_index": 18,
+        "act": "Act 7: The Grand Climax & Apex Stunt",
+        "milestone": "Mega Ramp Apex Leap",
+        "action": "{product} blasts off the apex of the giant mega ramp, soaring high across the entire playroom with cartoon sparkles trailing wheels in majestic slow-motion.",
+        "dialogue": "Full throttle off the mega ramp! Look at that unbelievable airborne stunt jump soaring through the sky in majestic slow-motion! The biggest jump in racing history!",
+        "sfx": "[SFX: Mighty suspension spring pop, wind rush 'WHOOOOOOSH!', cinematic slow-mo bass drop, child screaming in delight]",
+        "vfx": "Dramatic slow-motion apex freeze, golden volumetric sunbeams illuminating every glossy decal in 8K detail",
+        "story_link": "Landing gracefully onto the finish line straightaway",
+        "is_closing": False
+    },
+
+    # --- ACT 8: THE GRAND FINALE & MEMORABLE PENUTUP (SCENES 19-20) ---
+    {
+        "scene_index": 19,
+        "act": "Act 8: The Grand Finale & Penutup",
+        "milestone": "Victory Finish Line & Trophy",
+        "action": "{product} crosses the checkered finish line amidst an explosion of rainbow confetti, parking proudly on the winner's podium as {subject} hoists the golden toy trophy.",
+        "dialogue": "Across the finish line it zooms! The checkered flag drops and colorful confetti explodes everywhere as our champion takes first place on the winner's podium with the golden trophy!",
+        "sfx": "[SFX: Checkered flag swoosh, confetti cannon pop 'POP-POP-POP!', victory fanfare trumpet, roaring child cheer 'We won!']",
+        "vfx": "Thousands of glittering rainbow confetti particles drifting across screen, trophy lens flare starbursts",
+        "story_link": "The warm final farewell and movie closing to viewers",
+        "is_closing": False
+    },
+    {
+        "scene_index": 20,
+        "act": "Act 8: The Grand Finale & Penutup",
+        "milestone": "PENUTUP: Heartfelt Movie Farewell",
+        "action": "In a warm emotional close-up, {subject} holds {product} gently in two hands, looking straight into the camera lens with a loving smile and waving goodbye as the scene fades into a warm sunset glow.",
+        "dialogue": "Thank you so much for joining our grand toy car adventure today, best friends! You are all champions! Keep playing, keep smiling, and see you next time! Bye-bye!",
+        "sfx": "[SFX: Warm acoustic lullaby melody, child saying 'Bye-bye friends!', gentle horn beep 'beep-beep', closing applause]",
+        "vfx": "Heartfelt close-up of child holding toy car and waving goodbye directly to camera, soft warm vignette fade, movie ending credits atmosphere",
+        "story_link": "Grand movie ending (penutup), story complete",
+        "is_closing": True
+    }
+]
 
 CINEMATIC_STORY_EPISODES = [
     # --- ACT 1: THE GRAND COUNTDOWN & LAUNCH (SCENES 1-5) ---
@@ -686,3 +925,4 @@ CINEMATIC_STORY_EPISODES = [
         "is_closing": True
     }
 ]
+

@@ -55,14 +55,14 @@ def analyze_uploaded_image(
             
             prompt = """
 You are a Lead Character & Toy Designer for world-class Kids YouTube 3D animated content.
-Analyze this uploaded reference photo of a toy car, vehicle, or child character for strict visual continuity across 60 sequential video generation scenes.
+Analyze this uploaded reference photo of a toy car, vehicle, or child character for strict visual continuity across 20 sequential video generation scenes.
 
 Output ONLY a valid JSON object:
 {
   "product_name": "Accurate name of the toy car / character (e.g. Red Fire Monster Truck with oversized rugged tires)",
   "category": "Kids Toy Play / Cartoon Car Adventure",
   "visual_description": "Extremely detailed visual breakdown: exact color palette (e.g. crimson red glossy body with bright lemon yellow flame decals), wheel diameter, tread pattern, headlight shape, materials",
-  "recommended_anchor_product": "Locked description of this toy car to ensure 100% visual identity in all 60 AI video scenes without morphing",
+  "recommended_anchor_product": "Locked description of this toy car to ensure 100% visual identity in all 20 AI video scenes without morphing",
   "recommended_anchor_subject": "Description of the child character (e.g. 4-year-old toddler in colorful playwear with joyful expressive smile)",
   "recommended_setting": "Playful kids room track setting (e.g. Bright playroom floor with orange race loops, wooden bridges, and colorful stacking blocks)",
   "detected_text": "Any numbers, logos, or text visible on the toy"

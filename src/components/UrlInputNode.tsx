@@ -64,7 +64,7 @@ export const UrlInputNode: React.FC<UrlInputNodeProps> = ({
               <h2 className="text-base font-bold text-white">Input Link Video YouTube Anak (Main Mobil / Kartun)</h2>
             </div>
             <p className="text-xs text-gray-400">
-              Copas link video YT orang lain yang ingin dibuat ulang versinya (sampai 60 scene prompt konsisten)
+              Copas link video YT orang lain yang ingin dibuat ulang versinya (20 scene prompt alur bersambung)
             </p>
           </div>
         </div>
@@ -198,7 +198,7 @@ export const UrlInputNode: React.FC<UrlInputNodeProps> = ({
                     Target Alur Scene 10 Detik:
                   </span>
                   <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30">
-                    {Math.min(60, Math.max(1, Math.ceil(metadata.duration / 10)))} Scene (Maksimal 60)
+                    {Math.min(20, Math.max(1, Math.ceil(metadata.duration / 10)))} Scene (Maksimal 20)
                   </span>
                 </div>
               </div>

@@ -48,7 +48,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
       result += generateYouTubeKitText();
       result += `====================================================================\n\n`;
     }
-    result += `=== IMZY TOOLS YT - KIDS 60-SCENE VIDEO FLOW (ENGLISH CONTINUOUS SCRIPT) ===\n`;
+    result += `=== IMZY TOOLS YT - KIDS ${scenes.length}-SCENE VIDEO FLOW (ENGLISH CONTINUOUS SCRIPT) ===\n`;
     result += `Video Reference: ${metadata?.title || 'Kids YouTube Video'}\n`;
     result += `Total Scenes: ${scenes.length} (Full 10-Second Continuous Spoken English)\n`;
     result += `Object & Character Locking: 100% Consistent\n\n`;
@@ -129,7 +129,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `imzy-tools-yt-60scenes-${metadata?.id || 'export'}.json`;
+    a.download = `imzy-tools-yt-${scenes.length}scenes-${metadata?.id || 'export'}.json`;
     a.click();
     URL.revokeObjectURL(url);
   };

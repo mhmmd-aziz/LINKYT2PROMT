@@ -30,8 +30,8 @@ export const ConsistencyNode: React.FC<ConsistencyNodeProps> = ({
   hasUploadedImage
 }) => {
   const rawScenes = Math.max(1, Math.ceil(duration / (sceneDuration || 10)));
-  const totalCalculatedScenes = Math.min(60, rawScenes);
-  const isCapped = rawScenes > 60;
+  const totalCalculatedScenes = Math.min(20, rawScenes);
+  const isCapped = rawScenes > 20;
 
   return (
     <div className="relative rounded-2xl bg-[#16171c] border border-white/10 p-5 sm:p-6 shadow-xl transition-all">
@@ -46,28 +46,28 @@ export const ConsistencyNode: React.FC<ConsistencyNodeProps> = ({
               <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-white/5 text-gray-400 border border-white/10">
                 NODE 03
               </span>
-              <h2 className="text-base font-bold text-white">Konsistensi Mobil Mainan & Karakter (Versi 60 Scene)</h2>
+              <h2 className="text-base font-bold text-white">Konsistensi Mobil Mainan & Karakter (Versi 20 Scene)</h2>
             </div>
             <p className="text-xs text-gray-400">
-              Satu scene 10 detik penuh, mobil dan tokoh anak konsisten 100% dari scene 1 hingga scene 60
+              Satu scene 10 detik penuh, mobil dan tokoh anak konsisten 100% dari scene 1 hingga scene 20
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
           <span className="text-[11px] font-mono px-3 py-1 rounded-full bg-blue-500/15 border border-blue-500/30 text-blue-300 font-semibold">
-            {totalCalculatedScenes} Scene {isCapped ? '(Max 60 Capped)' : ''} ({sceneDuration}s / scene)
+            {totalCalculatedScenes} Scene {isCapped ? '(Max 20 Capped)' : ''} ({sceneDuration}s / scene)
           </span>
         </div>
       </div>
 
       <div className="space-y-4">
-        {/* Max 60 Scene Notice if video is longer */}
+        {/* Max 20 Scene Notice if video is longer */}
         {isCapped && (
           <div className="p-3 rounded-xl bg-amber-950/30 border border-amber-800/40 text-amber-300 text-xs flex items-center gap-2">
             <AlertTriangle className="w-4 h-4 shrink-0 text-amber-400" />
             <p>
-              Video berdurasi {Math.floor(duration/60)}m {Math.floor(duration%60)}s ({rawScenes} segmen). Sistem membatasi tepat <strong>maksimal 60 scene prompt (10 menit alur video anak)</strong> agar cerita terstruktur rapi dan konsisten.
+              Video berdurasi {Math.floor(duration/60)}m {Math.floor(duration%60)}s ({rawScenes} segmen). Sistem menyusun cerita menjadi tepat <strong>20 scene prompt (alur video anak bersambung)</strong> agar cerita fokus, padat, dan konsisten.
             </p>
           </div>
         )}

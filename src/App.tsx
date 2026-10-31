@@ -60,7 +60,7 @@ export const App: React.FC = () => {
     style: 'Cinematic 3D Pixar animation aesthetic, 8K ultra-vibrant saturated colors, warm soft playroom lighting, realistic glossy toy textures, 24fps smooth motion'
   });
 
-  // Generated Scenes (Max 60 Scenes) & Viral YouTube Kit
+  // Generated Scenes (Max 20 Scenes) & Viral YouTube Kit
   const [generating, setGenerating] = useState<boolean>(false);
   const [scenes, setScenes] = useState<ScenePromptItem[]>([]);
   const [youtubePackage, setYoutubePackage] = useState<YouTubePackage | null>(null);
@@ -253,7 +253,7 @@ export const App: React.FC = () => {
             <span>DeepSeek-V4.1-Flash • Continuous 10s English Storyboard</span>
           </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
-            Video YouTube Anak ➔ 60 Scene Percakapan English Full 10s Bersambung
+            Video YouTube Anak ➔ 20 Scene Percakapan English Full 10s Bersambung
           </h2>
           <p className="text-xs sm:text-sm text-gray-400 max-w-2xl mx-auto leading-relaxed">
             Satu scene <span className="text-emerald-400 font-semibold">full 10 detik percakapan English tanpa jeda kosong</span> dan <span className="text-amber-400 font-semibold">alur bersambung di setiap scene</span>. Objek mobil mainan & tokoh anak dikunci 100% konsisten tanpa morphing!
@@ -299,7 +299,7 @@ export const App: React.FC = () => {
           </div>
         </div>
 
-        {/* COMBINED ACTION CTA: Analisis Video YT + Foto Mainan & Buat 60 Scene Prompt Konsisten */}
+        {/* COMBINED ACTION CTA: Analisis Video YT + Foto Mainan & Buat 20 Scene Prompt Konsisten */}
         {metadata && (
           <div className="relative p-5 sm:p-6 rounded-2xl bg-gradient-to-r from-[#1b1510] via-[#1c1412] to-[#17121b] border-2 border-amber-500/40 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4 animate-in fade-in duration-200">
             <div className="space-y-1.5 flex-1">
@@ -313,10 +313,10 @@ export const App: React.FC = () => {
               <p className="text-sm font-bold text-white leading-snug">
                 {imagePreview
                   ? `Mobil Mainan "${imageAnalysis?.product_name || 'Foto Terdeteksi'}" diselaraskan ke alur video "${metadata.title.slice(0, 50)}..."`
-                  : 'Upload 1 foto mobil mainan di Node 02 di atas agar model dan warna mobilmu terkunci 100% konsisten di seluruh 60 scene.'}
+                  : 'Upload 1 foto mobil mainan di Node 02 di atas agar model dan warna mobilmu terkunci 100% konsisten di seluruh 20 scene.'}
               </p>
               <p className="text-xs text-gray-400 leading-relaxed">
-                Menghasilkan alur 60 scene bersambung dengan <span className="text-emerald-400 font-semibold">percakapan English full 10 detik tanpa jeda kosong</span> dan tombol salin prompt siap pakai untuk Google Flow / Veo / Kling.
+                Menghasilkan alur 20 scene bersambung dengan <span className="text-emerald-400 font-semibold">percakapan English full 10 detik tanpa jeda kosong</span> dan tombol salin prompt siap pakai untuk Google Flow / Veo / Kling.
               </p>
             </div>
 
@@ -329,19 +329,19 @@ export const App: React.FC = () => {
               {generating ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  <span>Menganalisis & Menyusun 60 Scene...</span>
+                  <span>Menganalisis & Menyusun 20 Scene...</span>
                 </>
               ) : (
                 <>
                   <Car className="w-4 h-4 text-white" />
-                  <span>{imagePreview ? '🚀 Analisis Video + Foto & Buat 60 Scene AI Prompt' : '🚀 Buat 60 Scene AI Prompt Konsisten'}</span>
+                  <span>{imagePreview ? '🚀 Analisis Video + Foto & Buat 20 Scene AI Prompt' : '🚀 Buat 20 Scene AI Prompt Konsisten'}</span>
                 </>
               )}
             </button>
           </div>
         )}
 
-        {/* FLOW NODE 03: Consistency & 10s Scene Controls (Max 60 Scenes) */}
+        {/* FLOW NODE 03: Consistency & 10s Scene Controls (Max 20 Scenes) */}
         <div className="relative">
           <ConsistencyNode
             duration={metadata?.duration || 0}
