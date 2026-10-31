@@ -272,11 +272,11 @@ Respond ONLY with a valid JSON array of 20 objects (pure JSON, no markdown forma
             payload = {
                 "model": target_model,
                 "messages": [
-                    {"role": "system", "content": "You are a world-class kids video director and English scriptwriter. Always reply with a valid JSON array."},
+                    {"role": "system", "content": "You are a world-class kids video director and English scriptwriter. Directly output the valid JSON array of 20 scenes without markdown or preamble."},
                     {"role": "user", "content": system_prompt}
                 ],
-                "temperature": 0.5,
-                "max_tokens": 4096
+                "temperature": 0.4,
+                "max_tokens": 8192
             }
             try:
                 print(f"[DeepSeek] Mengirim permintaan 20-scene ke Token Harbor (model: {target_model})...")
@@ -284,16 +284,19 @@ Respond ONLY with a valid JSON array of 20 objects (pure JSON, no markdown forma
                     resp = client.post(TOKENHARBOR_URL, headers=headers, json=payload)
                     if resp.status_code == 200:
                         data = resp.json()
-                        content = data.get("choices", [{}])[0].get("message", {}).get("content", "").strip()
-                        if content.startswith("```json"):
-                            content = content[7:]
-                        if content.startswith("```"):
-                            content = content[3:]
-                        if content.endswith("```"):
-                            content = content[:-3]
-                        parsed = json.loads(content.strip())
-                        print(f"[DeepSeek] Berhasil menghasilkan {len(parsed)} scene dari Token Harbor ({target_model})! 🟢")
-                        return parsed
+                        choice = data.get("choices", [{}])[0]
+                        content = choice.get("message", {}).get("content", "").strip()
+                        
+                        # Robust JSON array extraction
+                        start_bracket = content.find('[')
+                        end_bracket = content.rfind(']')
+                        if start_bracket != -1 and end_bracket != -1 and end_bracket > start_bracket:
+                            clean_json = content[start_bracket:end_bracket+1]
+                            parsed = json.loads(clean_json)
+                            print(f"[DeepSeek] Berhasil menghasilkan {len(parsed)} scene dari Token Harbor ({target_model})! 🟢")
+                            return parsed
+                        else:
+                            print(f"[Token Harbor] JSON array tidak ditemukan dalam output content: {content[:200]}")
                     elif resp.status_code == 402:
                         print(f"[Token Harbor] Model {target_model} membutuhkan balance, mencoba fallback free model...")
                         continue
@@ -312,11 +315,11 @@ Respond ONLY with a valid JSON array of 20 objects (pure JSON, no markdown forma
         payload = {
             "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
             "messages": [
-                {"role": "system", "content": "You are a world-class kids video director and English scriptwriter. Always reply with a valid JSON array."},
+                {"role": "system", "content": "You are a world-class kids video director and English scriptwriter. Directly output the valid JSON array of 20 scenes without markdown or preamble."},
                 {"role": "user", "content": system_prompt}
             ],
-            "temperature": 0.5,
-            "max_tokens": 4096
+            "temperature": 0.4,
+            "max_tokens": 8192
         }
         try:
             print(f"[DeepSeek] Mengirim permintaan 20-scene ke Hugging Face DeepSeek-V4.1-Flash...")
@@ -325,15 +328,12 @@ Respond ONLY with a valid JSON array of 20 objects (pure JSON, no markdown forma
                 if resp.status_code == 200:
                     data = resp.json()
                     content = data.get("choices", [{}])[0].get("message", {}).get("content", "").strip()
-                    if content.startswith("```json"):
-                        content = content[7:]
-                    if content.startswith("```"):
-                        content = content[3:]
-                    if content.endswith("```"):
-                        content = content[:-3]
-                    parsed = json.loads(content.strip())
-                    print(f"[DeepSeek] Berhasil menghasilkan {len(parsed)} scene dari DeepSeek-V4.1-Flash! 🟢")
-                    return parsed
+                    start_bracket = content.find('[')
+                    end_bracket = content.rfind(']')
+                    if start_bracket != -1 and end_bracket != -1 and end_bracket > start_bracket:
+                        parsed = json.loads(content[start_bracket:end_bracket+1])
+                        print(f"[DeepSeek] Berhasil menghasilkan {len(parsed)} scene dari DeepSeek-V4.1-Flash! 🟢")
+                        return parsed
                 else:
                     print(f"[DeepSeek HF Error] Status {resp.status_code}: {resp.text}")
         except Exception as e:
@@ -347,11 +347,11 @@ Respond ONLY with a valid JSON array of 20 objects (pure JSON, no markdown forma
         payload = {
             "model": "deepseek-chat",
             "messages": [
-                {"role": "system", "content": "You are a world-class kids video director and English scriptwriter. Always reply with a valid JSON array."},
+                {"role": "system", "content": "You are a world-class kids video director and English scriptwriter. Directly output the valid JSON array of 20 scenes without markdown or preamble."},
                 {"role": "user", "content": system_prompt}
             ],
-            "temperature": 0.5,
-            "max_tokens": 4096
+            "temperature": 0.4,
+            "max_tokens": 8192
         }
         try:
             print(f"[DeepSeek] Mengirim permintaan 20-scene ke Official DeepSeek API...")
@@ -360,15 +360,12 @@ Respond ONLY with a valid JSON array of 20 objects (pure JSON, no markdown forma
                 if resp.status_code == 200:
                     data = resp.json()
                     content = data.get("choices", [{}])[0].get("message", {}).get("content", "").strip()
-                    if content.startswith("```json"):
-                        content = content[7:]
-                    if content.startswith("```"):
-                        content = content[3:]
-                    if content.endswith("```"):
-                        content = content[:-3]
-                    parsed = json.loads(content.strip())
-                    print(f"[DeepSeek] Berhasil menghasilkan {len(parsed)} scene dari DeepSeek Official! 🟢")
-                    return parsed
+                    start_bracket = content.find('[')
+                    end_bracket = content.rfind(']')
+                    if start_bracket != -1 and end_bracket != -1 and end_bracket > start_bracket:
+                        parsed = json.loads(content[start_bracket:end_bracket+1])
+                        print(f"[DeepSeek] Berhasil menghasilkan {len(parsed)} scene dari DeepSeek Official! 🟢")
+                        return parsed
                 else:
                     print(f"[DeepSeek Official Error] Status {resp.status_code}: {resp.text}")
         except Exception as e:
